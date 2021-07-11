@@ -54,7 +54,7 @@ class ApplicationState:
 # TODO make something like this that will pull up the side file menu
 def get_statusbar_text() -> None:
     """Gets status bar opens menu"""
-    return " Press Ctrl-H to open menu. "
+    return " Press Ctrl-K to open menu. "
 
 
 def get_statusbar_right_text() -> None:
@@ -186,8 +186,7 @@ class MessageDialog(PopUpDialog):
             """Future object when done return None"""
             self.future.set_result(None)
 
-        # changed text from OK to see where this is
-        ok_button = Button(text="OK_Msg_Dialog", handler=(lambda: set_done()))
+        ok_button = Button(text="OK", handler=(lambda: set_done()))
 
         self.dialog = Dialog(
             title=title,
@@ -229,9 +228,9 @@ body = HSplit(
 bindings = KeyBindings()
 
 
-@bindings.add("c-h")
+@bindings.add("c-k")
 def open_menu(event: KeyPressEvent) -> None:
-    """Focus menu with Ctrl-C"""
+    """Focus menu with Ctrl-K"""
     event.app.layout.focus(root_container.window)
 
 
