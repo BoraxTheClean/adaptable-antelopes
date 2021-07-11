@@ -11,10 +11,12 @@ from prompt_toolkit.layout import (
     CompletionsMenu,
     Float,
     FloatContainer,
+    FormattedTextControl,
     HSplit,
     Layout,
     ScrollablePane,
     VSplit,
+    Window,
 )
 from prompt_toolkit.widgets import Button, Frame, Label
 
@@ -55,12 +57,21 @@ class ScrollableMenu:
             target_dir (str): target's directory
         """
         if isfile(join(target_dir, target_content)):
-            pass
+            # open file's content
+            with open(join(target_dir, target_content), "r") as f:
+                file_content = f.read()
+            # Remove any object that isn't HSplit
+            self.body.children = list(
+                filter(lambda x: type(x) == HSplit, self.body.children)
+            )
+            # Prepend the file_content to the body
+            self.body.children.insert(
+                0, Window(content=FormattedTextControl(file_content))
+            )
         elif isdir(join(target_dir, target_content)):
             pass
         else:
             raise ValueError("The target' content is neither a file or directory")
-        return
 
 
 def setup_key_bindings() -> KeyBindings:
