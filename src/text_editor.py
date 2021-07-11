@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """A simple example of a Notepad-like text editor."""
 import datetime
+import os
 from asyncio import Future, ensure_future
 
 from prompt_toolkit.application import Application
@@ -49,12 +50,12 @@ class ApplicationState:
 
 
 # TODO make something like this that will pull up the side file menu
-def get_statusbar_text() -> None:
+def get_statusbar_text() -> str:
     """Gets status bar opens menu"""
     return " Press Ctrl-H to open menu. "
 
 
-def get_statusbar_right_text() -> None:
+def get_statusbar_right_text() -> str:
     """Get status bar for the right text?"""
     return " {}:{}  ".format(
         text_field.document.cursor_position_row + 1,
@@ -139,8 +140,18 @@ class ScrollMenuDialog(PopUpDialog):
             """Future object when done return None"""
             self.future.set_result(None)
 
+        def set_fname() -> str:
+            self.future.set_result(None)
+
         # changed text from OK to see where this is
         ok_button = Button(text="OK", handler=(lambda: set_done()))
+        notes_path = "../Notes"
+        if os.path.isdir(notes_path):
+            path = os.getcwd()
+            f_names = os.listdir(path + "/Notes")
+        else:
+            os.mkdir(notes_path)
+            f_names = ["empty", "poop"]
 
         self.dialog = Dialog(
             title=title,
@@ -152,12 +163,11 @@ class ScrollMenuDialog(PopUpDialog):
                             HSplit(
                                 [
                                     Frame(
-                                        TextArea(
-                                            text=f"label-{i}",
-                                            # completer=animal_completer,
+                                        Button(
+                                            text=f"{i}", handler=(lambda: set_fname())
                                         )
                                     )
-                                    for i in range(20)
+                                    for i in f_names
                                 ]
                             )
                         ),
@@ -422,6 +432,7 @@ root_container = MenuContainer(
             children=[
                 MenuItem("New...", handler=do_new_file),
                 MenuItem("Open...", handler=do_open_file),
+                MenuItem("Scroll Open", handler=do_scroll_menu),
                 # TODO add save functionality implement do_save and do_save as
                 MenuItem("Save"),
                 MenuItem("Save as..."),
