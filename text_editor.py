@@ -8,6 +8,7 @@ from prompt_toolkit.application.current import get_app
 from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.layout import ScrollablePane
 from prompt_toolkit.layout.containers import (
     ConditionalContainer, Float, HSplit, VSplit, Window, WindowAlign
 )
@@ -19,7 +20,8 @@ from prompt_toolkit.lexers import DynamicLexer, PygmentsLexer
 from prompt_toolkit.search import start_search
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import (
-    Button, Dialog, Label, MenuContainer, MenuItem, SearchToolbar, TextArea
+    Button, Dialog, Frame, Label, MenuContainer, MenuItem, SearchToolbar,
+    TextArea
 )
 
 
@@ -62,12 +64,14 @@ text_field = TextArea(
 )
 
 
-class TextInputDialog:
-    """
-    Text Input for the open dialog box
+class PopUpDialog:
+    """For type annotation of Dialog box classes"""
 
-    future, text_area, dialog
-    """
+    pass
+
+
+class TextInputDialog(PopUpDialog):
+    """Text Input for the open dialog box"""
 
     # unsure for type of completer guessing pathcompleter
     def __init__(self, title: str = "", label_text: str = "", completer: PathCompleter = None):
@@ -109,12 +113,52 @@ class TextInputDialog:
         return self.dialog
 
 
-class MessageDialog:
-    """
-    Another Dialog wrapper im guessing i still don't know
+# TODO this thing
 
-    self.future self.dialog
-    """
+class ScrollMenuDialog(PopUpDialog):
+    """Scroll menu added to the info tab dialog box"""
+
+    def __init__(self, title: str, text: str):
+        self.future = Future()
+
+        def set_done() -> None:
+            """Future object when done return None"""
+            self.future.set_result(None)
+
+        # changed text from OK to see where this is
+        ok_button = Button(text="OK", handler=(lambda: set_done()))
+
+        self.dialog = Dialog(
+            title=title,
+            body=HSplit([
+                Label("ScrollContainer Demo"),
+                Frame(
+                    ScrollablePane(
+                        HSplit(
+                            [
+                                Frame(
+                                    TextArea(
+                                        text=f"label-{i}",
+                                        # completer=animal_completer,
+                                    )
+                                )
+                                for i in range(20)
+                            ]
+                        )
+                    ),
+                ),
+            ]),
+            buttons=[ok_button],
+            width=D(preferred=80),
+            modal=True,
+        )
+
+    def __pt_container__(self):
+        return self.dialog
+
+
+class MessageDialog(PopUpDialog):
+    """About tab dialog box"""
 
     def __init__(self, title: str, text: str):
         self.future = Future()
@@ -200,13 +244,28 @@ def do_open_file() -> None:
     ensure_future(coroutine())
 
 
+def do_scroll_menu() -> None:
+    """Open Scroll Menu"""
+    show_scroll("Scroll", 'buf')
+
+
+def show_scroll(title: str, text: str) -> None:
+    """Shows about message"""
+
+    async def coroutine() -> None:
+        dialog = ScrollMenuDialog(title, text)
+        await show_dialog_as_float(dialog)
+
+    ensure_future(coroutine())
+
+
 def do_about() -> None:
     """About from menu select"""
     show_message("About", "Text editor demo.\nCreated by Jonathan Slenders.")
 
 
 def show_message(title: str, text: str) -> None:
-    """Makes messagedialog obj and waits for???"""
+    """Shows about message"""
 
     async def coroutine() -> None:
         dialog = MessageDialog(title, text)
@@ -215,7 +274,7 @@ def show_message(title: str, text: str) -> None:
     ensure_future(coroutine())
 
 
-async def show_dialog_as_float(dialog: MessageDialog) -> None:
+async def show_dialog_as_float(dialog: PopUpDialog) -> None:
     """Coroutine what does it return idk? the messageDialogs future result which is None?"""
     float_ = Float(content=dialog)
     root_container.floats.insert(0, float_)
@@ -372,7 +431,8 @@ root_container = MenuContainer(
         ),
         MenuItem(
             "Info",
-            children=[MenuItem("About", handler=do_about)],
+            children=[MenuItem("About", handler=do_about),
+                      MenuItem("Scroll", handler=do_scroll_menu)],
         ),
     ],
     floats=[
