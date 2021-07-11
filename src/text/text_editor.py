@@ -8,7 +8,6 @@ from prompt_toolkit.application.current import get_app
 from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.layout import ScrollablePane
 from prompt_toolkit.layout.containers import (
     ConditionalContainer,
     Float,
@@ -27,13 +26,15 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import (
     Button,
     Dialog,
-    Frame,
     Label,
     MenuContainer,
     MenuItem,
     SearchToolbar,
     TextArea,
 )
+
+from custom_types.ui_types import PopUpDialog
+from scroll.scroll_menu import ScrollMenuDialog
 
 
 class ApplicationState:
@@ -51,7 +52,7 @@ class ApplicationState:
 # TODO make something like this that will pull up the side file menu
 def get_statusbar_text() -> None:
     """Gets status bar opens menu"""
-    return " Press Ctrl-H to open menu. "
+    return " Press Ctrl-K to open menu. "
 
 
 def get_statusbar_right_text() -> None:
@@ -73,12 +74,6 @@ text_field = TextArea(
     line_numbers=True,
     search_field=search_toolbar,
 )
-
-
-class PopUpDialog:
-    """For type annotation of Dialog box classes"""
-
-    pass
 
 
 class TextInputDialog(PopUpDialog):
@@ -118,53 +113,6 @@ class TextInputDialog(PopUpDialog):
             title=title,
             body=HSplit([Label(text=label_text), self.text_area]),
             buttons=[ok_button, cancel_button],
-            width=D(preferred=80),
-            modal=True,
-        )
-
-    def __pt_container__(self):
-        return self.dialog
-
-
-# TODO this thing
-
-
-class ScrollMenuDialog(PopUpDialog):
-    """Scroll menu added to the info tab dialog box"""
-
-    def __init__(self, title: str, text: str):
-        self.future = Future()
-
-        def set_done() -> None:
-            """Future object when done return None"""
-            self.future.set_result(None)
-
-        # changed text from OK to see where this is
-        ok_button = Button(text="OK", handler=(lambda: set_done()))
-
-        self.dialog = Dialog(
-            title=title,
-            body=HSplit(
-                [
-                    Label("ScrollContainer Demo"),
-                    Frame(
-                        ScrollablePane(
-                            HSplit(
-                                [
-                                    Frame(
-                                        TextArea(
-                                            text=f"label-{i}",
-                                            # completer=animal_completer,
-                                        )
-                                    )
-                                    for i in range(20)
-                                ]
-                            )
-                        ),
-                    ),
-                ]
-            ),
-            buttons=[ok_button],
             width=D(preferred=80),
             modal=True,
         )
@@ -226,7 +174,7 @@ body = HSplit(
 bindings = KeyBindings()
 
 
-@bindings.add("c-h")
+@bindings.add("c-k")
 def _(event: object) -> None:
     """Focus menu."""
     event.app.layout.focus(root_container.window)
@@ -491,7 +439,3 @@ application = Application(
 def run() -> None:
     """Run"""
     application.run()
-
-
-if __name__ == "__main__":
-    run()
