@@ -228,8 +228,14 @@ bindings = KeyBindings()
 
 @bindings.add("c-c")
 def _(event: object) -> None:
-    """Focus menu. No idea what the type annotation of this even is"""
+    """Focus menu."""
     event.app.layout.focus(root_container.window)
+
+
+@bindings.add("escape")
+def _(event: object) -> None:
+    """Focus text field."""
+    event.app.layout.focus(text_field)
 
 
 #
