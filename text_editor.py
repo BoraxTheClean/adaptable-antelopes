@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-"""
-A simple example of a Notepad-like text editor.
-"""
+"""A simple example of a Notepad-like text editor."""
 import datetime
 from asyncio import Future, ensure_future
 
@@ -11,12 +9,7 @@ from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout.containers import (
-    ConditionalContainer,
-    Float,
-    HSplit,
-    VSplit,
-    Window,
-    WindowAlign,
+    ConditionalContainer, Float, HSplit, VSplit, Window, WindowAlign
 )
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.dimension import D
@@ -26,13 +19,7 @@ from prompt_toolkit.lexers import DynamicLexer, PygmentsLexer
 from prompt_toolkit.search import start_search
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import (
-    Button,
-    Dialog,
-    Label,
-    MenuContainer,
-    MenuItem,
-    SearchToolbar,
-    TextArea,
+    Button, Dialog, Label, MenuContainer, MenuItem, SearchToolbar, TextArea
 )
 
 
@@ -48,11 +35,14 @@ class ApplicationState:
     current_path = None
 
 
-def get_statusbar_text():
+# TODO make something like this that will pull up the side file menu
+def get_statusbar_text() -> None:
+    """Gets status bar opens menu"""
     return " Press Ctrl-C to open menu. "
 
 
-def get_statusbar_right_text():
+def get_statusbar_right_text() -> None:
+    """Get status bar for the right text?"""
     return " {}:{}  ".format(
         text_field.document.cursor_position_row + 1,
         text_field.document.cursor_position_col + 1,
@@ -73,18 +63,28 @@ text_field = TextArea(
 
 
 class TextInputDialog:
-    def __init__(self, title="", label_text="", completer=None):
+    """
+    Text Input for the open dialog box
+
+    future, text_area, dialog
+    """
+
+    # unsure for type of completer guessing pathcompleter
+    def __init__(self, title: str = "", label_text: str = "", completer: PathCompleter = None):
         self.future = Future()
 
-        def accept_text(buf):
+        def accept_text(buf: object) -> bool:
+            """Accepts text"""
             get_app().layout.focus(ok_button)
             buf.complete_state = None
             return True
 
-        def accept():
+        def accept() -> None:
+            """Accept"""
             self.future.set_result(self.text_area.text)
 
-        def cancel():
+        def cancel() -> None:
+            """Cancel"""
             self.future.set_result(None)
 
         self.text_area = TextArea(
@@ -94,7 +94,7 @@ class TextInputDialog:
             accept_handler=accept_text,
         )
 
-        ok_button = Button(text="OK", handler=accept)
+        ok_button = Button(text="OK_open", handler=accept)
         cancel_button = Button(text="Cancel", handler=cancel)
 
         self.dialog = Dialog(
@@ -110,13 +110,21 @@ class TextInputDialog:
 
 
 class MessageDialog:
-    def __init__(self, title, text):
+    """
+    Another Dialog wrapper im guessing i still don't know
+
+    self.future self.dialog
+    """
+
+    def __init__(self, title: str, text: str):
         self.future = Future()
 
-        def set_done():
+        def set_done() -> None:
+            """Future object when done return None"""
             self.future.set_result(None)
 
-        ok_button = Button(text="OK", handler=(lambda: set_done()))
+        # changed text from OK to see where this is
+        ok_button = Button(text="OK_Msg_Dialog", handler=(lambda: set_done()))
 
         self.dialog = Dialog(
             title=title,
@@ -154,14 +162,13 @@ body = HSplit(
     ]
 )
 
-
 # Global key bindings.
 bindings = KeyBindings()
 
 
 @bindings.add("c-c")
-def _(event):
-    "Focus menu."
+def _(event: object) -> None:
+    """Focus menu. No idea what the type annotation of this even is"""
     event.app.layout.focus(root_container.window)
 
 
@@ -170,8 +177,10 @@ def _(event):
 #
 
 
-def do_open_file():
-    async def coroutine():
+def do_open_file() -> None:
+    """Open file from menu select"""
+
+    async def coroutine() -> None:
         open_dialog = TextInputDialog(
             title="Open file",
             label_text="Enter the path of a file:",
@@ -191,20 +200,23 @@ def do_open_file():
     ensure_future(coroutine())
 
 
-def do_about():
+def do_about() -> None:
+    """About from menu select"""
     show_message("About", "Text editor demo.\nCreated by Jonathan Slenders.")
 
 
-def show_message(title, text):
-    async def coroutine():
+def show_message(title: str, text: str) -> None:
+    """Makes messagedialog obj and waits for???"""
+
+    async def coroutine() -> None:
         dialog = MessageDialog(title, text)
         await show_dialog_as_float(dialog)
 
     ensure_future(coroutine())
 
 
-async def show_dialog_as_float(dialog):
-    "Coroutine."
+async def show_dialog_as_float(dialog: MessageDialog) -> None:
+    """Coroutine what does it return idk? the messageDialogs future result which is None?"""
     float_ = Float(content=dialog)
     root_container.floats.insert(0, float_)
 
@@ -221,21 +233,29 @@ async def show_dialog_as_float(dialog):
     return result
 
 
-def do_new_file():
+# All the do_ is a menu item
+
+# TODO actually make new file
+def do_new_file() -> None:
+    """Doesn't make new file just clears text_field but i guess thats fine till save"""
     text_field.text = ""
 
 
-def do_exit():
+def do_exit() -> None:
+    """Exit"""
     get_app().exit()
 
 
-def do_time_date():
+def do_time_date() -> None:
+    """Inserts current datetime into text_field from menu"""
     text = datetime.datetime.now().isoformat()
     text_field.buffer.insert_text(text)
 
 
-def do_go_to():
-    async def coroutine():
+def do_go_to() -> None:
+    """Go to line"""
+
+    async def coroutine() -> None:
         dialog = TextInputDialog(title="Go to line", label_text="Line number:")
 
         line_number = await show_dialog_as_float(dialog)
@@ -254,29 +274,35 @@ def do_go_to():
     ensure_future(coroutine())
 
 
-def do_undo():
+def do_undo() -> None:
+    """Undo"""
     text_field.buffer.undo()
 
 
-def do_cut():
+def do_cut() -> None:
+    """Cut"""
     data = text_field.buffer.cut_selection()
     get_app().clipboard.set_data(data)
 
 
-def do_copy():
+def do_copy() -> None:
+    """Copy"""
     data = text_field.buffer.copy_selection()
     get_app().clipboard.set_data(data)
 
 
-def do_delete():
+def do_delete() -> None:
+    """Delete"""
     text_field.buffer.cut_selection()
 
 
-def do_find():
+def do_find() -> None:
+    """Find"""
     start_search(text_field.control)
 
 
-def do_find_next():
+def do_find_next() -> None:
+    """Fine next"""
     search_state = get_app().current_search_state
 
     cursor_position = text_field.buffer.get_search_position(
@@ -285,17 +311,20 @@ def do_find_next():
     text_field.buffer.cursor_position = cursor_position
 
 
-def do_paste():
+def do_paste() -> None:
+    """Paste"""
     text_field.buffer.paste_clipboard_data(get_app().clipboard.get_data())
 
 
-def do_select_all():
+def do_select_all() -> None:
+    """Select all"""
     text_field.buffer.cursor_position = 0
     text_field.buffer.start_selection()
     text_field.buffer.cursor_position = len(text_field.buffer.text)
 
 
-def do_status_bar():
+def do_status_bar() -> None:
+    """Opens ar closes status bar"""
     ApplicationState.show_status_bar = not ApplicationState.show_status_bar
 
 
@@ -312,6 +341,7 @@ root_container = MenuContainer(
             children=[
                 MenuItem("New...", handler=do_new_file),
                 MenuItem("Open...", handler=do_open_file),
+                # TODO add save functionality implement do_save and do_save as
                 MenuItem("Save"),
                 MenuItem("Save as..."),
                 MenuItem("-", disabled=True),
@@ -329,6 +359,7 @@ root_container = MenuContainer(
                 MenuItem("-", disabled=True),
                 MenuItem("Find", handler=do_find),
                 MenuItem("Find next", handler=do_find_next),
+                # TODO no replace function we can just delete it or try to implement do_replace
                 MenuItem("Replace"),
                 MenuItem("Go To", handler=do_go_to),
                 MenuItem("Select All", handler=do_select_all),
@@ -354,7 +385,7 @@ root_container = MenuContainer(
     key_bindings=bindings,
 )
 
-
+# style of menu can def play around here
 style = Style.from_dict(
     {
         "status": "reverse",
@@ -362,9 +393,7 @@ style = Style.from_dict(
     }
 )
 
-
 layout = Layout(root_container, focused_element=text_field)
-
 
 application = Application(
     layout=layout,
@@ -375,7 +404,8 @@ application = Application(
 )
 
 
-def run():
+def run() -> None:
+    """Run"""
     application.run()
 
 
