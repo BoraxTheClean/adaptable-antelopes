@@ -8,9 +8,9 @@ from prompt_toolkit.application.current import get_app
 from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.layout.containers import (
-    ConditionalContainer, Float, HSplit, VSplit, Window, WindowAlign
-)
+from prompt_toolkit.layout.containers import (ConditionalContainer, Float,
+                                              HSplit, VSplit, Window,
+                                              WindowAlign)
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.layout.layout import Layout
@@ -18,9 +18,8 @@ from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.lexers import DynamicLexer, PygmentsLexer
 from prompt_toolkit.search import start_search
 from prompt_toolkit.styles import Style
-from prompt_toolkit.widgets import (
-    Button, Dialog, Label, MenuContainer, MenuItem, SearchToolbar, TextArea
-)
+from prompt_toolkit.widgets import (Button, Dialog, Label, MenuContainer,
+                                    MenuItem, SearchToolbar, TextArea)
 
 
 class ApplicationState:
@@ -70,7 +69,9 @@ class TextInputDialog:
     """
 
     # unsure for type of completer guessing pathcompleter
-    def __init__(self, title: str = "", label_text: str = "", completer: PathCompleter = None):
+    def __init__(
+        self, title: str = "", label_text: str = "", completer: PathCompleter = None
+    ):
         self.future = Future()
 
         def accept_text(buf: object) -> bool:
