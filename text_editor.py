@@ -7,7 +7,7 @@ from asyncio import Future, ensure_future
 
 from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
-from prompt_toolkit.completion import PathCompleter
+from prompt_toolkit.completion import Completer, PathCompleter
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.key_binding.key_processor import KeyPressEvent
@@ -65,6 +65,11 @@ def get_statusbar_right_text() -> None:
     )
 
 
+def set_title_text(text: str) -> None:
+    """Sets the text in the title bar of the terminal"""
+    ctypes.windll.kernel32.SetConsoleTitleW(text)
+
+
 search_toolbar = SearchToolbar()
 text_field = TextArea(
     lexer=DynamicLexer(
@@ -87,9 +92,8 @@ class PopUpDialog:
 class TextInputDialog(PopUpDialog):
     """Text Input for the open dialog box"""
 
-    # unsure for type of completer guessing pathcompleter
     def __init__(
-        self, title: str = "", label_text: str = "", completer: PathCompleter = None
+        self, title: str = "", label_text: str = "", completer: Completer = None
     ):
         self.future = Future()
 
@@ -319,7 +323,7 @@ def do_open_file() -> None:
             except IOError as e:
                 show_message("Error", "{}".format(e))
             else:
-                ctypes.windll.kernel32.SetConsoleTitleW(f"Editor - {path}")
+                set_title_text(f"Editor - {path}")
 
     ensure_future(coroutine())
 
@@ -332,7 +336,7 @@ def save_file_at_path(path: str, text: str) -> None:
     except IOError as e:
         show_message("Error", "{}".format(e))
     else:
-        ctypes.windll.kernel32.SetConsoleTitleW(f"Editor - {path}")
+        set_title_text(f"Editor - {path}")
 
 
 def do_save_file() -> None:
@@ -414,7 +418,7 @@ def do_new_file() -> None:
     """Makes a new file"""
     text_field.text = ""
     ApplicationState.current_path = None
-    ctypes.windll.kernel32.SetConsoleTitleW("Editor - Untitled")
+    set_title_text("Editor - Untitled")
 
 
 def do_exit() -> None:
