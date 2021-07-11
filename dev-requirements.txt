@@ -1,15 +1,14 @@
-# This file contains all the development requirements for our linting toolchain.
-# Don't forget to pin your dependencies!
-# This list will have to be migrated if you wish to use another dependency manager.
-
-# Base tools
-flake8~=3.7
-isort~=5.9
-pre-commit~=2.13.0
-pytest==6.2.4
-
-# Flake8 plugins, see https://github.com/python-discord/code-jam-template/tree/main#plugin-list
-flake8-annotations~=2.0
-flake8-bandit~=2.1
-flake8-docstrings~=1.5
-flake8-isort~=4.0
+appdirs==1.4.4
+cfgv==3.3.0
+distlib==0.3.2
+filelock==3.0.12
+identify==2.2.11
+nodeenv==1.6.0
+pre-commit==2.13.0
+prompt-toolkit==3.0.19
+Pygments==2.9.0
+PyYAML==5.4.1
+six==1.16.0
+toml==0.10.2
+virtualenv==20.4.7
+wcwidth==0.2.5
