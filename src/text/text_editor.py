@@ -2,7 +2,6 @@
 """A simple example of a Notepad-like text editor."""
 import datetime
 from asyncio import Future, ensure_future
-from types.ui_types import PopUpDialog
 
 from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
@@ -34,6 +33,7 @@ from prompt_toolkit.widgets import (
     TextArea,
 )
 
+from custom_types.ui_types import PopUpDialog
 from scroll.scroll_menu import ScrollMenuDialog
 
 

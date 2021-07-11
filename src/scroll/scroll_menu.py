@@ -1,10 +1,11 @@
 from asyncio import Future
-from types.ui_types import PopUpDialog
 
 from prompt_toolkit.layout import ScrollablePane
 from prompt_toolkit.layout.containers import HSplit
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.widgets import Button, Dialog, Frame, Label, TextArea
+
+from custom_types.ui_types import PopUpDialog
 
 
 class ScrollMenuDialog(PopUpDialog):
