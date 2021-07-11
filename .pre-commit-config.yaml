@@ -13,11 +13,6 @@ repos:
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
 
-  - repo: https://github.com/ambv/black
-    rev: 21.6b0
-    hooks:
-    - id: black
-
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.5.1
     hooks:
@@ -27,6 +22,11 @@ repos:
     rev: v5.9.2
     hooks:
       - id: isort
+
+  - repo: https://github.com/ambv/black
+    rev: 21.6b0
+    hooks:
+    - id: black
 
   - repo: https://github.com/pycqa/flake8
     rev: 3.9.2
