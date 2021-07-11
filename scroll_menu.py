@@ -1,18 +1,21 @@
 """A simple example of a scrollable pane."""
 from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
-# from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.key_binding.bindings.focus import (
-    focus_next, focus_previous
-)
+from prompt_toolkit.key_binding.bindings.focus import focus_next, focus_previous
 from prompt_toolkit.layout import (
-    CompletionsMenu, Float, FloatContainer, HSplit, Layout, ScrollablePane,
-    VSplit
+    CompletionsMenu,
+    Float,
+    FloatContainer,
+    HSplit,
+    Layout,
+    ScrollablePane,
+    VSplit,
 )
 from prompt_toolkit.widgets import Frame, Label, TextArea
 
 
+# from prompt_toolkit.completion import WordCompleter
 def main() -> None:
     """Create a big layout of many text areas, then wrap them in a `ScrollablePane`."""
     root_container = VSplit(
