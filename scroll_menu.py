@@ -1,4 +1,8 @@
 """A simple example of a scrollable pane."""
+import functools
+import os
+from os.path import isdir, isfile, join
+
 from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.key_binding import KeyBindings
@@ -12,40 +16,72 @@ from prompt_toolkit.layout import (
     ScrollablePane,
     VSplit,
 )
-from prompt_toolkit.widgets import Frame, Label, TextArea
+from prompt_toolkit.widgets import Button, Frame, Label
 
 
-# from prompt_toolkit.completion import WordCompleter
+class ScrollableMenu:
+    """Main class for scrollable menu"""
+
+    def __init__(self, dir: str):
+        # Display contents in the current working directory on the menu
+        cwd_content = os.listdir(dir)
+        frames = [
+            Frame(
+                Button(
+                    text=item,
+                    handler=functools.partial(self.display_content, item, "."),
+                )
+            )
+            for item in cwd_content
+        ]
+
+        self.body = VSplit(
+            children=[
+                Label(text="File's content here"),
+                Frame(ScrollablePane(HSplit(children=frames))),
+            ],
+            padding_char="|",
+            padding=1,
+        )
+
+    def display_content(self, target_content: str, target_dir: str) -> None:
+        """Display content.
+
+        If target's content is a file, display it in the left column.
+        If the target_content is a directory, replace the right column with its content.
+
+        Args:
+            target_content (str): Target's content
+            target_dir (str): target's directory
+        """
+        if isfile(join(target_dir, target_content)):
+            pass
+        elif isdir(join(target_dir, target_content)):
+            pass
+        else:
+            raise ValueError("The target' content is neither a file or directory")
+        return
+
+
+def setup_key_bindings() -> KeyBindings:
+    """Set up key bindings for the root container"""
+    kb = KeyBindings()
+
+    @kb.add("c-c")
+    def exit_(event: str) -> None:
+        get_app().exit()
+
+    kb.add("tab")(focus_next)
+    kb.add("s-tab")(focus_previous)
+    return kb
+
+
 def main() -> None:
     """Create a big layout of many text areas, then wrap them in a `ScrollablePane`."""
-    root_container = VSplit(
-        [
-            Label("<left column>"),
-            HSplit(
-                [
-                    Label("ScrollContainer Demo"),
-                    Frame(
-                        ScrollablePane(
-                            HSplit(
-                                [
-                                    Frame(
-                                        TextArea(
-                                            text=f"label-{i}",
-                                            # completer=animal_completer,
-                                        )
-                                    )
-                                    for i in range(20)
-                                ]
-                            )
-                        ),
-                    ),
-                ]
-            ),
-        ]
-    )
+    menu = ScrollableMenu(dir=".")
 
     root_container = FloatContainer(
-        root_container,
+        content=menu.body,
         floats=[
             Float(
                 xcursor=True,
@@ -56,61 +92,12 @@ def main() -> None:
     )
 
     layout = Layout(container=root_container)
-
-    # Key bindings.
-    kb = KeyBindings()
-
-    @kb.add("c-c")
-    def exit_(event: str) -> None:
-        get_app().exit()
-
-    kb.add("tab")(focus_next)
-    kb.add("s-tab")(focus_previous)
-
+    kb = setup_key_bindings()
     # Create and run application.
     application = Application(
         layout=layout, key_bindings=kb, full_screen=True, mouse_support=True
     )
     application.run()
-
-
-# animal_completer = WordCompleter(
-#     [
-#         "alligator",
-#         "ant",
-#         "ape",
-#         "bat",
-#         "bear",
-#         "beaver",
-#         "bee",
-#         "bison",
-#         "butterfly",
-#         "cat",
-#         "chicken",
-#         "crocodile",
-#         "dinosaur",
-#         "dog",
-#         "dolphin",
-#         "dove",
-#         "duck",
-#         "eagle",
-#         "elephant",
-#         "fish",
-#         "goat",
-#         "gorilla",
-#         "kangaroo",
-#         "leopard",
-#         "lion",
-#         "mouse",
-#         "rabbit",
-#         "rat",
-#         "snake",
-#         "spider",
-#         "turkey",
-#         "turtle",
-#     ],
-#     ignore_case=True,
-# )
 
 
 if __name__ == "__main__":
