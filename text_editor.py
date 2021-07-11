@@ -25,18 +25,14 @@ from prompt_toolkit.lexers import DynamicLexer, PygmentsLexer
 from prompt_toolkit.search import start_search
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import (
-<<<<<<< HEAD
-    Button, Dialog, Frame, Label, MenuContainer, MenuItem, SearchToolbar,
-    TextArea
-=======
     Button,
     Dialog,
+    Frame,
     Label,
     MenuContainer,
     MenuItem,
     SearchToolbar,
     TextArea,
->>>>>>> main
 )
 
 
@@ -132,6 +128,7 @@ class TextInputDialog(PopUpDialog):
 
 # TODO this thing
 
+
 class ScrollMenuDialog(PopUpDialog):
     """Scroll menu added to the info tab dialog box"""
 
@@ -147,24 +144,26 @@ class ScrollMenuDialog(PopUpDialog):
 
         self.dialog = Dialog(
             title=title,
-            body=HSplit([
-                Label("ScrollContainer Demo"),
-                Frame(
-                    ScrollablePane(
-                        HSplit(
-                            [
-                                Frame(
-                                    TextArea(
-                                        text=f"label-{i}",
-                                        # completer=animal_completer,
+            body=HSplit(
+                [
+                    Label("ScrollContainer Demo"),
+                    Frame(
+                        ScrollablePane(
+                            HSplit(
+                                [
+                                    Frame(
+                                        TextArea(
+                                            text=f"label-{i}",
+                                            # completer=animal_completer,
+                                        )
                                     )
-                                )
-                                for i in range(20)
-                            ]
-                        )
+                                    for i in range(20)
+                                ]
+                            )
+                        ),
                     ),
-                ),
-            ]),
+                ]
+            ),
             buttons=[ok_button],
             width=D(preferred=80),
             modal=True,
@@ -263,7 +262,7 @@ def do_open_file() -> None:
 
 def do_scroll_menu() -> None:
     """Open Scroll Menu"""
-    show_scroll("Scroll", 'buf')
+    show_scroll("Scroll", "buf")
 
 
 def show_scroll(title: str, text: str) -> None:
@@ -448,8 +447,10 @@ root_container = MenuContainer(
         ),
         MenuItem(
             "Info",
-            children=[MenuItem("About", handler=do_about),
-                      MenuItem("Scroll", handler=do_scroll_menu)],
+            children=[
+                MenuItem("About", handler=do_about),
+                MenuItem("Scroll", handler=do_scroll_menu),
+            ],
         ),
     ],
     floats=[
