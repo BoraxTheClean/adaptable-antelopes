@@ -10,7 +10,12 @@ from prompt_toolkit.filters import Condition
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout import ScrollablePane
 from prompt_toolkit.layout.containers import (
-    ConditionalContainer, Float, HSplit, VSplit, Window, WindowAlign
+    ConditionalContainer,
+    Float,
+    HSplit,
+    VSplit,
+    Window,
+    WindowAlign,
 )
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.dimension import D
@@ -20,8 +25,14 @@ from prompt_toolkit.lexers import DynamicLexer, PygmentsLexer
 from prompt_toolkit.search import start_search
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import (
-    Button, Dialog, Frame, Label, MenuContainer, MenuItem, SearchToolbar,
-    TextArea
+    Button,
+    Dialog,
+    Frame,
+    Label,
+    MenuContainer,
+    MenuItem,
+    SearchToolbar,
+    TextArea,
 )
 
 
@@ -74,7 +85,9 @@ class TextInputDialog(PopUpDialog):
     """Text Input for the open dialog box"""
 
     # unsure for type of completer guessing pathcompleter
-    def __init__(self, title: str = "", label_text: str = "", completer: PathCompleter = None):
+    def __init__(
+        self, title: str = "", label_text: str = "", completer: PathCompleter = None
+    ):
         self.future = Future()
 
         def accept_text(buf: object) -> bool:
@@ -115,6 +128,7 @@ class TextInputDialog(PopUpDialog):
 
 # TODO this thing
 
+
 class ScrollMenuDialog(PopUpDialog):
     """Scroll menu added to the info tab dialog box"""
 
@@ -130,24 +144,26 @@ class ScrollMenuDialog(PopUpDialog):
 
         self.dialog = Dialog(
             title=title,
-            body=HSplit([
-                Label("ScrollContainer Demo"),
-                Frame(
-                    ScrollablePane(
-                        HSplit(
-                            [
-                                Frame(
-                                    TextArea(
-                                        text=f"label-{i}",
-                                        # completer=animal_completer,
+            body=HSplit(
+                [
+                    Label("ScrollContainer Demo"),
+                    Frame(
+                        ScrollablePane(
+                            HSplit(
+                                [
+                                    Frame(
+                                        TextArea(
+                                            text=f"label-{i}",
+                                            # completer=animal_completer,
+                                        )
                                     )
-                                )
-                                for i in range(20)
-                            ]
-                        )
+                                    for i in range(20)
+                                ]
+                            )
+                        ),
                     ),
-                ),
-            ]),
+                ]
+            ),
             buttons=[ok_button],
             width=D(preferred=80),
             modal=True,
@@ -246,7 +262,7 @@ def do_open_file() -> None:
 
 def do_scroll_menu() -> None:
     """Open Scroll Menu"""
-    show_scroll("Scroll", 'buf')
+    show_scroll("Scroll", "buf")
 
 
 def show_scroll(title: str, text: str) -> None:
@@ -431,8 +447,10 @@ root_container = MenuContainer(
         ),
         MenuItem(
             "Info",
-            children=[MenuItem("About", handler=do_about),
-                      MenuItem("Scroll", handler=do_scroll_menu)],
+            children=[
+                MenuItem("About", handler=do_about),
+                MenuItem("Scroll", handler=do_scroll_menu),
+            ],
         ),
     ],
     floats=[
