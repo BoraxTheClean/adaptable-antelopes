@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 """A simple example of a Notepad-like text editor."""
+
+import ctypes
 import datetime
 from asyncio import Future, ensure_future
 
@@ -8,6 +10,7 @@ from prompt_toolkit.application.current import get_app
 from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.key_binding.key_processor import KeyPressEvent
 from prompt_toolkit.layout.containers import (
     ConditionalContainer, Float, HSplit, VSplit, Window, WindowAlign
 )
@@ -94,7 +97,7 @@ class TextInputDialog:
             accept_handler=accept_text,
         )
 
-        ok_button = Button(text="OK_open", handler=accept)
+        ok_button = Button(text="OK", handler=accept)
         cancel_button = Button(text="Cancel", handler=cancel)
 
         self.dialog = Dialog(
@@ -166,10 +169,65 @@ body = HSplit(
 bindings = KeyBindings()
 
 
+# TODO: Fix this so it works with other bindings, breaks if it isn't Ctrl-C
 @bindings.add("c-c")
-def _(event: object) -> None:
-    """Focus menu. No idea what the type annotation of this even is"""
+def open_menu(event: KeyPressEvent) -> None:
+    """Focus menu with Ctrl-C"""
     event.app.layout.focus(root_container.window)
+
+
+@bindings.add("c-n")
+def create_new_file(event: KeyPressEvent) -> None:
+    """Create new file with Ctrl-N"""
+    do_new_file()
+
+
+@bindings.add("c-s")
+def save_file(event: KeyPressEvent) -> None:
+    """Save file with Ctrl-S"""
+    do_save_file()
+
+
+@bindings.add("c-o")
+def open_file(event: KeyPressEvent) -> None:
+    """Save file with Ctrl-O"""
+    do_open_file()
+
+
+@bindings.add("c-q")
+def exit_editor(event: KeyPressEvent) -> None:
+    """Exit terminal with Ctrl-Q"""
+    do_exit()
+
+
+@bindings.add("c-a")
+def select_all(event: KeyPressEvent) -> None:
+    """Select all with Ctrl-A"""
+    do_select_all()
+
+
+@bindings.add("c-x")
+def cut_text(event: KeyPressEvent) -> None:
+    """Cut with Ctrl-X"""
+    do_cut()
+
+
+# @bindings.add("c-c")
+# def copy_text(event: KeyPressEvent) -> None:
+#     """Copy with Ctrl-C"""
+#     do_copy()
+
+
+@bindings.add("c-v")
+def paste_text(event: KeyPressEvent) -> None:
+    """Paste with Ctrl-V"""
+    do_paste()
+
+
+@bindings.add("c-z")
+def undo_changes(event: KeyPressEvent) -> None:
+    """Undo with Ctrl-Z"""
+    do_undo()
 
 
 #
@@ -192,21 +250,58 @@ def do_open_file() -> None:
 
         if path is not None:
             try:
-                with open(path, "rb") as f:
-                    text_field.text = f.read().decode("utf-8", errors="ignore")
+                with open(path, "r", encoding='utf8') as f:
+                    text_field.text = f.read()
             except IOError as e:
                 show_message("Error", "{}".format(e))
+            else:
+                ctypes.windll.kernel32.SetConsoleTitleW(f"Editor - {path}")
+
+    ensure_future(coroutine())
+
+
+def save_file_at_path(path: str, text: str) -> None:
+    """Saves text (changes) to a file path"""
+    try:
+        with open(path, "w", encoding='utf8') as f:
+            f.write(text)
+    except IOError as e:
+        show_message("Error", "{}".format(e))
+    else:
+        ctypes.windll.kernel32.SetConsoleTitleW(f"Editor - {path}")
+
+
+def do_save_file() -> None:
+    """Try to save. If no file is being edited, save as instead to create a new one."""
+    if ApplicationState.current_path is not None:
+        save_file_at_path(ApplicationState.current_path, text_field.text)
+    else:
+        do_save_as_file()
+
+
+def do_save_as_file() -> None:
+    """Try to Save As a file under a new name/path."""
+    async def coroutine() -> None:
+        open_dialog = TextInputDialog(
+            title="Save As",
+            label_text="Enter the path of the file:"
+        )
+
+        path = await show_dialog_as_float(open_dialog)
+        ApplicationState.current_path = path
+        if ApplicationState.current_path is not None:
+            save_file_at_path(ApplicationState.current_path, text_field.text)
 
     ensure_future(coroutine())
 
 
 def do_about() -> None:
     """About from menu select"""
-    show_message("About", "Text editor demo.\nCreated by Jonathan Slenders.")
+    show_message("About", "Text editor.\nCreated by Adaptable Antelopes.")
 
 
 def show_message(title: str, text: str) -> None:
-    """Makes messagedialog obj and waits for???"""
+    """Makes messagedialog obj with a certain title and text"""
 
     async def coroutine() -> None:
         dialog = MessageDialog(title, text)
@@ -235,10 +330,11 @@ async def show_dialog_as_float(dialog: MessageDialog) -> None:
 
 # All the do_ is a menu item
 
-# TODO actually make new file
 def do_new_file() -> None:
-    """Doesn't make new file just clears text_field but i guess thats fine till save"""
+    """Makes a new file"""
     text_field.text = ""
+    ApplicationState.current_path = None
+    ctypes.windll.kernel32.SetConsoleTitleW("Editor - Untitled")
 
 
 def do_exit() -> None:
@@ -341,9 +437,8 @@ root_container = MenuContainer(
             children=[
                 MenuItem("New...", handler=do_new_file),
                 MenuItem("Open...", handler=do_open_file),
-                # TODO add save functionality implement do_save and do_save as
-                MenuItem("Save"),
-                MenuItem("Save as..."),
+                MenuItem("Save", handler=do_save_file),
+                MenuItem("Save as...", handler=do_save_as_file),
                 MenuItem("-", disabled=True),
                 MenuItem("Exit", handler=do_exit),
             ],
@@ -405,7 +500,7 @@ application = Application(
 
 
 def run() -> None:
-    """Run"""
+    """Run the application"""
     application.run()
 
 
