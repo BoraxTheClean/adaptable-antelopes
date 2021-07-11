@@ -11,8 +11,14 @@ from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.key_binding.key_processor import KeyPressEvent
+from prompt_toolkit.layout import ScrollablePane
 from prompt_toolkit.layout.containers import (
-    ConditionalContainer, Float, HSplit, VSplit, Window, WindowAlign
+    ConditionalContainer,
+    Float,
+    HSplit,
+    VSplit,
+    Window,
+    WindowAlign,
 )
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.dimension import D
@@ -22,7 +28,14 @@ from prompt_toolkit.lexers import DynamicLexer, PygmentsLexer
 from prompt_toolkit.search import start_search
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import (
-    Button, Dialog, Label, MenuContainer, MenuItem, SearchToolbar, TextArea
+    Button,
+    Dialog,
+    Frame,
+    Label,
+    MenuContainer,
+    MenuItem,
+    SearchToolbar,
+    TextArea,
 )
 
 
@@ -41,7 +54,7 @@ class ApplicationState:
 # TODO make something like this that will pull up the side file menu
 def get_statusbar_text() -> None:
     """Gets status bar opens menu"""
-    return " Press Ctrl-C to open menu. "
+    return " Press Ctrl-H to open menu. "
 
 
 def get_statusbar_right_text() -> None:
@@ -65,15 +78,19 @@ text_field = TextArea(
 )
 
 
-class TextInputDialog:
-    """
-    Text Input for the open dialog box
+class PopUpDialog:
+    """For type annotation of Dialog box classes"""
 
-    future, text_area, dialog
-    """
+    pass
+
+
+class TextInputDialog(PopUpDialog):
+    """Text Input for the open dialog box"""
 
     # unsure for type of completer guessing pathcompleter
-    def __init__(self, title: str = "", label_text: str = "", completer: PathCompleter = None):
+    def __init__(
+        self, title: str = "", label_text: str = "", completer: PathCompleter = None
+    ):
         self.future = Future()
 
         def accept_text(buf: object) -> bool:
@@ -112,12 +129,55 @@ class TextInputDialog:
         return self.dialog
 
 
-class MessageDialog:
-    """
-    Another Dialog wrapper im guessing i still don't know
+# TODO this thing
 
-    self.future self.dialog
-    """
+
+class ScrollMenuDialog(PopUpDialog):
+    """Scroll menu added to the info tab dialog box"""
+
+    def __init__(self, title: str, text: str):
+        self.future = Future()
+
+        def set_done() -> None:
+            """Future object when done return None"""
+            self.future.set_result(None)
+
+        # changed text from OK to see where this is
+        ok_button = Button(text="OK", handler=(lambda: set_done()))
+
+        self.dialog = Dialog(
+            title=title,
+            body=HSplit(
+                [
+                    Label("ScrollContainer Demo"),
+                    Frame(
+                        ScrollablePane(
+                            HSplit(
+                                [
+                                    Frame(
+                                        TextArea(
+                                            text=f"label-{i}",
+                                            # completer=animal_completer,
+                                        )
+                                    )
+                                    for i in range(20)
+                                ]
+                            )
+                        ),
+                    ),
+                ]
+            ),
+            buttons=[ok_button],
+            width=D(preferred=80),
+            modal=True,
+        )
+
+    def __pt_container__(self):
+        return self.dialog
+
+
+class MessageDialog(PopUpDialog):
+    """About tab dialog box"""
 
     def __init__(self, title: str, text: str):
         self.future = Future()
@@ -169,11 +229,16 @@ body = HSplit(
 bindings = KeyBindings()
 
 
-# TODO: Fix this so it works with other bindings, breaks if it isn't Ctrl-C
-@bindings.add("c-c")
+@bindings.add("c-h")
 def open_menu(event: KeyPressEvent) -> None:
     """Focus menu with Ctrl-C"""
     event.app.layout.focus(root_container.window)
+
+
+@bindings.add("escape")
+def close_menu(event: object) -> None:
+    """Focus text field."""
+    event.app.layout.focus(text_field)
 
 
 @bindings.add("c-n")
@@ -212,10 +277,10 @@ def cut_text(event: KeyPressEvent) -> None:
     do_cut()
 
 
-# @bindings.add("c-c")
-# def copy_text(event: KeyPressEvent) -> None:
-#     """Copy with Ctrl-C"""
-#     do_copy()
+@bindings.add("c-c")
+def copy_text(event: KeyPressEvent) -> None:
+    """Copy with Ctrl-C"""
+    do_copy()
 
 
 @bindings.add("c-v")
@@ -250,7 +315,7 @@ def do_open_file() -> None:
 
         if path is not None:
             try:
-                with open(path, "r", encoding='utf8') as f:
+                with open(path, "r", encoding="utf8") as f:
                     text_field.text = f.read()
             except IOError as e:
                 show_message("Error", "{}".format(e))
@@ -263,7 +328,7 @@ def do_open_file() -> None:
 def save_file_at_path(path: str, text: str) -> None:
     """Saves text (changes) to a file path"""
     try:
-        with open(path, "w", encoding='utf8') as f:
+        with open(path, "w", encoding="utf8") as f:
             f.write(text)
     except IOError as e:
         show_message("Error", "{}".format(e))
@@ -281,10 +346,10 @@ def do_save_file() -> None:
 
 def do_save_as_file() -> None:
     """Try to Save As a file under a new name/path."""
+
     async def coroutine() -> None:
         open_dialog = TextInputDialog(
-            title="Save As",
-            label_text="Enter the path of the file:"
+            title="Save As", label_text="Enter the path of the file:"
         )
 
         path = await show_dialog_as_float(open_dialog)
@@ -295,13 +360,28 @@ def do_save_as_file() -> None:
     ensure_future(coroutine())
 
 
+def do_scroll_menu() -> None:
+    """Open Scroll Menu"""
+    show_scroll("Scroll", "buf")
+
+
+def show_scroll(title: str, text: str) -> None:
+    """Shows about message"""
+
+    async def coroutine() -> None:
+        dialog = ScrollMenuDialog(title, text)
+        await show_dialog_as_float(dialog)
+
+    ensure_future(coroutine())
+
+
 def do_about() -> None:
     """About from menu select"""
     show_message("About", "Text editor.\nCreated by Adaptable Antelopes.")
 
 
 def show_message(title: str, text: str) -> None:
-    """Makes messagedialog obj with a certain title and text"""
+    """Shows a MessageDialog with a certain title and text"""
 
     async def coroutine() -> None:
         dialog = MessageDialog(title, text)
@@ -310,7 +390,7 @@ def show_message(title: str, text: str) -> None:
     ensure_future(coroutine())
 
 
-async def show_dialog_as_float(dialog: MessageDialog) -> None:
+async def show_dialog_as_float(dialog: PopUpDialog) -> None:
     """Coroutine what does it return idk? the messageDialogs future result which is None?"""
     float_ = Float(content=dialog)
     root_container.floats.insert(0, float_)
@@ -329,6 +409,7 @@ async def show_dialog_as_float(dialog: MessageDialog) -> None:
 
 
 # All the do_ is a menu item
+
 
 def do_new_file() -> None:
     """Makes a new file"""
@@ -467,7 +548,10 @@ root_container = MenuContainer(
         ),
         MenuItem(
             "Info",
-            children=[MenuItem("About", handler=do_about)],
+            children=[
+                MenuItem("About", handler=do_about),
+                MenuItem("Scroll", handler=do_scroll_menu),
+            ],
         ),
     ],
     floats=[
