@@ -52,7 +52,7 @@ class ApplicationState:
 # TODO make something like this that will pull up the side file menu
 def get_statusbar_text() -> None:
     """Gets status bar opens menu"""
-    return " Press Ctrl-H to open menu. "
+    return " Press Ctrl-K to open menu. "
 
 
 def get_statusbar_right_text() -> None:
@@ -174,7 +174,7 @@ body = HSplit(
 bindings = KeyBindings()
 
 
-@bindings.add("c-h")
+@bindings.add("c-k")
 def _(event: object) -> None:
     """Focus menu."""
     event.app.layout.focus(root_container.window)
