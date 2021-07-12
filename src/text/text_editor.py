@@ -385,7 +385,6 @@ root_container = MenuContainer(
                 MenuItem("New...", handler=do_new_file),
                 # MenuItem("Open...", handler=do_open_file),
                 MenuItem("Open Scroll", handler=do_scroll_menu),
-
                 # TODO add save functionality implement do_save and do_save as
                 MenuItem("Save"),
                 MenuItem("Save as..."),

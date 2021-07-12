@@ -12,9 +12,7 @@ from prompt_toolkit.widgets import Button, Dialog, Frame, Label
 
 from constants import CURRENT_WORK_DIR, PADDING_CHAR, PADDING_WIDTH
 from custom_types.ui_types import PopUpDialog
-
 from text import text_editor
-
 
 
 class ScrollMenuDialog(PopUpDialog):
@@ -23,7 +21,6 @@ class ScrollMenuDialog(PopUpDialog):
     def __init__(self, title: str, text: str, dir: str = CURRENT_WORK_DIR):
         self.future = Future()
         self.cur_file_path = None
-
 
         self.body = VSplit(
             children=[
@@ -36,7 +33,6 @@ class ScrollMenuDialog(PopUpDialog):
             padding_char=PADDING_CHAR,
             padding=PADDING_WIDTH,
         )
-
 
         def set_cancel() -> None:
             """Cancel don't open file"""
@@ -54,7 +50,6 @@ class ScrollMenuDialog(PopUpDialog):
         ok_button = Button(text="OK", handler=(lambda: set_done()))
 
         cancel_button = Button(text="Cancel", handler=(lambda: set_cancel()))
-
 
         self.dialog = Dialog(
             title=title,
