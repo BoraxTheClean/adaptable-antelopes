@@ -55,7 +55,7 @@ class ScrollableMenu:
         """Display content.
 
         If target's content is a file, display it in the left column.
-        If the target_content is a directory, replace the right column with its content.
+        TODO: If the target_content is a directory, replace the right column with its content.
 
         Args:
             target_content (str): Target's content
