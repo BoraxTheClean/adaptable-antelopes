@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """A simple example of a Notepad-like text editor."""
 
-import ctypes
 import datetime
 from asyncio import Future, ensure_future
 
@@ -26,6 +25,7 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.lexers import DynamicLexer, PygmentsLexer
 from prompt_toolkit.search import start_search
+from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import (
     Button,
@@ -63,11 +63,6 @@ def get_statusbar_right_text() -> None:
         text_field.document.cursor_position_row + 1,
         text_field.document.cursor_position_col + 1,
     )
-
-
-def set_title_text(text: str) -> None:
-    """Sets the text in the title bar of the terminal"""
-    ctypes.windll.kernel32.SetConsoleTitleW(text)
 
 
 search_toolbar = SearchToolbar()
@@ -323,7 +318,7 @@ def do_open_file() -> None:
             except IOError as e:
                 show_message("Error", "{}".format(e))
             else:
-                set_title_text(f"Editor - {path}")
+                set_title(f"Editor - {path}")
 
     ensure_future(coroutine())
 
@@ -336,7 +331,7 @@ def save_file_at_path(path: str, text: str) -> None:
     except IOError as e:
         show_message("Error", "{}".format(e))
     else:
-        set_title_text(f"Editor - {path}")
+        set_title(f"Editor - {path}")
 
 
 def do_save_file() -> None:
@@ -418,7 +413,7 @@ def do_new_file() -> None:
     """Makes a new file"""
     text_field.text = ""
     ApplicationState.current_path = None
-    set_title_text("Editor - Untitled")
+    set_title("Editor - Untitled")
 
 
 def do_exit() -> None:
