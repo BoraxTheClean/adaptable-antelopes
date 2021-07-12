@@ -47,14 +47,14 @@ class ScrollMenuDialog(PopUpDialog):
             self.future.set_result(None)
 
         # Add chosen file to editor
-        ok_button = Button(text="OK", handler=(lambda: set_done()))
+        self.ok_button = Button(text="OK", handler=(lambda: set_done()))
 
-        cancel_button = Button(text="Cancel", handler=(lambda: set_cancel()))
+        self.cancel_button = Button(text="Cancel", handler=(lambda: set_cancel()))
 
         self.dialog = Dialog(
             title=title,
             body=self.body,
-            buttons=[ok_button, cancel_button],
+            buttons=[self.ok_button, self.cancel_button],
             width=D(preferred=80),
             modal=True,
         )
@@ -113,6 +113,7 @@ class ScrollMenuDialog(PopUpDialog):
             self.body.children.insert(
                 0, Window(content=FormattedTextControl(file_content))
             )
+            get_app().layout.focus(self.ok_button)
         elif isdir(join(target_dir, target_content)):
             frames = self._get_contents(join(target_dir, target_content))
             # Assuming the last child is the scrolling menu
