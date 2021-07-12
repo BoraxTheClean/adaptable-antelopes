@@ -54,6 +54,7 @@ class ScrollMenuDialog(PopUpDialog):
 
         Args:
             dir (str): directory's name
+
         Returns:
             List[Frame]: List of frames to add to the container
         """
@@ -83,6 +84,7 @@ class ScrollMenuDialog(PopUpDialog):
 
         If target's content is a file, display it in the left column.
         If the target_content is a directory, replace the right column with its content.
+
         Args:
             target_content (str): Target's content
             target_dir (str): target's directory
