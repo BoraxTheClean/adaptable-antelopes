@@ -383,7 +383,7 @@ root_container = MenuContainer(
             "File",
             children=[
                 MenuItem("New...", handler=do_new_file),
-                #MenuItem("Open...", handler=do_open_file),
+                # MenuItem("Open...", handler=do_open_file),
                 MenuItem("Open Scroll", handler=do_scroll_menu),
                 # TODO add save functionality implement do_save and do_save as
                 MenuItem("Save"),
@@ -418,7 +418,6 @@ root_container = MenuContainer(
             "Info",
             children=[
                 MenuItem("About", handler=do_about),
-
             ],
         ),
     ],

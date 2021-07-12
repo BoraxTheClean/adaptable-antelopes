@@ -12,8 +12,8 @@ from prompt_toolkit.widgets import Button, Dialog, Frame, Label
 
 from constants import CURRENT_WORK_DIR, PADDING_CHAR, PADDING_WIDTH
 from custom_types.ui_types import PopUpDialog
-
 from text import text_editor
+
 
 class ScrollMenuDialog(PopUpDialog):
     """Scroll menu added to the info tab dialog box"""
@@ -34,10 +34,14 @@ class ScrollMenuDialog(PopUpDialog):
             padding=PADDING_WIDTH,
         )
 
+        def set_cancel() -> None:
+            """Cancel don't open file"""
+            self.future.set_result(None)
+
         def set_done() -> None:
             """Future object when done return None"""
             if self.cur_file_path:
-                with open(self.cur_file_path, 'r') as f:
+                with open(self.cur_file_path, "r") as f:
                     f_content = f.read()
                 text_editor.text_field.text = f_content
 
@@ -46,7 +50,7 @@ class ScrollMenuDialog(PopUpDialog):
         # Add chosen file to editor
         ok_button = Button(text="OK", handler=(lambda: set_done()))
 
-        cancel_button = Button(text="Cancel", handler=(lambda: set_done()))
+        cancel_button = Button(text="Cancel", handler=(lambda: set_cancel()))
 
         self.dialog = Dialog(
             title=title,
