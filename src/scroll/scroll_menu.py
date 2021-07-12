@@ -130,7 +130,7 @@ class ScrollMenuDialog(PopUpDialog):
                 )
             )
             # Re-focus the cursor back to the dialog
-            get_app().layout.focus(self.cancel_button)
+            get_app().layout.focus(self.body)
         else:
             raise ValueError("The target' content is neither a file or directory")
 
