@@ -392,28 +392,6 @@ def do_time_date() -> None:
     text_field.buffer.insert_text(text)
 
 
-def do_go_to() -> None:
-    """Go to line"""
-
-    async def coroutine() -> None:
-        dialog = TextInputDialog(title="Go to line", label_text="Line number:")
-
-        line_number = await show_dialog_as_float(dialog)
-
-        try:
-            line_number = int(line_number)
-        except ValueError:
-            show_message("Invalid line number")
-        else:
-            text_field.buffer.cursor_position = (
-                text_field.buffer.document.translate_row_col_to_index(
-                    line_number - 1, 0
-                )
-            )
-
-    ensure_future(coroutine())
-
-
 def do_undo() -> None:
     """Undo"""
     text_field.buffer.undo()
@@ -501,7 +479,6 @@ root_container = MenuContainer(
                 MenuItem("Find next", handler=do_find_next),
                 # TODO no replace function we can just delete it or try to implement do_replace
                 MenuItem("Replace"),
-                MenuItem("Go To", handler=do_go_to),
                 MenuItem("Select All", handler=do_select_all),
                 MenuItem("Time/Date", handler=do_time_date),
             ],
