@@ -71,7 +71,6 @@ text_field = TextArea(
         )
     ),
     scrollbar=True,
-    line_numbers=True,
     search_field=search_toolbar,
 )
 
