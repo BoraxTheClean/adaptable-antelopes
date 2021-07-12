@@ -298,18 +298,6 @@ def do_scroll_menu() -> None:
     ensure_future(coroutine())
 
 
-# def show_scroll(title: str, text: str) -> None:
-#     """Shows about message"""
-#
-#     async def coroutine() -> None:
-#         dialog = ScrollMenuDialog(title, text)
-#         path = await show_dialog_as_float(dialog)
-#         print(path)
-#
-#
-#     ensure_future(coroutine())
-
-
 def do_about() -> None:
     """About from menu select"""
     show_message("About", "Text editor demo.\nCreated by Jonathan Slenders.")
