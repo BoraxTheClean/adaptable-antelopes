@@ -8,6 +8,7 @@ from prompt_toolkit.application.current import get_app
 from prompt_toolkit.layout import FormattedTextControl, ScrollablePane, Window
 from prompt_toolkit.layout.containers import HSplit, VSplit
 from prompt_toolkit.layout.dimension import D
+from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import Button, Dialog, Frame, Label
 
 from constants import CURRENT_WORK_DIR, PADDING_CHAR, PADDING_WIDTH
@@ -20,7 +21,7 @@ class ScrollMenuDialog(PopUpDialog):
 
     def __init__(self, title: str, text: str, dir: str = CURRENT_WORK_DIR):
         self.future = Future()
-        self.cur_file_path = None
+        self.cur_file_path = text_editor.get_current_path()
 
         self.body = VSplit(
             children=[
@@ -41,10 +42,13 @@ class ScrollMenuDialog(PopUpDialog):
         def set_done() -> None:
             """Future object when done return None"""
             if self.cur_file_path:
+                text_editor.set_current_path(self.cur_file_path)
                 with open(self.cur_file_path, "r") as f:
                     f_content = f.read()
                 text_editor.set_text_field(f_content)
             self.future.set_result(None)
+
+            set_title(f"ThoughtBox - {self.cur_file_path}")
 
         # Add chosen file to editor
         self.ok_button = Button(text="OK", handler=(lambda: set_done()))
