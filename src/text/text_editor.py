@@ -5,9 +5,10 @@ from asyncio import Future, ensure_future
 
 from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
-from prompt_toolkit.completion import PathCompleter
+from prompt_toolkit.completion import Completer, PathCompleter
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.key_binding.key_processor import KeyPressEvent
 from prompt_toolkit.layout.containers import (
     ConditionalContainer,
     Float,
@@ -22,6 +23,7 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.lexers import DynamicLexer, PygmentsLexer
 from prompt_toolkit.search import start_search
+from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import (
     Button,
@@ -90,12 +92,12 @@ def set_text_field(new_content: str) -> None:
 class TextInputDialog(PopUpDialog):
     """Text Input for the open dialog box"""
 
-    # unsure for type of completer guessing pathcompleter
     def __init__(
-        self, title: str = "", label_text: str = "", completer: PathCompleter = None
+        self, title: str = "", label_text: str = "", completer: Completer = None
     ):
         self.future = Future()
 
+        # TODO: fix this type annotation
         def accept_text(buf: object) -> bool:
             """Accepts text"""
             get_app().layout.focus(ok_button)
@@ -117,7 +119,7 @@ class TextInputDialog(PopUpDialog):
             accept_handler=accept_text,
         )
 
-        ok_button = Button(text="OK_open", handler=accept)
+        ok_button = Button(text="OK", handler=accept)
         cancel_button = Button(text="Cancel", handler=cancel)
 
         self.dialog = Dialog(
@@ -142,8 +144,7 @@ class MessageDialog(PopUpDialog):
             """Future object when done return None"""
             self.future.set_result(None)
 
-        # changed text from OK to see where this is
-        ok_button = Button(text="OK_Msg_Dialog", handler=(lambda: set_done()))
+        ok_button = Button(text="OK", handler=(lambda: set_done()))
 
         self.dialog = Dialog(
             title=title,
@@ -192,15 +193,69 @@ bindings = KeyBindings()
 
 
 @bindings.add("c-k")
-def _(event: object) -> None:
-    """Focus menu."""
+def open_menu(event: KeyPressEvent) -> None:
+    """Focus menu with Ctrl-K"""
     event.app.layout.focus(root_container.window)
 
 
 @bindings.add("escape")
-def _(event: object) -> None:
+def close_menu(event: KeyPressEvent) -> None:
     """Focus text field."""
     event.app.layout.focus(text_field)
+
+
+@bindings.add("c-n")
+def create_new_file(event: KeyPressEvent) -> None:
+    """Create new file with Ctrl-N"""
+    do_new_file()
+
+
+@bindings.add("c-s")
+def save_file(event: KeyPressEvent) -> None:
+    """Save file with Ctrl-S"""
+    do_save_file()
+
+
+@bindings.add("c-o")
+def open_file(event: KeyPressEvent) -> None:
+    """Open file with Ctrl-O"""
+    do_scroll_menu()
+
+
+@bindings.add("c-q")
+def exit_editor(event: KeyPressEvent) -> None:
+    """Exit terminal with Ctrl-Q"""
+    do_exit()
+
+
+@bindings.add("c-a")
+def select_all(event: KeyPressEvent) -> None:
+    """Select all with Ctrl-A"""
+    do_select_all()
+
+
+@bindings.add("c-x")
+def cut_text(event: KeyPressEvent) -> None:
+    """Cut with Ctrl-X"""
+    do_cut()
+
+
+@bindings.add("c-c")
+def copy_text(event: KeyPressEvent) -> None:
+    """Copy with Ctrl-C"""
+    do_copy()
+
+
+@bindings.add("c-v")
+def paste_text(event: KeyPressEvent) -> None:
+    """Paste with Ctrl-V"""
+    do_paste()
+
+
+@bindings.add("c-z")
+def undo_changes(event: KeyPressEvent) -> None:
+    """Undo with Ctrl-Z"""
+    do_undo()
 
 
 #
@@ -223,12 +278,47 @@ def do_open_file() -> None:
 
         if path is not None:
             try:
-                with open(path, "rb") as f:
-                    text_field.text = f.read().decode("utf-8", errors="ignore")
-                    # Save the name to be display in the title
-                    text_field.buffer.name = path
+                with open(path, "r", encoding="utf8") as f:
+                    set_text_field(f.read())
             except IOError as e:
                 show_message("Error", "{}".format(e))
+            else:
+                set_title(f"Editor - {path}")
+
+    ensure_future(coroutine())
+
+
+def save_file_at_path(path: str, text: str) -> None:
+    """Saves text (changes) to a file path"""
+    try:
+        with open(path, "w", encoding="utf8") as f:
+            f.write(text)
+    except IOError as e:
+        show_message("Error", "{}".format(e))
+    else:
+        set_title(f"Editor - {path}")
+
+
+def do_save_file() -> None:
+    """Try to save. If no file is being edited, save as instead to create a new one."""
+    if ApplicationState.current_path is not None:
+        save_file_at_path(ApplicationState.current_path, text_field.text)
+    else:
+        do_save_as_file()
+
+
+def do_save_as_file() -> None:
+    """Try to Save As a file under a new name/path."""
+
+    async def coroutine() -> None:
+        open_dialog = TextInputDialog(
+            title="Save As", label_text="Enter the path of the file:"
+        )
+
+        path = await show_dialog_as_float(open_dialog)
+        ApplicationState.current_path = path
+        if ApplicationState.current_path is not None:
+            save_file_at_path(ApplicationState.current_path, text_field.text)
 
     ensure_future(coroutine())
 
@@ -239,7 +329,7 @@ def do_scroll_menu() -> None:
 
 
 def show_scroll(title: str, text: str) -> None:
-    """Shows about message"""
+    """Shows a MessageDialog with a certain title and text"""
 
     async def coroutine() -> None:
         dialog = ScrollMenuDialog(title, text)
@@ -250,7 +340,7 @@ def show_scroll(title: str, text: str) -> None:
 
 def do_about() -> None:
     """About from menu select"""
-    show_message("About", "Text editor demo.\nCreated by Jonathan Slenders.")
+    show_message("About", "Text editor.\nCreated by Adaptable Antelopes.")
 
 
 def show_message(title: str, text: str) -> None:
@@ -283,10 +373,12 @@ async def show_dialog_as_float(dialog: PopUpDialog) -> None:
 
 # All the do_ is a menu item
 
-# TODO actually make new file
+
 def do_new_file() -> None:
-    """Doesn't make new file just clears text_field but i guess thats fine till save"""
+    """Makes a new file"""
     text_field.text = ""
+    ApplicationState.current_path = None
+    set_title("Editor - Untitled")
 
 
 def do_exit() -> None:
@@ -390,9 +482,8 @@ root_container = MenuContainer(
                 MenuItem("New...", handler=do_new_file),
                 # MenuItem("Open...", handler=do_open_file),
                 MenuItem("Open Scroll", handler=do_scroll_menu),
-                # TODO add save functionality implement do_save and do_save as
-                MenuItem("Save"),
-                MenuItem("Save as..."),
+                MenuItem("Save", handler=do_save_file),
+                MenuItem("Save as...", handler=do_save_as_file),
                 MenuItem("-", disabled=True),
                 MenuItem("Exit", handler=do_exit),
             ],
@@ -456,5 +547,5 @@ application = Application(
 
 
 def run() -> None:
-    """Run"""
+    """Run the application"""
     application.run()
