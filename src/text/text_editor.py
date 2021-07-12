@@ -22,7 +22,7 @@ from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.menus import CompletionsMenu
-from prompt_toolkit.lexers import DynamicLexer, PygmentsLexer
+from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.search import start_search
 from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.styles import Style
@@ -35,6 +35,7 @@ from prompt_toolkit.widgets import (
     SearchToolbar,
     TextArea,
 )
+from pygments.lexers.markup import MarkdownLexer
 
 from custom_types.ui_types import PopUpDialog
 from scroll.scroll_menu import ScrollMenuDialog
@@ -85,11 +86,12 @@ def get_statusbar_right_text() -> None:
 
 search_toolbar = SearchToolbar()
 text_field = TextArea(
-    lexer=DynamicLexer(
-        lambda: PygmentsLexer.from_filename(
-            get_current_path() or ".txt", sync_from_start=False
-        )
-    ),
+    # lexer=DynamicLexer(
+    #     lambda: PygmentsLexer.from_filename(
+    #         ApplicationState.current_path or ".txt", sync_from_start=False
+    #     )
+    # ),
+    lexer=PygmentsLexer(MarkdownLexer),
     scrollbar=True,
     search_field=search_toolbar,
 )
