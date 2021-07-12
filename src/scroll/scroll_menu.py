@@ -88,7 +88,9 @@ class ScrollMenuDialog(PopUpDialog):
             )
         elif isdir(join(target_dir, target_content)):
             frames = self._get_contents(join(target_dir, target_content))
+            # Assuming the last child is the scrolling menu
             self.body.children.pop()
+            # Add a new updated menu
             self.body.children.append(
                 HSplit(
                     [
@@ -98,6 +100,7 @@ class ScrollMenuDialog(PopUpDialog):
                     ]
                 )
             )
+            # Re-focus the cursor back to the dialog
             get_app().layout.focus(self.dialog)
         else:
             raise ValueError("The target' content is neither a file or directory")
