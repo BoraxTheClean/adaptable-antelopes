@@ -97,7 +97,7 @@ class TextInputDialog(PopUpDialog):
             buf.complete_state = None
             return True
 
-        def accept() -> None:
+        def accept() -> str:
             """Accept"""
             self.future.set_result(self.text_area.text)
 
@@ -127,24 +127,29 @@ class TextInputDialog(PopUpDialog):
         return self.dialog
 
 
-# TODO this thing
-
-
 class ScrollMenuDialog(PopUpDialog):
     """Scroll menu added to the info tab dialog box"""
 
     def __init__(self, title: str, text: str):
         self.future = Future()
 
-        def set_done() -> None:
-            """Future object when done return None"""
-            self.future.set_result(None)
+        # def accept_text(buf: object) -> bool:
+        #     """Accepts text"""
+        #     get_app().layout.focus(ok_button)
+        #     buf.complete_state = None
+        #     return True
 
-        def set_fname() -> str:
-            self.future.set_result(None)
+        # for i in f_names:
+        #     def accept() -> str:
+        #         """Accept"""
+        #         self.future.set_result(self.buttons[i].text)
+
+        # def cancel() -> None:
+        #     """Cancel"""
+        #     self.future.set_result(None)
 
         # changed text from OK to see where this is
-        ok_button = Button(text="OK", handler=(lambda: set_done()))
+        # ok_button = Button(text="OK", handler=accept)
         notes_path = "../Notes"
         if os.path.isdir(notes_path):
             path = os.getcwd()
@@ -153,28 +158,38 @@ class ScrollMenuDialog(PopUpDialog):
             os.mkdir(notes_path)
             f_names = ["empty", "poop"]
 
+        from functools import partial
+
+        #
+        # def add(x, i):
+        #     return x + i
+        #
+        # d = {f'add{k}': partial(add, i=k) for k in range(1, 10)}
+        #
+        # d['add3'](5)  # 8
+
+        def accept(i: int) -> str:
+            """Accept"""
+            self.future.set_result(self.buttons[i].text)
+
+        d = {f"accept{k}": partial(accept, i=k) for k in range(len(f_names))}
+        # d['accept0']
+
+        self.buttons = [
+            Button(text=f"{i}", handler=d[f"accept{n}"]) for n, i in enumerate(f_names)
+        ]
+
         self.dialog = Dialog(
             title=title,
             body=HSplit(
                 [
                     Label("ScrollContainer Demo"),
                     Frame(
-                        ScrollablePane(
-                            HSplit(
-                                [
-                                    Frame(
-                                        Button(
-                                            text=f"{i}", handler=(lambda: set_fname())
-                                        )
-                                    )
-                                    for i in f_names
-                                ]
-                            )
-                        ),
+                        ScrollablePane(HSplit(self.buttons)),
                     ),
                 ]
             ),
-            buttons=[ok_button],
+            # buttons=[ok_button],
             width=D(preferred=80),
             modal=True,
         )
@@ -278,17 +293,36 @@ def do_open_file() -> None:
 
 def do_scroll_menu() -> None:
     """Open Scroll Menu"""
-    show_scroll("Scroll", "buf")
-
-
-def show_scroll(title: str, text: str) -> None:
-    """Shows about message"""
+    # show_scroll("Scroll", "buf")
 
     async def coroutine() -> None:
-        dialog = ScrollMenuDialog(title, text)
-        await show_dialog_as_float(dialog)
+        dialog = ScrollMenuDialog("Scroll", "POOP")
+
+        file_name = await show_dialog_as_float(dialog)
+
+        try:
+            file_name = str(file_name)
+        except ValueError:
+            show_message("Invalid file_name", "")
+        else:
+            if os.path.isfile(file_name):
+                show_message(f"Found {file_name}", "")
+            else:
+                show_message(f"Not a file {file_name}", "")
 
     ensure_future(coroutine())
+
+
+# def show_scroll(title: str, text: str) -> None:
+#     """Shows about message"""
+#
+#     async def coroutine() -> None:
+#         dialog = ScrollMenuDialog(title, text)
+#         path = await show_dialog_as_float(dialog)
+#         print(path)
+#
+#
+#     ensure_future(coroutine())
 
 
 def do_about() -> None:
@@ -354,7 +388,7 @@ def do_go_to() -> None:
         try:
             line_number = int(line_number)
         except ValueError:
-            show_message("Invalid line number")
+            show_message("Invalid line number", "")
         else:
             text_field.buffer.cursor_position = (
                 text_field.buffer.document.translate_row_col_to_index(
