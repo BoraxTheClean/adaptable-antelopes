@@ -22,8 +22,11 @@ class ScrollMenuDialog(PopUpDialog):
 
         self.body = VSplit(
             children=[
-                Label(text="File's content here"),
-                Frame(ScrollablePane(HSplit(children=self._get_contents(dir)))),
+                Label(text="File's content here", dont_extend_height=False),
+                Frame(
+                    body=ScrollablePane(HSplit(children=self._get_contents(dir))),
+                    # style="fg:#ffffff bg:#70ecff bold",
+                ),
             ],
             padding_char=PADDING_CHAR,
             padding=PADDING_WIDTH,
