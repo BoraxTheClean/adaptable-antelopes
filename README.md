@@ -15,7 +15,8 @@ No more having to worry about centering or choosing the 'right' font anymore.
 
 You can select to create a new note or continue working on a previous note.
 
-
+## Features
+- Scrolling files explore in `File` menu item.
 
 
 ## Brought to you in part by Team Adaptable Antelopes
