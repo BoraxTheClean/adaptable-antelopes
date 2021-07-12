@@ -20,7 +20,7 @@ from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.menus import CompletionsMenu
-from prompt_toolkit.lexers import DynamicLexer, PygmentsLexer
+from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.search import start_search
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import (
@@ -32,6 +32,7 @@ from prompt_toolkit.widgets import (
     SearchToolbar,
     TextArea,
 )
+from pygments.lexers.markup import MarkdownLexer
 
 from custom_types.ui_types import PopUpDialog
 from scroll.scroll_menu import ScrollMenuDialog
@@ -72,14 +73,20 @@ def get_statusbar_right_text() -> None:
 
 search_toolbar = SearchToolbar()
 text_field = TextArea(
-    lexer=DynamicLexer(
-        lambda: PygmentsLexer.from_filename(
-            ApplicationState.current_path or ".txt", sync_from_start=False
-        )
-    ),
+    # lexer=DynamicLexer(
+    #     lambda: PygmentsLexer.from_filename(
+    #         ApplicationState.current_path or ".txt", sync_from_start=False
+    #     )
+    # ),
+    lexer=PygmentsLexer(MarkdownLexer),
     scrollbar=True,
     search_field=search_toolbar,
 )
+
+
+def set_text_field(new_content: str) -> None:
+    """Sets global text_fields text"""
+    text_field.text = new_content
 
 
 class TextInputDialog(PopUpDialog):
@@ -383,7 +390,8 @@ root_container = MenuContainer(
             "File",
             children=[
                 MenuItem("New...", handler=do_new_file),
-                MenuItem("Open...", handler=do_open_file),
+                # MenuItem("Open...", handler=do_open_file),
+                MenuItem("Open Scroll", handler=do_scroll_menu),
                 # TODO add save functionality implement do_save and do_save as
                 MenuItem("Save"),
                 MenuItem("Save as..."),
@@ -417,7 +425,6 @@ root_container = MenuContainer(
             "Info",
             children=[
                 MenuItem("About", handler=do_about),
-                MenuItem("Scroll", handler=do_scroll_menu),
             ],
         ),
     ],
