@@ -12,7 +12,9 @@ from prompt_toolkit.widgets import Button, Dialog, Frame, Label
 
 from constants import CURRENT_WORK_DIR, PADDING_CHAR, PADDING_WIDTH
 from custom_types.ui_types import PopUpDialog
+
 from text import text_editor
+
 
 
 class ScrollMenuDialog(PopUpDialog):
@@ -21,6 +23,7 @@ class ScrollMenuDialog(PopUpDialog):
     def __init__(self, title: str, text: str, dir: str = CURRENT_WORK_DIR):
         self.future = Future()
         self.cur_file_path = None
+
 
         self.body = VSplit(
             children=[
@@ -34,6 +37,7 @@ class ScrollMenuDialog(PopUpDialog):
             padding=PADDING_WIDTH,
         )
 
+
         def set_cancel() -> None:
             """Cancel don't open file"""
             self.future.set_result(None)
@@ -44,13 +48,13 @@ class ScrollMenuDialog(PopUpDialog):
                 with open(self.cur_file_path, "r") as f:
                     f_content = f.read()
                 text_editor.text_field.text = f_content
-
             self.future.set_result(None)
 
         # Add chosen file to editor
         ok_button = Button(text="OK", handler=(lambda: set_done()))
 
         cancel_button = Button(text="Cancel", handler=(lambda: set_cancel()))
+
 
         self.dialog = Dialog(
             title=title,
@@ -105,6 +109,7 @@ class ScrollMenuDialog(PopUpDialog):
             with open(join(target_dir, target_content), "r") as f:
                 file_content = f.read()
             self.cur_file_path = join(target_dir, target_content)
+
             # Remove any object that isn't HSplit
             self.body.children = list(
                 filter(lambda x: type(x) == HSplit, self.body.children)
