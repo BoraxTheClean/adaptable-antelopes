@@ -92,6 +92,7 @@ class TextInputDialog(PopUpDialog):
     ):
         self.future = Future()
 
+        # TODO: fix this type annotation
         def accept_text(buf: object) -> bool:
             """Accepts text"""
             get_app().layout.focus(ok_button)
@@ -141,7 +142,6 @@ class ScrollMenuDialog(PopUpDialog):
             """Future object when done return None"""
             self.future.set_result(None)
 
-        # changed text from OK to see where this is
         ok_button = Button(text="OK", handler=(lambda: set_done()))
 
         self.dialog = Dialog(
@@ -234,7 +234,7 @@ def open_menu(event: KeyPressEvent) -> None:
 
 
 @bindings.add("escape")
-def close_menu(event: object) -> None:
+def close_menu(event: KeyPressEvent) -> None:
     """Focus text field."""
     event.app.layout.focus(text_field)
 
