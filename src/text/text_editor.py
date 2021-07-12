@@ -50,7 +50,14 @@ class ApplicationState:
 
 
 # TODO make something like this that will pull up the side file menu
-def get_statusbar_text() -> None:
+def get_status_bar_left_text() -> None:
+    """Display current file's name"""
+    if name := text_field.buffer.name:
+        return name
+    return "Editor - Untitled"
+
+
+def get_statusbar_middle_text() -> None:
     """Gets status bar opens menu"""
     return " Press Ctrl-K to open menu. "
 
@@ -153,7 +160,13 @@ body = HSplit(
             content=VSplit(
                 [
                     Window(
-                        FormattedTextControl(get_statusbar_text), style="class:status"
+                        FormattedTextControl(get_status_bar_left_text),
+                        style="class:status",
+                        align=WindowAlign.LEFT,
+                    ),
+                    Window(
+                        FormattedTextControl(get_statusbar_middle_text),
+                        style="class:status",
                     ),
                     Window(
                         FormattedTextControl(get_statusbar_right_text),
