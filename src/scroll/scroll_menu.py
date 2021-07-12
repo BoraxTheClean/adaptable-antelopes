@@ -113,6 +113,7 @@ class ScrollMenuDialog(PopUpDialog):
             self.body.children.insert(
                 0, Window(content=FormattedTextControl(file_content))
             )
+            # Re-focus cursor to ok_button
             get_app().layout.focus(self.ok_button)
         elif isdir(join(target_dir, target_content)):
             frames = self._get_contents(join(target_dir, target_content))
