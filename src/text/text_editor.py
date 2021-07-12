@@ -50,7 +50,14 @@ class ApplicationState:
 
 
 # TODO make something like this that will pull up the side file menu
-def get_statusbar_text() -> None:
+def get_status_bar_left_text() -> None:
+    """Display current file's name"""
+    if name := text_field.buffer.name:
+        return name
+    return "Editor - Untitled"
+
+
+def get_statusbar_middle_text() -> None:
     """Gets status bar opens menu"""
     return " Press Ctrl-K to open menu. "
 
@@ -71,7 +78,6 @@ text_field = TextArea(
         )
     ),
     scrollbar=True,
-    line_numbers=True,
     search_field=search_toolbar,
 )
 
@@ -154,7 +160,13 @@ body = HSplit(
             content=VSplit(
                 [
                     Window(
-                        FormattedTextControl(get_statusbar_text), style="class:status"
+                        FormattedTextControl(get_status_bar_left_text),
+                        style="class:status",
+                        align=WindowAlign.LEFT,
+                    ),
+                    Window(
+                        FormattedTextControl(get_statusbar_middle_text),
+                        style="class:status",
                     ),
                     Window(
                         FormattedTextControl(get_statusbar_right_text),
@@ -208,6 +220,8 @@ def do_open_file() -> None:
             try:
                 with open(path, "rb") as f:
                     text_field.text = f.read().decode("utf-8", errors="ignore")
+                    # Save the name to be display in the title
+                    text_field.buffer.name = path
             except IOError as e:
                 show_message("Error", "{}".format(e))
 
