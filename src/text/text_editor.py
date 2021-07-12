@@ -51,6 +51,16 @@ class ApplicationState:
     current_path = None
 
 
+def get_current_path() -> str:
+    """Gets current path for scroll/scroll_menu to access"""
+    return ApplicationState.current_path
+
+
+def set_current_path(new_path: str) -> None:
+    """Sets new current path for scroll/scroll_menu"""
+    ApplicationState.current_path = new_path
+
+
 # TODO make something like this that will pull up the side file menu
 def get_status_bar_left_text() -> None:
     """Display current file's name"""
