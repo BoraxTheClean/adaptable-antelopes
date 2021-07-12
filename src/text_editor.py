@@ -133,23 +133,6 @@ class ScrollMenuDialog(PopUpDialog):
     def __init__(self, title: str, text: str):
         self.future = Future()
 
-        # def accept_text(buf: object) -> bool:
-        #     """Accepts text"""
-        #     get_app().layout.focus(ok_button)
-        #     buf.complete_state = None
-        #     return True
-
-        # for i in f_names:
-        #     def accept() -> str:
-        #         """Accept"""
-        #         self.future.set_result(self.buttons[i].text)
-
-        # def cancel() -> None:
-        #     """Cancel"""
-        #     self.future.set_result(None)
-
-        # changed text from OK to see where this is
-        # ok_button = Button(text="OK", handler=accept)
         notes_path = "../Notes"
         if os.path.isdir(notes_path):
             path = os.getcwd()
@@ -305,8 +288,10 @@ def do_scroll_menu() -> None:
         except ValueError:
             show_message("Invalid file_name", "")
         else:
-            if os.path.isfile(file_name):
-                show_message(f"Found {file_name}", "")
+            if os.path.isfile(os.getcwd() + "/Notes/" + file_name):
+                # show_message(f"Found {file_name}", "")
+                with open(os.getcwd() + "/Notes/" + file_name, "rb") as f:
+                    text_field.text = f.read().decode("utf-8", errors="ignore")
             else:
                 show_message(f"Not a file {file_name}", "")
 
