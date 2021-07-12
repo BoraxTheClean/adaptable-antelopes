@@ -4,6 +4,7 @@ from os import listdir
 from os.path import isdir, isfile, join
 from typing import List
 
+from prompt_toolkit.application.current import get_app
 from prompt_toolkit.layout import FormattedTextControl, ScrollablePane, Window
 from prompt_toolkit.layout.containers import HSplit, VSplit
 from prompt_toolkit.layout.dimension import D
@@ -97,7 +98,7 @@ class ScrollMenuDialog(PopUpDialog):
                     ]
                 )
             )
-            # TODO: Focus cursor back to the dialog
+            get_app().layout.focus(self.dialog)
         else:
             raise ValueError("The target' content is neither a file or directory")
 
