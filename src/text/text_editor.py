@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """A simple example of a Notepad-like text editor."""
 import datetime
-import os
 from asyncio import Future, ensure_future
 
 from prompt_toolkit.application import Application
@@ -51,9 +50,6 @@ class ApplicationState:
 
 
 # TODO make something like this that will pull up the side file menu
-<<<<<<< HEAD:src/text_editor.py
-def get_statusbar_text() -> str:
-=======
 def get_status_bar_left_text() -> None:
     """Display current file's name"""
     if name := text_field.buffer.name:
@@ -62,12 +58,11 @@ def get_status_bar_left_text() -> None:
 
 
 def get_statusbar_middle_text() -> None:
->>>>>>> main:src/text/text_editor.py
     """Gets status bar opens menu"""
     return " Press Ctrl-K to open menu. "
 
 
-def get_statusbar_right_text() -> str:
+def get_statusbar_right_text() -> None:
     """Get status bar for the right text?"""
     return " {}:{}  ".format(
         text_field.document.cursor_position_row + 1,
@@ -102,7 +97,7 @@ class TextInputDialog(PopUpDialog):
             buf.complete_state = None
             return True
 
-        def accept() -> str:
+        def accept() -> None:
             """Accept"""
             self.future.set_result(self.text_area.text)
 
@@ -132,63 +127,6 @@ class TextInputDialog(PopUpDialog):
         return self.dialog
 
 
-<<<<<<< HEAD:src/text_editor.py
-class ScrollMenuDialog(PopUpDialog):
-    """Scroll menu added to the info tab dialog box"""
-
-    def __init__(self, title: str, text: str):
-        self.future = Future()
-
-        notes_path = "../Notes"
-        if os.path.isdir(notes_path):
-            path = os.getcwd()
-            f_names = os.listdir(path + "/Notes")
-        else:
-            os.mkdir(notes_path)
-            f_names = ["empty", "poop"]
-
-        from functools import partial
-
-        #
-        # def add(x, i):
-        #     return x + i
-        #
-        # d = {f'add{k}': partial(add, i=k) for k in range(1, 10)}
-        #
-        # d['add3'](5)  # 8
-
-        def accept(i: int) -> str:
-            """Accept"""
-            self.future.set_result(self.buttons[i].text)
-
-        d = {f"accept{k}": partial(accept, i=k) for k in range(len(f_names))}
-        # d['accept0']
-
-        self.buttons = [
-            Button(text=f"{i}", handler=d[f"accept{n}"]) for n, i in enumerate(f_names)
-        ]
-
-        self.dialog = Dialog(
-            title=title,
-            body=HSplit(
-                [
-                    Label("ScrollContainer Demo"),
-                    Frame(
-                        ScrollablePane(HSplit(self.buttons)),
-                    ),
-                ]
-            ),
-            # buttons=[ok_button],
-            width=D(preferred=80),
-            modal=True,
-        )
-
-    def __pt_container__(self):
-        return self.dialog
-
-
-=======
->>>>>>> main:src/text/text_editor.py
 class MessageDialog(PopUpDialog):
     """About tab dialog box"""
 
@@ -292,24 +230,15 @@ def do_open_file() -> None:
 
 def do_scroll_menu() -> None:
     """Open Scroll Menu"""
-    # show_scroll("Scroll", "buf")
+    show_scroll("Scroll", "buf")
+
+
+def show_scroll(title: str, text: str) -> None:
+    """Shows about message"""
 
     async def coroutine() -> None:
-        dialog = ScrollMenuDialog("Scroll", "POOP")
-
-        file_name = await show_dialog_as_float(dialog)
-
-        try:
-            file_name = str(file_name)
-        except ValueError:
-            show_message("Invalid file_name", "")
-        else:
-            if os.path.isfile(os.getcwd() + "/Notes/" + file_name):
-                # show_message(f"Found {file_name}", "")
-                with open(os.getcwd() + "/Notes/" + file_name, "rb") as f:
-                    text_field.text = f.read().decode("utf-8", errors="ignore")
-            else:
-                show_message(f"Not a file {file_name}", "")
+        dialog = ScrollMenuDialog(title, text)
+        await show_dialog_as_float(dialog)
 
     ensure_future(coroutine())
 
@@ -377,7 +306,7 @@ def do_go_to() -> None:
         try:
             line_number = int(line_number)
         except ValueError:
-            show_message("Invalid line number", "")
+            show_message("Invalid line number")
         else:
             text_field.buffer.cursor_position = (
                 text_field.buffer.document.translate_row_col_to_index(
@@ -454,8 +383,8 @@ root_container = MenuContainer(
             "File",
             children=[
                 MenuItem("New...", handler=do_new_file),
-                MenuItem("Open...", handler=do_open_file),
-                MenuItem("Scroll Open", handler=do_scroll_menu),
+                #MenuItem("Open...", handler=do_open_file),
+                MenuItem("Open Scroll", handler=do_scroll_menu),
                 # TODO add save functionality implement do_save and do_save as
                 MenuItem("Save"),
                 MenuItem("Save as..."),
@@ -489,7 +418,7 @@ root_container = MenuContainer(
             "Info",
             children=[
                 MenuItem("About", handler=do_about),
-                MenuItem("Scroll", handler=do_scroll_menu),
+
             ],
         ),
     ],
