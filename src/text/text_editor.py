@@ -220,6 +220,8 @@ def do_open_file() -> None:
             try:
                 with open(path, "rb") as f:
                     text_field.text = f.read().decode("utf-8", errors="ignore")
+                    # Save the name to be display in the title
+                    text_field.buffer.name = path
             except IOError as e:
                 show_message("Error", "{}".format(e))
 
