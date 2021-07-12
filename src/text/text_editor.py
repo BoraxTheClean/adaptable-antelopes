@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-"""A simple example of a Notepad-like text editor."""
 import datetime
 from asyncio import Future, ensure_future
 from typing import Optional
@@ -68,7 +66,7 @@ def get_status_bar_left_text() -> None:
     """Display current file's name"""
     if name := text_field.buffer.name:
         return name
-    return "Editor - Untitled"
+    return "ThoughtBox - Untitled"
 
 
 def get_statusbar_middle_text() -> None:
@@ -284,7 +282,7 @@ def save_file_at_path(path: str, text: str) -> None:
     except IOError as e:
         show_message("Error", "{}".format(e))
     else:
-        set_title(f"Editor - {path}")
+        set_title(f"ThoughtBox - {path}")
 
 
 def do_save_file() -> None:
@@ -328,7 +326,7 @@ def show_scroll(title: str, text: str) -> None:
 
 def do_about() -> None:
     """About from menu select"""
-    show_message("About", "Text editor.\nCreated by Adaptable Antelopes.")
+    show_message("About", "ThoughtBox\nCreated by Adaptable Antelopes.")
 
 
 def show_message(title: str, text: str) -> None:
@@ -366,7 +364,7 @@ def do_new_file() -> None:
     """Makes a new file"""
     text_field.text = ""
     set_current_path(None)
-    set_title("Editor - Untitled")
+    set_title("ThoughtBox - Untitled")
 
 
 def do_exit() -> None:

@@ -48,7 +48,7 @@ class ScrollMenuDialog(PopUpDialog):
                 text_editor.set_text_field(f_content)
             self.future.set_result(None)
 
-            set_title(f"Editor - {self.cur_file_path}")
+            set_title(f"ThoughtBox - {self.cur_file_path}")
 
         # Add chosen file to editor
         ok_button = Button(text="OK", handler=(lambda: set_done()))
