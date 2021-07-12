@@ -8,6 +8,7 @@ from prompt_toolkit.application.current import get_app
 from prompt_toolkit.layout import FormattedTextControl, ScrollablePane, Window
 from prompt_toolkit.layout.containers import HSplit, VSplit
 from prompt_toolkit.layout.dimension import D
+from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import Button, Dialog, Frame, Label
 
 from constants import CURRENT_WORK_DIR, PADDING_CHAR, PADDING_WIDTH
@@ -46,6 +47,8 @@ class ScrollMenuDialog(PopUpDialog):
                     f_content = f.read()
                 text_editor.set_text_field(f_content)
             self.future.set_result(None)
+
+            set_title(f"Editor - {self.cur_file_path}")
 
         # Add chosen file to editor
         ok_button = Button(text="OK", handler=(lambda: set_done()))

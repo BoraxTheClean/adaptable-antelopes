@@ -2,10 +2,11 @@
 """A simple example of a Notepad-like text editor."""
 import datetime
 from asyncio import Future, ensure_future
+from typing import Optional
 
 from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
-from prompt_toolkit.completion import Completer, PathCompleter
+from prompt_toolkit.completion import Completer
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.key_binding.key_processor import KeyPressEvent
@@ -51,12 +52,12 @@ class ApplicationState:
     current_path = None
 
 
-def get_current_path() -> str:
+def get_current_path() -> Optional[str]:
     """Gets current path for scroll/scroll_menu to access"""
     return ApplicationState.current_path
 
 
-def set_current_path(new_path: str) -> None:
+def set_current_path(new_path: Optional[str]) -> None:
     """Sets new current path for scroll/scroll_menu"""
     ApplicationState.current_path = new_path
 
@@ -86,7 +87,7 @@ search_toolbar = SearchToolbar()
 text_field = TextArea(
     lexer=DynamicLexer(
         lambda: PygmentsLexer.from_filename(
-            ApplicationState.current_path or ".txt", sync_from_start=False
+            get_current_path() or ".txt", sync_from_start=False
         )
     ),
     scrollbar=True,
@@ -273,31 +274,6 @@ def undo_changes(event: KeyPressEvent) -> None:
 #
 
 
-def do_open_file() -> None:
-    """Open file from menu select"""
-
-    async def coroutine() -> None:
-        open_dialog = TextInputDialog(
-            title="Open file",
-            label_text="Enter the path of a file:",
-            completer=PathCompleter(),
-        )
-
-        path = await show_dialog_as_float(open_dialog)
-        ApplicationState.current_path = path
-
-        if path is not None:
-            try:
-                with open(path, "r", encoding="utf8") as f:
-                    set_text_field(f.read())
-            except IOError as e:
-                show_message("Error", "{}".format(e))
-            else:
-                set_title(f"Editor - {path}")
-
-    ensure_future(coroutine())
-
-
 def save_file_at_path(path: str, text: str) -> None:
     """Saves text (changes) to a file path"""
     try:
@@ -311,8 +287,8 @@ def save_file_at_path(path: str, text: str) -> None:
 
 def do_save_file() -> None:
     """Try to save. If no file is being edited, save as instead to create a new one."""
-    if ApplicationState.current_path is not None:
-        save_file_at_path(ApplicationState.current_path, text_field.text)
+    if get_current_path() is not None:
+        save_file_at_path(get_current_path(), text_field.text)
     else:
         do_save_as_file()
 
@@ -326,9 +302,9 @@ def do_save_as_file() -> None:
         )
 
         path = await show_dialog_as_float(open_dialog)
-        ApplicationState.current_path = path
-        if ApplicationState.current_path is not None:
-            save_file_at_path(ApplicationState.current_path, text_field.text)
+        set_current_path(path)
+        if get_current_path() is not None:
+            save_file_at_path(get_current_path(), text_field.text)
 
     ensure_future(coroutine())
 
@@ -387,7 +363,7 @@ async def show_dialog_as_float(dialog: PopUpDialog) -> None:
 def do_new_file() -> None:
     """Makes a new file"""
     text_field.text = ""
-    ApplicationState.current_path = None
+    set_current_path(None)
     set_title("Editor - Untitled")
 
 
@@ -468,7 +444,6 @@ root_container = MenuContainer(
             "File",
             children=[
                 MenuItem("New...", handler=do_new_file),
-                # MenuItem("Open...", handler=do_open_file),
                 MenuItem("Open Scroll", handler=do_scroll_menu),
                 MenuItem("Save", handler=do_save_file),
                 MenuItem("Save as...", handler=do_save_as_file),
