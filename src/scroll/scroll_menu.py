@@ -62,6 +62,16 @@ class ScrollMenuDialog(PopUpDialog):
             )
             for item in listdir(dir)
         ]
+        # Add a move-up one directory button
+        frames.insert(
+            0,
+            Frame(
+                Button(
+                    text="../",
+                    handler=functools.partial(self._display_content, "..", dir),
+                )
+            ),
+        )
         return frames
 
     def _display_content(self, target_content: str, target_dir: str) -> None:
