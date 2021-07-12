@@ -82,6 +82,11 @@ text_field = TextArea(
 )
 
 
+def set_text_field(new_content: str) -> None:
+    """Sets global text_fields text"""
+    text_field.text = new_content
+
+
 class TextInputDialog(PopUpDialog):
     """Text Input for the open dialog box"""
 
@@ -383,7 +388,8 @@ root_container = MenuContainer(
             "File",
             children=[
                 MenuItem("New...", handler=do_new_file),
-                MenuItem("Open...", handler=do_open_file),
+                # MenuItem("Open...", handler=do_open_file),
+                MenuItem("Open Scroll", handler=do_scroll_menu),
                 # TODO add save functionality implement do_save and do_save as
                 MenuItem("Save"),
                 MenuItem("Save as..."),
@@ -417,7 +423,6 @@ root_container = MenuContainer(
             "Info",
             children=[
                 MenuItem("About", handler=do_about),
-                MenuItem("Scroll", handler=do_scroll_menu),
             ],
         ),
     ],
