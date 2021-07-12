@@ -22,7 +22,12 @@ from prompt_toolkit.widgets import Button, Frame, Label
 
 
 class ScrollableMenu:
-    """Main class for scrollable menu"""
+    """
+    Scrollable Menu UI Element.
+    
+    Displays contents of the a given working directory and allows users to inspect files. 
+    In the future users can drill down into directories.
+    """
 
     def __init__(self, dir: str):
         # Display contents in the current working directory on the menu
@@ -50,7 +55,7 @@ class ScrollableMenu:
         """Display content.
 
         If target's content is a file, display it in the left column.
-        If the target_content is a directory, replace the right column with its content.
+        TODO: If the target_content is a directory, replace the right column with its content.
 
         Args:
             target_content (str): Target's content
