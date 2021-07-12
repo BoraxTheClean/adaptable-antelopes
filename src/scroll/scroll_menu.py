@@ -51,14 +51,14 @@ class ScrollMenuDialog(PopUpDialog):
             set_title(f"ThoughtBox - {self.cur_file_path}")
 
         # Add chosen file to editor
-        ok_button = Button(text="OK", handler=(lambda: set_done()))
+        self.ok_button = Button(text="OK", handler=(lambda: set_done()))
 
-        cancel_button = Button(text="Cancel", handler=(lambda: set_cancel()))
+        self.cancel_button = Button(text="Cancel", handler=(lambda: set_cancel()))
 
         self.dialog = Dialog(
             title=title,
             body=self.body,
-            buttons=[ok_button, cancel_button],
+            buttons=[self.ok_button, self.cancel_button],
             width=D(preferred=80),
             modal=True,
         )
@@ -117,6 +117,8 @@ class ScrollMenuDialog(PopUpDialog):
             self.body.children.insert(
                 0, Window(content=FormattedTextControl(file_content))
             )
+            # Re-focus cursor to ok_button
+            get_app().layout.focus(self.ok_button)
         elif isdir(join(target_dir, target_content)):
             frames = self._get_contents(join(target_dir, target_content))
             # Assuming the last child is the scrolling menu
@@ -132,7 +134,7 @@ class ScrollMenuDialog(PopUpDialog):
                 )
             )
             # Re-focus the cursor back to the dialog
-            get_app().layout.focus(self.dialog)
+            get_app().layout.focus(self.body)
         else:
             raise ValueError("The target' content is neither a file or directory")
 
