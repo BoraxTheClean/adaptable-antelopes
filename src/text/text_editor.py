@@ -82,6 +82,11 @@ text_field = TextArea(
 )
 
 
+def set_text_field(new_content: str) -> None:
+    """Sets global text_fields text"""
+    text_field.text = new_content
+
+
 class TextInputDialog(PopUpDialog):
     """Text Input for the open dialog box"""
 

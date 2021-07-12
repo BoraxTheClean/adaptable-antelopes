@@ -43,7 +43,7 @@ class ScrollMenuDialog(PopUpDialog):
             if self.cur_file_path:
                 with open(self.cur_file_path, "r") as f:
                     f_content = f.read()
-                text_editor.text_field.text = f_content
+                text_editor.set_text_field(f_content)
             self.future.set_result(None)
 
         # Add chosen file to editor
