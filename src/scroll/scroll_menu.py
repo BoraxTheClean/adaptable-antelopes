@@ -33,13 +33,15 @@ class ScrollMenuDialog(PopUpDialog):
             """Future object when done return None"""
             self.future.set_result(None)
 
-        # changed text from OK to see where this is
+        # Add chosen file to editor
         ok_button = Button(text="OK", handler=(lambda: set_done()))
+
+        cancel_button = Button(text="Cancel", handler=(lambda: set_done()))
 
         self.dialog = Dialog(
             title=title,
             body=self.body,
-            buttons=[ok_button],
+            buttons=[ok_button, cancel_button],
             width=D(preferred=80),
             modal=True,
         )
