@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """A simple example of a Notepad-like text editor."""
 import datetime
+import json
 from asyncio import Future, ensure_future
 
 from prompt_toolkit.application import Application
@@ -46,8 +47,22 @@ class ApplicationState:
     instantiate this as an object and pass at around.
     """
 
+    try:
+        with open("user_setting.json", "r") as j:
+            user_settings = json.loads(j.read())
+    except FileNotFoundError:
+        user_settings = {"last_path": None}
+        with open("user_setting.json", "w") as j:
+            default_user_settings = json.dumps(user_settings)
+            j.write(default_user_settings)
+
     show_status_bar = True
-    current_path = None
+    if "last_path" in user_settings and user_settings["last_path"]:
+        current_path = user_settings["last_path"]
+        # with open(current_path,'r') as file:
+        #     set_text_field(file.read())
+    else:
+        current_path = None
 
 
 # TODO make something like this that will pull up the side file menu
@@ -72,16 +87,22 @@ def get_statusbar_right_text() -> None:
 
 
 search_toolbar = SearchToolbar()
-text_field = TextArea(
-    # lexer=DynamicLexer(
-    #     lambda: PygmentsLexer.from_filename(
-    #         ApplicationState.current_path or ".txt", sync_from_start=False
-    #     )
-    # ),
-    lexer=PygmentsLexer(MarkdownLexer),
-    scrollbar=True,
-    search_field=search_toolbar,
-)
+if ApplicationState.current_path:
+    with open(ApplicationState.current_path, "r") as file:
+        content = file.read()
+
+    text_field = TextArea(
+        lexer=PygmentsLexer(MarkdownLexer),
+        scrollbar=True,
+        search_field=search_toolbar,
+        text=content,
+    )
+else:
+    text_field = TextArea(
+        lexer=PygmentsLexer(MarkdownLexer),
+        scrollbar=True,
+        search_field=search_toolbar,
+    )
 
 
 def set_text_field(new_content: str) -> None:
@@ -293,6 +314,10 @@ def do_new_file() -> None:
 
 def do_exit() -> None:
     """Exit"""
+    with open("user_setting.json", "w") as j:
+        ApplicationState.user_settings["last_path"] = ApplicationState.current_path
+        user = json.dumps({"last_path": ApplicationState.current_path})
+        j.write(user)
     get_app().exit()
 
 
