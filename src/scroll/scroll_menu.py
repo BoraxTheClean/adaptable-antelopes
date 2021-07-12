@@ -106,7 +106,8 @@ class ScrollMenuDialog(PopUpDialog):
         if isfile(join(target_dir, target_content)):
             # open file's content
             with open(join(target_dir, target_content), "r") as f:
-                file_content = f.read()
+                # Read up to 1000th character.
+                file_content = f.read(1000)
             self.cur_file_path = join(target_dir, target_content)
 
             # Remove any object that isn't HSplit
