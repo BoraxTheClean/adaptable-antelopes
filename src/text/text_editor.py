@@ -1,4 +1,5 @@
 import datetime
+import os
 from asyncio import Future, ensure_future
 from typing import Optional
 
@@ -35,6 +36,7 @@ from prompt_toolkit.widgets import (
 )
 from pygments.lexers.markup import MarkdownLexer
 
+from constants import NOTES_DIR
 from custom_types.ui_types import PopUpDialog
 from scroll.scroll_menu import ScrollMenuDialog
 
@@ -516,4 +518,6 @@ application = Application(
 
 def run() -> None:
     """Run the application"""
+    # Create notes directory
+    os.makedirs(NOTES_DIR, exist_ok=True)
     application.run()
