@@ -1,14 +1,14 @@
-#!/usr/bin/env python
-"""A simple example of a Notepad-like text editor."""
 import datetime
 import json
 from asyncio import Future, ensure_future
+from typing import Optional
 
 from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
-from prompt_toolkit.completion import PathCompleter
+from prompt_toolkit.completion import Completer
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.key_binding.key_processor import KeyPressEvent
 from prompt_toolkit.layout.containers import (
     ConditionalContainer,
     Float,
@@ -23,6 +23,7 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.search import start_search
+from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import (
     Button,
@@ -52,7 +53,7 @@ class ApplicationState:
             user_settings = json.loads(j.read())
     except FileNotFoundError:
         # if for some reason the file is deleted but then i need to maintain all the setting here
-        user_settings = {"last_path": None, "style": {}}  # color picker?
+        user_settings = {"last_path": None, "style": ""}  # color picker?
         with open("user_setting.json", "w") as j:
             default_user_settings = json.dumps(user_settings)
             j.write(default_user_settings)
@@ -64,12 +65,29 @@ class ApplicationState:
         current_path = None
 
 
+# class UserSettings():
+#     """User Settings object"""
+#     def __init__(self):
+#         self.last_path = ""
+#         self.style = ""
+
+
+def get_current_path() -> Optional[str]:
+    """Gets current path for scroll/scroll_menu to access"""
+    return ApplicationState.current_path
+
+
+def set_current_path(new_path: Optional[str]) -> None:
+    """Sets new current path for scroll/scroll_menu"""
+    ApplicationState.current_path = new_path
+
+
 # TODO make something like this that will pull up the side file menu
 def get_status_bar_left_text() -> None:
     """Display current file's name"""
     if name := text_field.buffer.name:
         return name
-    return "Editor - Untitled"
+    return "ThoughtBox - Untitled"
 
 
 def get_statusbar_middle_text() -> None:
@@ -90,7 +108,8 @@ text_field = TextArea(
     lexer=PygmentsLexer(MarkdownLexer),
     scrollbar=True,
     search_field=search_toolbar,
-    style="bg:#ffaa33"
+    style="class:text-field"
+    # style="bg:#ffaa22",
 )
 
 if ApplicationState.current_path:
@@ -108,12 +127,12 @@ def set_text_field(new_content: str) -> None:
 class TextInputDialog(PopUpDialog):
     """Text Input for the open dialog box"""
 
-    # unsure for type of completer guessing pathcompleter
     def __init__(
-            self, title: str = "", label_text: str = "", completer: PathCompleter = None
+        self, title: str = "", label_text: str = "", completer: Completer = None
     ):
         self.future = Future()
 
+        # TODO: fix this type annotation
         def accept_text(buf: object) -> bool:
             """Accepts text"""
             get_app().layout.focus(ok_button)
@@ -135,7 +154,7 @@ class TextInputDialog(PopUpDialog):
             accept_handler=accept_text,
         )
 
-        ok_button = Button(text="OK_open", handler=accept)
+        ok_button = Button(text="OK", handler=accept)
         cancel_button = Button(text="Cancel", handler=cancel)
 
         self.dialog = Dialog(
@@ -160,8 +179,7 @@ class MessageDialog(PopUpDialog):
             """Future object when done return None"""
             self.future.set_result(None)
 
-        # changed text from OK to see where this is
-        ok_button = Button(text="OK_Msg_Dialog", handler=(lambda: set_done()))
+        ok_button = Button(text="OK", handler=(lambda: set_done()))
 
         self.dialog = Dialog(
             title=title,
@@ -210,15 +228,69 @@ bindings = KeyBindings()
 
 
 @bindings.add("c-k")
-def _(event: object) -> None:
-    """Focus menu."""
+def open_menu(event: KeyPressEvent) -> None:
+    """Focus menu with Ctrl-K"""
     event.app.layout.focus(root_container.window)
 
 
 @bindings.add("escape")
-def _(event: object) -> None:
+def close_menu(event: KeyPressEvent) -> None:
     """Focus text field."""
     event.app.layout.focus(text_field)
+
+
+@bindings.add("c-n")
+def create_new_file(event: KeyPressEvent) -> None:
+    """Create new file with Ctrl-N"""
+    do_new_file()
+
+
+@bindings.add("c-s")
+def save_file(event: KeyPressEvent) -> None:
+    """Save file with Ctrl-S"""
+    do_save_file()
+
+
+@bindings.add("c-o")
+def open_file(event: KeyPressEvent) -> None:
+    """Open file with Ctrl-O"""
+    do_scroll_menu()
+
+
+@bindings.add("c-q")
+def exit_editor(event: KeyPressEvent) -> None:
+    """Exit terminal with Ctrl-Q"""
+    do_exit()
+
+
+@bindings.add("c-a")
+def select_all(event: KeyPressEvent) -> None:
+    """Select all with Ctrl-A"""
+    do_select_all()
+
+
+@bindings.add("c-x")
+def cut_text(event: KeyPressEvent) -> None:
+    """Cut with Ctrl-X"""
+    do_cut()
+
+
+@bindings.add("c-c")
+def copy_text(event: KeyPressEvent) -> None:
+    """Copy with Ctrl-C"""
+    do_copy()
+
+
+@bindings.add("c-v")
+def paste_text(event: KeyPressEvent) -> None:
+    """Paste with Ctrl-V"""
+    do_paste()
+
+
+@bindings.add("c-z")
+def undo_changes(event: KeyPressEvent) -> None:
+    """Undo with Ctrl-Z"""
+    do_undo()
 
 
 #
@@ -226,38 +298,48 @@ def _(event: object) -> None:
 #
 
 
-def do_open_file() -> None:
-    """Open file from menu select"""
+def save_file_at_path(path: str, text: str) -> None:
+    """Saves text (changes) to a file path"""
+    try:
+        with open(path, "w", encoding="utf8") as f:
+            f.write(text)
+    except IOError as e:
+        show_message("Error", "{}".format(e))
+    else:
+        set_title(f"ThoughtBox - {path}")
+
+
+def do_save_file() -> None:
+    """Try to save. If no file is being edited, save as instead to create a new one."""
+    if get_current_path() is not None:
+        save_file_at_path(get_current_path(), text_field.text)
+    else:
+        do_save_as_file()
+
+
+def do_save_as_file() -> None:
+    """Try to Save As a file under a new name/path."""
 
     async def coroutine() -> None:
         open_dialog = TextInputDialog(
-            title="Open file",
-            label_text="Enter the path of a file:",
-            completer=PathCompleter(),
+            title="Save As", label_text="Enter the path of the file:"
         )
 
         path = await show_dialog_as_float(open_dialog)
-        ApplicationState.current_path = path
-
-        if path is not None:
-            try:
-                with open(path, "rb") as f:
-                    text_field.text = f.read().decode("utf-8", errors="ignore")
-                    # Save the name to be display in the title
-                    text_field.buffer.name = path
-            except IOError as e:
-                show_message("Error", "{}".format(e))
+        set_current_path(path)
+        if get_current_path() is not None:
+            save_file_at_path(get_current_path(), text_field.text)
 
     ensure_future(coroutine())
 
 
 def do_scroll_menu() -> None:
     """Open Scroll Menu"""
-    show_scroll("Scroll", "buf")
+    show_scroll("Notes", "buf")
 
 
 def show_scroll(title: str, text: str) -> None:
-    """Shows about message"""
+    """Shows a MessageDialog with a certain title and text"""
 
     async def coroutine() -> None:
         dialog = ScrollMenuDialog(title, text)
@@ -268,7 +350,7 @@ def show_scroll(title: str, text: str) -> None:
 
 def do_about() -> None:
     """About from menu select"""
-    show_message("About", "Text editor demo.\nCreated by Jonathan Slenders.")
+    show_message("About", "ThoughtBox\nCreated by Adaptable Antelopes.")
 
 
 def show_message(title: str, text: str) -> None:
@@ -301,10 +383,12 @@ async def show_dialog_as_float(dialog: PopUpDialog) -> None:
 
 # All the do_ is a menu item
 
-# TODO actually make new file
+
 def do_new_file() -> None:
-    """Doesn't make new file just clears text_field but i guess thats fine till save"""
+    """Makes a new file"""
     text_field.text = ""
+    set_current_path(None)
+    set_title("ThoughtBox - Untitled")
 
 
 def do_exit() -> None:
@@ -320,28 +404,6 @@ def do_time_date() -> None:
     """Inserts current datetime into text_field from menu"""
     text = datetime.datetime.now().isoformat()
     text_field.buffer.insert_text(text)
-
-
-def do_go_to() -> None:
-    """Go to line"""
-
-    async def coroutine() -> None:
-        dialog = TextInputDialog(title="Go to line", label_text="Line number:")
-
-        line_number = await show_dialog_as_float(dialog)
-
-        try:
-            line_number = int(line_number)
-        except ValueError:
-            show_message("Invalid line number")
-        else:
-            text_field.buffer.cursor_position = (
-                text_field.buffer.document.translate_row_col_to_index(
-                    line_number - 1, 0
-                )
-            )
-
-    ensure_future(coroutine())
 
 
 def do_undo() -> None:
@@ -402,7 +464,6 @@ def do_status_bar() -> None:
 # The menu container.
 #
 
-
 root_container = MenuContainer(
     body=body,
     menu_items=[
@@ -410,11 +471,9 @@ root_container = MenuContainer(
             "File",
             children=[
                 MenuItem("New...", handler=do_new_file),
-                # MenuItem("Open...", handler=do_open_file),
                 MenuItem("Open Scroll", handler=do_scroll_menu),
-                # TODO add save functionality implement do_save and do_save as
-                MenuItem("Save"),
-                MenuItem("Save as..."),
+                MenuItem("Save", handler=do_save_file),
+                MenuItem("Save as...", handler=do_save_as_file),
                 MenuItem("-", disabled=True),
                 MenuItem("Exit", handler=do_exit),
             ],
@@ -432,7 +491,6 @@ root_container = MenuContainer(
                 MenuItem("Find next", handler=do_find_next),
                 # TODO no replace function we can just delete it or try to implement do_replace
                 MenuItem("Replace"),
-                MenuItem("Go To", handler=do_go_to),
                 MenuItem("Select All", handler=do_select_all),
                 MenuItem("Time/Date", handler=do_time_date),
             ],
@@ -461,10 +519,24 @@ root_container = MenuContainer(
 # style of menu can def play around here
 style = Style.from_dict(
     {
+        # 'text-area': "bg:#00a444",
+        # "top": "bg:#00bb00",
         "status": "reverse",
-        "shadow": "bg:#440044",
+        "shadow": "bg:#000000 #ffffff",
+        # "menu": "shadow:#440044",
+        "menu": "bg:#004444",
+        # "button" : "bg:#004444"
+        # 'text-field': "#00a444 bg:#bba400",
     }
 )
+# sets font 'text-field': "#00a444"
+
+
+# style = Style([
+#     ("status", "reverse"),
+#     ("menu:shadow", "#440044",)
+# ])
+
 
 layout = Layout(root_container, focused_element=text_field)
 
@@ -478,5 +550,5 @@ application = Application(
 
 
 def run() -> None:
-    """Run"""
+    """Run the application"""
     application.run()
