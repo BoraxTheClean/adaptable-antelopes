@@ -31,5 +31,5 @@ build/
 .DS_Store
 # Vim
 .vim/
-# ThoughtBox
+# ThoughtBox's Internal Application File System
 .thought_box/

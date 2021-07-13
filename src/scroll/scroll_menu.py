@@ -39,7 +39,7 @@ class ScrollMenuDialog(PopUpDialog):
             """Cancel don't open file"""
             self.future.set_result(None)
 
-        # Raise exception if attempt to open any extension besides .txt or .md
+        # Send error message if attempt to opena ny extension besides .txt and .md
         def set_done() -> None:
             """Handles actions related to adding file's contents to text editor"""
             if self.cur_file_path:
