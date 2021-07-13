@@ -38,20 +38,23 @@ class ScrollMenuDialog(PopUpDialog):
         def set_cancel() -> None:
             """Cancel don't open file"""
             self.future.set_result(None)
-        
+
         # Raise exception if attempt to open any extension besides .txt or .md
         def set_done() -> None:
             """Future object when done return None"""
             if self.cur_file_path:
-                self.future.set_result(None)
                 if splitext(self.cur_file_path)[1] in (".txt", ".md"):
                     text_editor.set_current_path(self.cur_file_path)
                     with open(self.cur_file_path, "r") as f:
                         f_content = f.read()
                     text_editor.set_text_field(f_content)
                 else:
-                   text_editor.show_message(title = "extension_error", text = "Unsupported file extension. Only '.txt' and '.md' are supported")
+                    text_editor.show_message(
+                        title="extension_error",
+                        text="Unsupported file extension. Only '.txt' and '.md' are supported",
+                    )
 
+            self.future.set_result(None)
             set_title(f"ThoughtBox - {self.cur_file_path}")
 
         # Add chosen file to editor
