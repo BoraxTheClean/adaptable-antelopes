@@ -1,7 +1,7 @@
 import functools
 from asyncio import Future
 from os import listdir
-from os.path import isdir, isfile, join, splitext, realpath
+from os.path import isdir, isfile, join, realpath, splitext
 from typing import List
 
 from prompt_toolkit.application.current import get_app
@@ -11,7 +11,7 @@ from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import Button, Dialog, Frame, Label
 
-from constants import CURRENT_WORK_DIR, PADDING_CHAR, PADDING_WIDTH, NOTES_DIR
+from constants import NOTES_DIR, PADDING_CHAR, PADDING_WIDTH
 from custom_types.ui_types import PopUpDialog
 from text import text_editor
 
@@ -19,15 +19,15 @@ from text import text_editor
 class ScrollMenuDialog(PopUpDialog):
     """Scroll menu added to the info tab dialog box"""
 
-    def __init__(self, title: str, text: str, dir: str = CURRENT_WORK_DIR):
+    def __init__(self, title: str, text: str, dir: str = NOTES_DIR):
         self.future = Future()
         self.cur_file_path = text_editor.get_current_path()
-        
+
         self.body = VSplit(
             children=[
                 Label(text="File's content here", dont_extend_height=False),
                 Frame(
-                    body=ScrollablePane(HSplit(children=self._get_contents(NOTES_DIR))),
+                    body=ScrollablePane(HSplit(children=self._get_contents(dir))),
                     # style="fg:#ffffff bg:#70ecff bold",
                 ),
             ],
@@ -43,13 +43,17 @@ class ScrollMenuDialog(PopUpDialog):
         def set_done() -> None:
             """Future object when done return None"""
             if self.cur_file_path:
+                # The caller is waiting for self.future so setting it to None will
+                # be a flag to indicate that we're done with this dialog
                 self.future.set_result(None)
+                # Only add to text_editor if the given file is text file or markdown file.
                 if splitext(self.cur_file_path)[1] in (".txt", ".md"):
                     text_editor.set_current_path(self.cur_file_path)
                     with open(self.cur_file_path, "r") as f:
                         f_content = f.read()
                     text_editor.set_text_field(f_content)
                 else:
+                    # Else show a popup message revealing the error message
                     text_editor.show_message(
                         title="extension_error",
                         text="Unsupported file extension. Only '.txt' and '.md' are supported",
@@ -78,8 +82,6 @@ class ScrollMenuDialog(PopUpDialog):
         Returns:
             List[Frame]: List of frames to add to the container
         """
-        
-
         frames = [
             Frame(
                 Button(
