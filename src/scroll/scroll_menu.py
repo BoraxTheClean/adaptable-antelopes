@@ -50,7 +50,7 @@ class ScrollMenuDialog(PopUpDialog):
                         f_content = f.read()
                     text_editor.set_text_field(f_content)
                 else:
-                   text_editor.show_message(
+                    text_editor.show_message(
                         title="extension_error",
                         text="Unsupported file extension. Only '.txt' and '.md' are supported",
                     )
