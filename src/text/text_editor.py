@@ -342,15 +342,21 @@ def show_message(title: str, text: str) -> None:
 async def show_dialog_as_float(dialog: PopUpDialog) -> None:
     """Coroutine what does it return idk? the messageDialogs future result which is None?"""
     float_ = Float(content=dialog)
+    # Put given dialog on top of everything
     root_container.floats.insert(0, float_)
 
     app = get_app()
 
+    # Put current window in a temp variable
     focused_before = app.layout.current_window
+    # Focus cursor to the given dialog
     app.layout.focus(dialog)
+    # Wait for the dialog to finish (returns None)
     result = await dialog.future
+    # Re-focus cursor back to window in temp variable
     app.layout.focus(focused_before)
 
+    # Now remove the given dialog
     if float_ in root_container.floats:
         root_container.floats.remove(float_)
 
