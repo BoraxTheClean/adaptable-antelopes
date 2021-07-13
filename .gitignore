@@ -31,3 +31,5 @@ build/
 .DS_Store
 # Vim
 .vim/
+# ThoughtBox
+.thought_box/
