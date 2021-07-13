@@ -11,7 +11,7 @@ from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import Button, Dialog, Frame, Label
 
-from constants import CURRENT_WORK_DIR, NOTES_DIR, PADDING_CHAR, PADDING_WIDTH 
+from constants import CURRENT_WORK_DIR, NOTES_DIR, PADDING_CHAR, PADDING_WIDTH
 from custom_types.ui_types import PopUpDialog
 from text import text_editor
 
@@ -22,7 +22,7 @@ class ScrollMenuDialog(PopUpDialog):
     def __init__(self, title: str, text: str, dir: str = CURRENT_WORK_DIR):
         self.future = Future()
         self.cur_file_path = text_editor.get_current_path()
-        
+
         self.body = VSplit(
             children=[
                 Label(text="File's content here", dont_extend_height=False),
@@ -39,7 +39,7 @@ class ScrollMenuDialog(PopUpDialog):
             """Cancel don't open file"""
             self.future.set_result(None)
 
-        # Raise exception if attempt to open any extension besides .txt or .md
+        # Send error message if attempt to opena ny extension besides .txt and .md
         def set_done() -> None:
             """Future object when done return None"""
             if self.cur_file_path:
@@ -78,8 +78,6 @@ class ScrollMenuDialog(PopUpDialog):
         Returns:
             List[Frame]: List of frames to add to the container
         """
-        
-
         frames = [
             Frame(
                 Button(
