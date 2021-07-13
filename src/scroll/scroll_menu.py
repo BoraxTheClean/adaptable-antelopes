@@ -41,7 +41,7 @@ class ScrollMenuDialog(PopUpDialog):
 
         # Raise exception if attempt to open any extension besides .txt or .md
         def set_done() -> None:
-            """Future object when done return None"""
+            """Handles actions related to adding file's contents to text editor"""
             if self.cur_file_path:
                 # The caller is waiting for self.future so setting it to None will
                 # be a flag to indicate that we're done with this dialog
