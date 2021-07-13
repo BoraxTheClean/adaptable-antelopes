@@ -51,7 +51,8 @@ class ApplicationState:
         with open("user_setting.json", "r") as j:
             user_settings = json.loads(j.read())
     except FileNotFoundError:
-        user_settings = {"last_path": None}
+        # if for some reason the file is deleted but then i need to maintain all the setting here
+        user_settings = {"last_path": None, "style": {}}  # color picker?
         with open("user_setting.json", "w") as j:
             default_user_settings = json.dumps(user_settings)
             j.write(default_user_settings)
@@ -59,8 +60,6 @@ class ApplicationState:
     show_status_bar = True
     if "last_path" in user_settings and user_settings["last_path"]:
         current_path = user_settings["last_path"]
-        # with open(current_path,'r') as file:
-        #     set_text_field(file.read())
     else:
         current_path = None
 
@@ -87,22 +86,18 @@ def get_statusbar_right_text() -> None:
 
 
 search_toolbar = SearchToolbar()
+text_field = TextArea(
+    lexer=PygmentsLexer(MarkdownLexer),
+    scrollbar=True,
+    search_field=search_toolbar,
+    style="bg:#ffaa33"
+)
+
 if ApplicationState.current_path:
     with open(ApplicationState.current_path, "r") as file:
         content = file.read()
 
-    text_field = TextArea(
-        lexer=PygmentsLexer(MarkdownLexer),
-        scrollbar=True,
-        search_field=search_toolbar,
-        text=content,
-    )
-else:
-    text_field = TextArea(
-        lexer=PygmentsLexer(MarkdownLexer),
-        scrollbar=True,
-        search_field=search_toolbar,
-    )
+    text_field.text = content
 
 
 def set_text_field(new_content: str) -> None:
@@ -115,7 +110,7 @@ class TextInputDialog(PopUpDialog):
 
     # unsure for type of completer guessing pathcompleter
     def __init__(
-        self, title: str = "", label_text: str = "", completer: PathCompleter = None
+            self, title: str = "", label_text: str = "", completer: PathCompleter = None
     ):
         self.future = Future()
 
