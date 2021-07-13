@@ -43,6 +43,7 @@ class ScrollMenuDialog(PopUpDialog):
         def set_done() -> None:
             """Future object when done return None"""
             if self.cur_file_path:
+                self.future.set_result(None)
                 if splitext(self.cur_file_path)[1] in (".txt", ".md"):
                     text_editor.set_current_path(self.cur_file_path)
                     with open(self.cur_file_path, "r") as f:
@@ -53,7 +54,6 @@ class ScrollMenuDialog(PopUpDialog):
                         title="extension_error",
                         text="Unsupported file extension. Only '.txt' and '.md' are supported",
                     )
-            self.future.set_result(None)
             set_title(f"ThoughtBox - {self.cur_file_path}")
 
         # Add chosen file to editor
