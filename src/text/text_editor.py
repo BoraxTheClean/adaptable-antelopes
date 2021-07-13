@@ -7,6 +7,8 @@ from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.completion import Completer
 from prompt_toolkit.filters import Condition
+
+# from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.key_binding.key_processor import KeyPressEvent
 from prompt_toolkit.layout.containers import (
@@ -48,21 +50,25 @@ class ApplicationState:
     instantiate this as an object and pass at around.
     """
 
-    try:
-        with open("user_setting.json", "r") as j:
-            user_settings = json.loads(j.read())
-    except FileNotFoundError:
-        # if for some reason the file is deleted but then i need to maintain all the setting here
-        user_settings = {"last_path": None, "style": ""}  # color picker?
-        with open("user_setting.json", "w") as j:
-            default_user_settings = json.dumps(user_settings)
-            j.write(default_user_settings)
+    def __init__(self):
+        try:
+            with open("user_setting.json", "r") as j:
+                self.user_settings = json.loads(j.read())
+        except FileNotFoundError:
+            # if for some reason the file is deleted but then i need to maintain all the setting here
+            self.user_settings = {"last_path": None, "style": ""}  # color picker?
+            with open("user_setting.json", "w") as j:
+                default_user_settings = json.dumps(self.user_settings)
+                j.write(default_user_settings)
 
-    show_status_bar = True
-    if "last_path" in user_settings and user_settings["last_path"]:
-        current_path = user_settings["last_path"]
-    else:
-        current_path = None
+        self.show_status_bar = True
+        if "last_path" in self.user_settings and self.user_settings["last_path"]:
+            self.current_path = self.user_settings["last_path"]
+        else:
+            self.current_path = None
+
+
+appState = ApplicationState()
 
 
 # class UserSettings():
@@ -74,16 +80,16 @@ class ApplicationState:
 
 def get_current_path() -> Optional[str]:
     """Gets current path for scroll/scroll_menu to access"""
-    return ApplicationState.current_path
+    return appState.current_path
 
 
 def set_current_path(new_path: Optional[str]) -> None:
     """Sets new current path for scroll/scroll_menu"""
-    ApplicationState.current_path = new_path
+    appState.current_path = new_path
 
 
 # TODO make something like this that will pull up the side file menu
-def get_status_bar_left_text() -> None:
+def get_status_bar_left_text() -> str:
     """Display current file's name"""
     if name := text_field.buffer.name:
         return name
@@ -112,8 +118,8 @@ text_field = TextArea(
     # style="bg:#ffaa22",
 )
 
-if ApplicationState.current_path:
-    with open(ApplicationState.current_path, "r") as file:
+if appState.current_path:
+    with open(appState.current_path, "r") as file:
         content = file.read()
 
     text_field.text = content
@@ -218,7 +224,7 @@ body = HSplit(
                 ],
                 height=1,
             ),
-            filter=Condition(lambda: ApplicationState.show_status_bar),
+            filter=Condition(lambda: appState.show_status_bar),
         ),
     ]
 )
@@ -394,8 +400,8 @@ def do_new_file() -> None:
 def do_exit() -> None:
     """Exit"""
     with open("user_setting.json", "w") as j:
-        ApplicationState.user_settings["last_path"] = ApplicationState.current_path
-        user = json.dumps({"last_path": ApplicationState.current_path})
+        appState.user_settings["last_path"] = appState.current_path
+        user = json.dumps({"last_path": appState.current_path})
         j.write(user)
     get_app().exit()
 
@@ -457,7 +463,7 @@ def do_select_all() -> None:
 
 def do_status_bar() -> None:
     """Opens ar closes status bar"""
-    ApplicationState.show_status_bar = not ApplicationState.show_status_bar
+    appState.show_status_bar = not appState.show_status_bar
 
 
 #
@@ -521,12 +527,16 @@ style = Style.from_dict(
     {
         # 'text-area': "bg:#00a444",
         # "top": "bg:#00bb00",
+        "frame-label": "bg:#ffffff #000000",
         "status": "reverse",
         "shadow": "bg:#000000 #ffffff",
         # "menu": "shadow:#440044",
         "menu": "bg:#004444",
+        "menu-bar": "bg:#00ff00",
+        # "menu.": "#00ff00",
         # "button" : "bg:#004444"
-        # 'text-field': "#00a444 bg:#bba400",
+        # 'text-field': "#00ff00 bg:#000000",
+        "dialog.body": "bg:#111111 #00aa44",
     }
 )
 # sets font 'text-field': "#00a444"
