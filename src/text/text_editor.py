@@ -313,14 +313,14 @@ def do_save_as_file() -> None:
 
 def do_scroll_menu() -> None:
     """Open Scroll Menu"""
-    show_scroll("Scroll", "buf")
+    show_scroll("Open Note")
 
 
-def show_scroll(title: str, text: str) -> None:
-    """Shows a MessageDialog with a certain title and text"""
+def show_scroll(title: str) -> None:
+    """Shows a MessageDialog with a certain title"""
 
     async def coroutine() -> None:
-        dialog = ScrollMenuDialog(title, text)
+        dialog = ScrollMenuDialog(title)
         await show_dialog_as_float(dialog)
 
     ensure_future(coroutine())

@@ -1,7 +1,7 @@
 import functools
 from asyncio import Future
 from os import listdir
-from os.path import isdir, isfile, join, realpath, splitext
+from os.path import basename, isdir, isfile, join, realpath, splitext
 from typing import List
 
 from prompt_toolkit.application.current import get_app
@@ -19,7 +19,7 @@ from text import text_editor
 class ScrollMenuDialog(PopUpDialog):
     """Scroll menu added to the info tab dialog box"""
 
-    def __init__(self, title: str, text: str, dir: str = NOTES_DIR):
+    def __init__(self, title: str, directory: str = NOTES_DIR):
         self.future = Future()
         self.cur_file_path = text_editor.get_current_path()
 
@@ -27,7 +27,8 @@ class ScrollMenuDialog(PopUpDialog):
             children=[
                 Label(text="File's content here", dont_extend_height=False),
                 Frame(
-                    body=ScrollablePane(HSplit(children=self._get_contents(dir))),
+                    title=directory,
+                    body=ScrollablePane(HSplit(children=self._get_contents(directory))),
                     # style="fg:#ffffff bg:#70ecff bold",
                 ),
             ],
@@ -39,7 +40,7 @@ class ScrollMenuDialog(PopUpDialog):
             """Cancel don't open file"""
             self.future.set_result(None)
 
-        # Send error message if attempt to opena ny extension besides .txt and .md
+        # Send error message if attempt to open any extension besides .txt and .md
         def set_done() -> None:
             """Handles actions related to adding file's contents to text editor"""
             if self.cur_file_path:
@@ -52,13 +53,13 @@ class ScrollMenuDialog(PopUpDialog):
                     with open(self.cur_file_path, "r") as f:
                         f_content = f.read()
                     text_editor.set_text_field(f_content)
+                    set_title(f"ThoughtBox - {self.cur_file_path}")
                 else:
                     # Else show a popup message revealing the error message
                     text_editor.show_message(
                         title="extension_error",
                         text="Unsupported file extension. Only '.txt' and '.md' are supported",
                     )
-            set_title(f"ThoughtBox - {self.cur_file_path}")
 
         # Add chosen file to editor
         self.ok_button = Button(text="OK", handler=(lambda: set_done()))
@@ -73,7 +74,7 @@ class ScrollMenuDialog(PopUpDialog):
             modal=True,
         )
 
-    def _get_contents(self, dir: str) -> List[Frame]:
+    def _get_contents(self, directory: str) -> List[Frame]:
         """Get contents from the given directory
 
         Args:
@@ -86,19 +87,21 @@ class ScrollMenuDialog(PopUpDialog):
             Frame(
                 Button(
                     text=item,
-                    handler=functools.partial(self._display_content, item, dir),
+                    handler=functools.partial(self._display_content, item, directory),
                 )
             )
-            for item in listdir(dir)
+            for item in listdir(directory)
         ]
         # Add a move-up one directory button, except if in NOTES_DIR
-        if realpath(dir).split("/")[-1] != NOTES_DIR:
+        if basename(realpath(directory)) != NOTES_DIR:
             frames.insert(
                 0,
                 Frame(
                     Button(
                         text="../",
-                        handler=functools.partial(self._display_content, "..", dir),
+                        handler=functools.partial(
+                            self._display_content, "..", directory
+                        ),
                     )
                 ),
             )
@@ -148,7 +151,7 @@ class ScrollMenuDialog(PopUpDialog):
             # Re-focus the cursor back to the dialog
             get_app().layout.focus(self.body)
         else:
-            raise ValueError("The target' content is neither a file or directory")
+            raise ValueError("The target content is neither a file nor directory")
 
     def __pt_container__(self):
         return self.dialog
