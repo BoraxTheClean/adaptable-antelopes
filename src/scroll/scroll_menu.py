@@ -1,7 +1,7 @@
 import functools
 from asyncio import Future
 from os import listdir
-from os.path import isdir, isfile, join, splitext, realpath
+from os.path import isdir, isfile, join, realpath, splitext
 from typing import List
 
 from prompt_toolkit.application.current import get_app
@@ -11,7 +11,7 @@ from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import Button, Dialog, Frame, Label
 
-from constants import CURRENT_WORK_DIR, PADDING_CHAR, PADDING_WIDTH, NOTES_DIR
+from constants import CURRENT_WORK_DIR, NOTES_DIR, PADDING_CHAR, PADDING_WIDTH 
 from custom_types.ui_types import PopUpDialog
 from text import text_editor
 
