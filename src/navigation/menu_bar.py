@@ -129,7 +129,7 @@ class MenuNav:
                 and user_entered_path not in [".", ".."]
                 and os.path.isfile(user_entered_path)
             ):
-                path = NOTES_DIR + "/" + user_entered_path
+                path = os.path.join(NOTES_DIR, user_entered_path)
                 self.application_state.current_path = path
                 self._save_file_at_path(path, self.text_field.text)
             else:
@@ -154,7 +154,7 @@ class MenuNav:
 
     def do_exit(self) -> None:
         """Exit"""
-        with open(".user_setting.json", "w") as j:
+        with open(os.path.join(NOTES_DIR, ".user_setting.json"), "w") as j:
             self.application_state.user_settings[
                 "last_path"
             ] = self.application_state.current_path
