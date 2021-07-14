@@ -1,6 +1,7 @@
 from asyncio import Future
 
 from prompt_toolkit.application.current import get_app
+from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.completion import Completer
 from prompt_toolkit.layout.containers import HSplit
 from prompt_toolkit.layout.dimension import D
@@ -17,8 +18,7 @@ class TextInputDialog(PopUpDialog):
     ):
         self.future = Future()
 
-        # TODO: fix this type annotation
-        def accept_text(buf: object) -> bool:
+        def accept_text(buf: Buffer) -> bool:
             """Accepts text"""
             get_app().layout.focus(ok_button)
             buf.complete_state = None
