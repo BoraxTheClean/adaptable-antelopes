@@ -170,22 +170,23 @@ class MenuNav:
         self.application_state.show_status_bar = (
             not self.application_state.show_status_bar
         )
-    
-    def do_convert_to_emoji(self)-> None:
-        dict_emo = { ':)'  : "\U0001f600",
-              '=)'   : "\U0001f600",  # Smile or happy
-              ':-D'  : "\U0001f600",
-              ':D'   : "\U0001f600",
-              '=D'   : "\U0001f600",  # Big smile
-              '>:-(' : "\U0001f600",
-              '>:-o' : "\U0001f600"   # Angry face
+
+    def do_convert_to_emoji(self) -> None:
+        """Convert all ascii emoji to unicode emoji."""
+        dict_emo = {
+            ":)": "\U0001f600",
+            "=)": "\U0001f600",  # Smile or happy
+            ":-D": "\U0001f600",
+            ":D": "\U0001f600",
+            "=D": "\U0001f600",  # Big smile
+            ">:-(": "\U0001f600",
+            ">:-o": "\U0001f600",  # Angry face
         }
-        for words in self.text_field.text.split():
-            for key in dict_emo:
-                if(str(words)==key):
-                    #replace words with the emoji
-                    #this doesnt currently work
-                    words=str(dict_emo[key])
+        for word in self.text_field.text.split():
+            if word in dict_emo:
+                self.text_field.text = self.text_field.text.replace(
+                    word, dict_emo[word]
+                )
 
     ############ HANDLERS FOR MENU ITEMS #############
     def _save_file_at_path(self, path: str, text: str) -> None:
