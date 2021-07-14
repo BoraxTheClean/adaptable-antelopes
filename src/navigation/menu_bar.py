@@ -1,4 +1,6 @@
 import datetime
+import json
+import os
 from asyncio import ensure_future
 
 from emoji import emojize
@@ -11,6 +13,7 @@ from prompt_toolkit.search import start_search
 from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import MenuContainer, MenuItem
 
+from constants import NOTES_DIR
 from custom_types import MessageDialog, PopUpDialog, ScrollMenuDialog, TextInputDialog
 
 
@@ -80,6 +83,23 @@ class MenuNav:
         )
 
     ############ MENU ITEMS #############
+
+    #
+    # def do_save_as_file(self) -> None:
+    #     """Try to Save As a file under a new name/path."""
+    #
+    #     async def coroutine() -> None:
+    #         open_dialog = TextInputDialog(
+    #             title="Save As", label_text="Enter the path of the file:"
+    #         )
+    #
+    #         path = await self.show_dialog_as_float(open_dialog)
+    #         self.application_state.current_path = path
+    #         if path := self.application_state.current_path:
+    #             self._save_file_at_path(path, self.text_field.text)
+    #
+    #     ensure_future(coroutine())
+
     def do_save_file(self) -> None:
         """Try to save. If no file is being edited, save as instead to create a new one."""
         if path := self.application_state.current_path:
@@ -91,14 +111,32 @@ class MenuNav:
         """Try to Save As a file under a new name/path."""
 
         async def coroutine() -> None:
+            """
+            Prompt the user for a file path to save their note.
+
+            If the path entered is a valid file name, save the current note at that path.
+            """
             open_dialog = TextInputDialog(
                 title="Save As", label_text="Enter the path of the file:"
             )
-
-            path = await self.show_dialog_as_float(open_dialog)
-            self.application_state.current_path = path
-            if path := self.application_state.current_path:
+            user_entered_path = await self.show_dialog_as_float(open_dialog)
+            # Validate that the user entered path is
+            # 1. Not an empty string or None
+            # 2. Doesn't consist exclusively of whitespace
+            # 3. Isn't the string "." or ".."
+            # 4. if the file already exists warning of over writing
+            if (
+                user_entered_path
+                and not str.isspace(user_entered_path)
+                and user_entered_path not in [".", ".."]
+                and os.path.isfile(user_entered_path)
+            ):
+                path = os.path.join(NOTES_DIR, user_entered_path)
+                self.application_state.current_path = path
                 self._save_file_at_path(path, self.text_field.text)
+            else:
+                # Fail silently
+                pass
 
         ensure_future(coroutine())
 
@@ -118,6 +156,12 @@ class MenuNav:
 
     def do_exit(self) -> None:
         """Exit"""
+        with open(os.path.join(NOTES_DIR, ".user_setting.json"), "w") as j:
+            self.application_state.user_settings[
+                "last_path"
+            ] = self.application_state.current_path
+            user = json.dumps({"last_path": self.application_state.current_path})
+            j.write(user)
         get_app().exit()
 
     def do_time_date(self) -> None:
