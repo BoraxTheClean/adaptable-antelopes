@@ -183,8 +183,8 @@ class MenuNav:
 
     def _show_scroll(self, title: str, text: str) -> None:
         """Shows a MessageDialog with a certain title and text"""
-        # Type annotation is ThoughtBox but can't due to partial initialization
-        async def coroutine(self: object) -> None:
+
+        async def coroutine(self: MenuNav) -> None:
             dialog = ScrollMenuDialog(self, title, text)
             await self.show_dialog_as_float(dialog)
 
@@ -192,8 +192,8 @@ class MenuNav:
 
     def show_message(self, title: str, text: str) -> None:
         """Shows about message"""
-        # Type annotation is ThoughtBox but can't due to partial initialization
-        async def coroutine(self: object) -> None:
+
+        async def coroutine(self: MenuNav) -> None:
             dialog = MessageDialog(title, text)
             await self.show_dialog_as_float(dialog)
 
