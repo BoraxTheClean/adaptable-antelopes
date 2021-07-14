@@ -16,12 +16,12 @@ class ApplicationState:
     def __init__(self):
         self.current_path = None
         try:
-            with open("user_setting.json", "r") as j:
+            with open(".user_setting.json", "r") as j:
                 self.user_settings = json.loads(j.read())
         except FileNotFoundError:
             # if for some reason the file is deleted but then i need to maintain all the setting here
             self.user_settings = {"last_path": None, "style": ""}  # color picker?
-            with open("user_setting.json", "w") as j:
+            with open(".user_setting.json", "w") as j:
                 default_user_settings = json.dumps(self.user_settings)
                 j.write(default_user_settings)
 

@@ -154,7 +154,7 @@ class MenuNav:
 
     def do_exit(self) -> None:
         """Exit"""
-        with open("user_setting.json", "w") as j:
+        with open(".user_setting.json", "w") as j:
             self.application_state.user_settings[
                 "last_path"
             ] = self.application_state.current_path
