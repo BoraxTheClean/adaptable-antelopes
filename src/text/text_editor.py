@@ -303,7 +303,7 @@ def do_save_as_file() -> None:
             title="Save As", label_text="Enter the path of the file:"
         )
 
-        path = await show_dialog_as_float(open_dialog)
+        path = NOTES_DIR + "/" + await show_dialog_as_float(open_dialog)
         set_current_path(path)
         if get_current_path() is not None:
             save_file_at_path(get_current_path(), text_field.text)
