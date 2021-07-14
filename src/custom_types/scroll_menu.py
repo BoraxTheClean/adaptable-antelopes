@@ -61,6 +61,8 @@ class ScrollMenuDialog(PopUpDialog):
                     self.commander.application_state.current_path = self.cur_file_path
                     with open(self.cur_file_path, "r") as f:
                         f_content = f.read()
+
+                    self.commander.current_path = self.cur_file_path
                     self.commander.text_field.text = f_content
                     set_title(f"ThoughtBox - {self.cur_file_path}")
                 else:

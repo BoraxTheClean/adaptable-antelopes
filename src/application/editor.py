@@ -27,18 +27,34 @@ class ThoughtBox(MenuNav):
     def __init__(self):
         self.application_state = ApplicationState()
         self.search_toolbar = SearchToolbar()
+
         self.text_field = TextArea(
             lexer=PygmentsLexer(MarkdownLexer),
             scrollbar=True,
             search_field=self.search_toolbar,
         )
+        if self.application_state.current_path:
+            with open(self.application_state.current_path, "r") as file:
+                self.text_field.text = file.read()
+
         # style of menu can def play around here
         self.style = Style.from_dict(
             {
+                # 'text-area': "bg:#00a444",
+                # "top": "bg:#00bb00",
+                "frame-label": "bg:#ffffff #000000",
                 "status": "reverse",
-                "shadow": "bg:#440044",
+                "shadow": "bg:#000000 #ffffff",
+                # "menu": "shadow:#440044",
+                "menu": "bg:#004444",
+                "menu-bar": "bg:#00ff00",
+                # "menu.": "#00ff00",
+                # "button" : "bg:#004444"
+                # 'text-field': "#00ff00 bg:#000000",
+                "dialog.body": "bg:#111111 #00aa44",
             }
         )
+
         self.body = HSplit(
             [
                 self.text_field,
