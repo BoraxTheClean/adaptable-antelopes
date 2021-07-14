@@ -1,4 +1,4 @@
-from text.editor import ThoughtBox
+from application.editor import ThoughtBox
 
 TB = ThoughtBox()
 
