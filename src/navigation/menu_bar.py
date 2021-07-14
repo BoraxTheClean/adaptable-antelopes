@@ -54,6 +54,7 @@ class MenuNav:
                         MenuItem("Replace"),
                         MenuItem("Select All", handler=self.do_select_all),
                         MenuItem("Time/Date", handler=self.do_time_date),
+                        MenuItem("Text To Emoji", handler=self.do_convert_to_emoji),
                     ],
                 ),
                 MenuItem(
@@ -169,6 +170,22 @@ class MenuNav:
         self.application_state.show_status_bar = (
             not self.application_state.show_status_bar
         )
+    
+    def do_convert_to_emoji(self)-> None:
+        dict_emo = { ':)'  : "\U0001f600",
+              '=)'   : "\U0001f600",  # Smile or happy
+              ':-D'  : "\U0001f600",
+              ':D'   : "\U0001f600",
+              '=D'   : "\U0001f600",  # Big smile
+              '>:-(' : "\U0001f600",
+              '>:-o' : "\U0001f600"   # Angry face
+        }
+        for words in self.text_field.text.split():
+            for key in dict_emo:
+                if(str(words)==key):
+                    #replace words with the emoji
+                    #this doesnt currently work
+                    words=str(dict_emo[key])
 
     ############ HANDLERS FOR MENU ITEMS #############
     def _save_file_at_path(self, path: str, text: str) -> None:
