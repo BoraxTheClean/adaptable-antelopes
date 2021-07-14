@@ -71,13 +71,6 @@ class ApplicationState:
 appState = ApplicationState()
 
 
-# class UserSettings():
-#     """User Settings object"""
-#     def __init__(self):
-#         self.last_path = ""
-#         self.style = ""
-
-
 def get_current_path() -> Optional[str]:
     """Gets current path for scroll/scroll_menu to access"""
     return appState.current_path
