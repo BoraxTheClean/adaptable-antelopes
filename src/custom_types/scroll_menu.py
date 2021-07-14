@@ -13,15 +13,23 @@ from prompt_toolkit.widgets import Button, Dialog, Frame, Label
 
 from constants import NOTES_DIR, PADDING_CHAR, PADDING_WIDTH
 from custom_types.ui_types import PopUpDialog
-from text import text_editor
 
 
 class ScrollMenuDialog(PopUpDialog):
     """Scroll menu added to the info tab dialog box"""
 
-    def __init__(self, title: str, text: str, dir: str = NOTES_DIR):
+    def __init__(self, commander: object, title: str, text: str, dir: str = NOTES_DIR):
+        """Initialize Scroll Menu Dialog
+
+        Args:
+            commander (object): Instance of ThoughtBox (required for modifying text in the editor)
+            title (str): Title for dialog
+            text (str): Body of dialog
+            dir (str): Default directory to open
+        """
         self.future = Future()
-        self.cur_file_path = text_editor.get_current_path()
+        self.commander = commander
+        self.cur_file_path = self.commander.application_state.current_path
 
         self.body = VSplit(
             children=[
@@ -48,14 +56,16 @@ class ScrollMenuDialog(PopUpDialog):
                 self.future.set_result(None)
                 # Only add to text_editor if the given file is text file or markdown file.
                 if splitext(self.cur_file_path)[1] in (".txt", ".md"):
-                    text_editor.set_current_path(self.cur_file_path)
+                    self.commander.application_state.current_path = self.cur_file_path
                     with open(self.cur_file_path, "r") as f:
                         f_content = f.read()
-                    text_editor.set_text_field(f_content)
-                    text_editor.set_current_path(self.cur_file_path)
+
+                    self.commander.current_path = self.cur_file_path
+                    self.commander.text_field.text = f_content
+
                 else:
                     # Else show a popup message revealing the error message
-                    text_editor.show_message(
+                    self.commander.show_message(
                         title="extension_error",
                         text="Unsupported file extension. Only '.txt' and '.md' are supported",
                     )
