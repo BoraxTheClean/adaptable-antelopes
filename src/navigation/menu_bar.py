@@ -10,7 +10,6 @@ from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.search import start_search
 from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import MenuContainer, MenuItem
-
 from custom_types import MessageDialog, PopUpDialog, ScrollMenuDialog, TextInputDialog
 
 
@@ -287,5 +286,10 @@ class MenuNav:
         def undo_changes(event: KeyPressEvent) -> None:
             """Undo with Ctrl-Z"""
             self.do_undo()
+        
+        @bindings.add("c-e")
+        def convert_to_emoji(event:KeyPressEvent) -> None:
+            """Convert text to emoji using Ctrl-E"""
+            self.do_convert_to_emoji()
 
         return bindings
