@@ -299,14 +299,27 @@ def do_save_as_file() -> None:
     """Try to Save As a file under a new name/path."""
 
     async def coroutine() -> None:
+        """
+        Prompt the user for a file path to save their note.
+
+        If the path entered is a valid file name, save the current note at that path.
+        """
         open_dialog = TextInputDialog(
             title="Save As", label_text="Enter the path of the file:"
         )
-
-        path = NOTES_DIR + "/" + await show_dialog_as_float(open_dialog)
-        set_current_path(path)
-        if get_current_path() is not None:
-            save_file_at_path(get_current_path(), text_field.text)
+        user_entered_path = await show_dialog_as_float(open_dialog)
+        # Validate that the user entered path is not an empty string and doesn't consist exclusively of whitespace.
+        if (
+            user_entered_path
+            and not str.isspace(user_entered_path)
+            and user_entered_path not in [".", ".."]
+        ):
+            path = NOTES_DIR + "/" + user_entered_path
+            set_current_path(path)
+            save_file_at_path(path, text_field.text)
+        else:
+            # Fail silently
+            pass
 
     ensure_future(coroutine())
 
