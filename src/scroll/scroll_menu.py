@@ -43,13 +43,6 @@ class ScrollMenuDialog(PopUpDialog):
         def set_done() -> None:
             """Handles actions related to adding file's contents to text editor"""
             if self.cur_file_path:
-<<<<<<< HEAD
-                with open(self.cur_file_path, "r") as f:
-                    f_content = f.read()
-                text_editor.set_text_field(f_content)
-                text_editor.set_current_path(self.cur_file_path)
-            self.future.set_result(None)
-=======
                 # The caller is waiting for self.future so setting it to None will
                 # be a flag to indicate that we're done with this dialog
                 self.future.set_result(None)
@@ -59,6 +52,7 @@ class ScrollMenuDialog(PopUpDialog):
                     with open(self.cur_file_path, "r") as f:
                         f_content = f.read()
                     text_editor.set_text_field(f_content)
+                    text_editor.set_current_path(self.cur_file_path)
                 else:
                     # Else show a popup message revealing the error message
                     text_editor.show_message(
@@ -66,7 +60,6 @@ class ScrollMenuDialog(PopUpDialog):
                         text="Unsupported file extension. Only '.txt' and '.md' are supported",
                     )
             set_title(f"ThoughtBox - {self.cur_file_path}")
->>>>>>> origin/main
 
         # Add chosen file to editor
         self.ok_button = Button(text="OK", handler=(lambda: set_done()))

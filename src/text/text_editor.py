@@ -1,9 +1,6 @@
 import datetime
-<<<<<<< HEAD
 import json
-=======
 import os
->>>>>>> origin/main
 from asyncio import Future, ensure_future
 from typing import Optional
 
@@ -56,6 +53,7 @@ class ApplicationState:
     """
 
     def __init__(self):
+        self.current_path = None
         try:
             with open("user_setting.json", "r") as j:
                 self.user_settings = json.loads(j.read())
@@ -84,16 +82,6 @@ def get_current_path() -> Optional[str]:
 def set_current_path(new_path: Optional[str]) -> None:
     """Sets new current path for scroll/scroll_menu"""
     appState.current_path = new_path
-
-
-def get_current_path() -> Optional[str]:
-    """Gets current path for scroll/scroll_menu to access"""
-    return ApplicationState.current_path
-
-
-def set_current_path(new_path: Optional[str]) -> None:
-    """Sets new current path for scroll/scroll_menu"""
-    ApplicationState.current_path = new_path
 
 
 # TODO make something like this that will pull up the side file menu
@@ -575,9 +563,6 @@ application = Application(
 
 def run() -> None:
     """Run the application"""
-<<<<<<< HEAD
-=======
     # Create notes directory
     os.makedirs(NOTES_DIR, exist_ok=True)
->>>>>>> origin/main
     application.run()
