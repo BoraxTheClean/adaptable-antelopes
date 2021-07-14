@@ -3,6 +3,7 @@ import json
 import os
 from asyncio import ensure_future
 
+from emoji import emojize
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.key_binding.key_processor import KeyPressEvent
@@ -57,6 +58,7 @@ class MenuNav:
                         MenuItem("Replace"),
                         MenuItem("Select All", handler=self.do_select_all),
                         MenuItem("Time/Date", handler=self.do_time_date),
+                        MenuItem("Text To Emoji", handler=self.do_convert_to_emoji),
                     ],
                 ),
                 MenuItem(
@@ -214,6 +216,12 @@ class MenuNav:
             not self.application_state.show_status_bar
         )
 
+    def do_convert_to_emoji(self) -> None:
+        """Convert all ascii emoji to unicode emoji"""
+        self.text_field.text = emojize(
+            self.text_field.text, use_aliases=True, variant="emoji_type"
+        )
+
     ############ HANDLERS FOR MENU ITEMS #############
     def _save_file_at_path(self, path: str, text: str) -> None:
         """Saves text (changes) to a file path"""
@@ -323,5 +331,10 @@ class MenuNav:
         def undo_changes(event: KeyPressEvent) -> None:
             """Undo with Ctrl-Z"""
             self.do_undo()
+
+        @bindings.add("c-e")
+        def convert_to_emoji(event: KeyPressEvent) -> None:
+            """Convert text to emoji using Ctrl-E"""
+            self.do_convert_to_emoji()
 
         return bindings
