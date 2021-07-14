@@ -102,7 +102,7 @@ class MenuNav:
 
     def do_scroll_menu(self) -> None:
         """Open Scroll Menu"""
-        self._show_scroll("Scroll", "buf")
+        self._show_scroll("Scroll")
 
     def do_about(self) -> None:
         """About from menu select"""
@@ -181,11 +181,11 @@ class MenuNav:
         else:
             set_title(f"ThoughtBox - {path}")
 
-    def _show_scroll(self, title: str, text: str) -> None:
-        """Shows a MessageDialog with a certain title and text"""
+    def _show_scroll(self, title: str) -> None:
+        """Shows a MessageDialog with a certain title"""
 
         async def coroutine(self: MenuNav) -> None:
-            dialog = ScrollMenuDialog(self, title, text)
+            dialog = ScrollMenuDialog(self, title)
             await self.show_dialog_as_float(dialog)
 
         ensure_future(coroutine(self))

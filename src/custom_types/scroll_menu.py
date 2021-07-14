@@ -11,7 +11,7 @@ from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import Button, Dialog, Frame, Label
 
-from application.editor import ThoughtBox
+# from application.editor import ThoughtBox
 from constants import NOTES_DIR, PADDING_CHAR, PADDING_WIDTH
 from custom_types.ui_types import PopUpDialog
 
@@ -19,7 +19,7 @@ from custom_types.ui_types import PopUpDialog
 class ScrollMenuDialog(PopUpDialog):
     """Scroll menu added to the info tab dialog box"""
 
-    def __init__(self, commander: ThoughtBox, title: str, directory: str = NOTES_DIR):
+    def __init__(self, commander: object, title: str, directory: str = NOTES_DIR):
         """Initialize Scroll Menu Dialog
 
         Args:
