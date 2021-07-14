@@ -23,7 +23,7 @@ class ScrollMenuDialog(PopUpDialog):
         """Initialize Scroll Menu Dialog
 
         Args:
-            commander (object): Instance of ThoughtBox
+            commander (object): Instance of ThoughtBox (required for modifying text in the editor)
             title (str): Title for dialog
             text (str): Body of dialog
             dir (str): Default directory to open

@@ -1,9 +1,11 @@
-from text.text_editor import run
+from text.editor import ThoughtBox
+
+TB = ThoughtBox()
 
 
 def main() -> None:
     """Start the text editor application."""
-    run()
+    TB.run()
 
 
 if __name__ == "__main__":
