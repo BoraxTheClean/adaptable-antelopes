@@ -1,6 +1,7 @@
 import datetime
 from asyncio import ensure_future
 
+from emoji import emojize
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.key_binding.key_processor import KeyPressEvent
@@ -172,21 +173,10 @@ class MenuNav:
         )
 
     def do_convert_to_emoji(self) -> None:
-        """Convert all ascii emoji to unicode emoji."""
-        dict_emo = {
-            ":)": "\U0001f600",
-            "=)": "\U0001f600",  # Smile or happy
-            ":-D": "\U0001f600",
-            ":D": "\U0001f600",
-            "=D": "\U0001f600",  # Big smile
-            ">:-(": "\U0001f600",
-            ">:-o": "\U0001f600",  # Angry face
-        }
-        for word in self.text_field.text.split():
-            if word in dict_emo:
-                self.text_field.text = self.text_field.text.replace(
-                    word, dict_emo[word]
-                )
+        """Convert all ascii emoji to unicode emoji"""
+        self.text_field.text = emojize(
+            self.text_field.text, use_aliases=True, variant="emoji_type"
+        )
 
     ############ HANDLERS FOR MENU ITEMS #############
     def _save_file_at_path(self, path: str, text: str) -> None:
