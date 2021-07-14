@@ -97,7 +97,7 @@ class MenuNav:
     ############ MENU ITEMS #############
     def do_save_file(self) -> None:
         """Try to save. If no file is being edited, save as instead to create a new one."""
-        if path := ApplicationState.get_current_path():
+        if path := self.application_state.current_path:
             self._save_file_at_path(path, self.text_field.text)
         else:
             self.do_save_as_file()
@@ -111,8 +111,8 @@ class MenuNav:
             )
 
             path = await self.show_dialog_as_float(open_dialog)
-            self.set_current_path(path)
-            if path := ApplicationState.get_current_path() is not None:
+            self.application_state.current_path = path
+            if path := self.application_state.current_path:
                 self._save_file_at_path(path, self.text_field.text)
 
         ensure_future(coroutine())
@@ -128,7 +128,7 @@ class MenuNav:
     def do_new_file(self) -> None:
         """Makes a new file"""
         self.text_field.text = ""
-        ApplicationState.set_current_path(None)
+        self.application_state.current_path = None
         set_title("ThoughtBox - Untitled")
 
     def do_exit(self) -> None:
@@ -183,7 +183,9 @@ class MenuNav:
 
     def do_status_bar(self) -> None:
         """Opens ar closes status bar"""
-        ApplicationState.show_status_bar = not ApplicationState.show_status_bar
+        self.application_state.show_status_bar = (
+            not self.application_state.show_status_bar
+        )
 
     ############ HANDLERS FOR MENU ITEMS #############
     def _save_file_at_path(self, path: str, text: str) -> None:
@@ -302,6 +304,7 @@ class ThoughtBox(MenuNav):
     """Thought Box - The minimalist note-taking app"""
 
     def __init__(self):
+        self.application_state = ApplicationState()
         self.search_toolbar = SearchToolbar()
         self.text_field = TextArea(
             lexer=PygmentsLexer(MarkdownLexer),
@@ -341,7 +344,7 @@ class ThoughtBox(MenuNav):
                         ],
                         height=1,
                     ),
-                    filter=Condition(lambda: ApplicationState.show_status_bar),
+                    filter=Condition(lambda: self.application_state.show_status_bar),
                 ),
             ]
         )

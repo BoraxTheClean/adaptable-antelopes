@@ -11,7 +11,6 @@ from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import Button, Dialog, Frame, Label
 
-from application.state import ApplicationState
 from constants import NOTES_DIR, PADDING_CHAR, PADDING_WIDTH
 from custom_types.ui_types import PopUpDialog
 
@@ -30,7 +29,7 @@ class ScrollMenuDialog(PopUpDialog):
         """
         self.future = Future()
         self.commander = commander
-        self.cur_file_path = ApplicationState.get_current_path()
+        self.cur_file_path = self.commander.application_state.current_path
 
         self.body = VSplit(
             children=[
@@ -57,7 +56,7 @@ class ScrollMenuDialog(PopUpDialog):
                 self.future.set_result(None)
                 # Only add to text_editor if the given file is text file or markdown file.
                 if splitext(self.cur_file_path)[1] in (".txt", ".md"):
-                    ApplicationState.set_current_path(self.cur_file_path)
+                    self.commander.application_state.current_path = self.cur_file_path
                     with open(self.cur_file_path, "r") as f:
                         f_content = f.read()
                     self.commander.text_field.text = f_content
