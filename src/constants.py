@@ -1,4 +1,3 @@
-# For scroll/scroll_menu.py
-CURRENT_WORK_DIR = "."
+NOTES_DIR = ".thought_box"
 PADDING_CHAR = "|"
 PADDING_WIDTH = 1

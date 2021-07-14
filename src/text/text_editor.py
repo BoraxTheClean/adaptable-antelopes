@@ -1,5 +1,9 @@
 import datetime
+<<<<<<< HEAD
 import json
+=======
+import os
+>>>>>>> origin/main
 from asyncio import Future, ensure_future
 from typing import Optional
 
@@ -38,6 +42,7 @@ from prompt_toolkit.widgets import (
 )
 from pygments.lexers.markup import MarkdownLexer
 
+from constants import NOTES_DIR
 from custom_types.ui_types import PopUpDialog
 from scroll.scroll_menu import ScrollMenuDialog
 
@@ -79,6 +84,16 @@ def get_current_path() -> Optional[str]:
 def set_current_path(new_path: Optional[str]) -> None:
     """Sets new current path for scroll/scroll_menu"""
     appState.current_path = new_path
+
+
+def get_current_path() -> Optional[str]:
+    """Gets current path for scroll/scroll_menu to access"""
+    return ApplicationState.current_path
+
+
+def set_current_path(new_path: Optional[str]) -> None:
+    """Sets new current path for scroll/scroll_menu"""
+    ApplicationState.current_path = new_path
 
 
 # TODO make something like this that will pull up the side file menu
@@ -365,15 +380,21 @@ def show_message(title: str, text: str) -> None:
 async def show_dialog_as_float(dialog: PopUpDialog) -> None:
     """Coroutine what does it return idk? the messageDialogs future result which is None?"""
     float_ = Float(content=dialog)
+    # Put given dialog on top of everything
     root_container.floats.insert(0, float_)
 
     app = get_app()
 
+    # Put current window in a temp variable
     focused_before = app.layout.current_window
+    # Focus cursor to the given dialog
     app.layout.focus(dialog)
+    # Wait for the dialog to finish (returns None)
     result = await dialog.future
+    # Re-focus cursor back to window in temp variable
     app.layout.focus(focused_before)
 
+    # Now remove the given dialog
     if float_ in root_container.floats:
         root_container.floats.remove(float_)
 
@@ -554,4 +575,9 @@ application = Application(
 
 def run() -> None:
     """Run the application"""
+<<<<<<< HEAD
+=======
+    # Create notes directory
+    os.makedirs(NOTES_DIR, exist_ok=True)
+>>>>>>> origin/main
     application.run()

@@ -1,16 +1,17 @@
 import functools
 from asyncio import Future
 from os import listdir
-from os.path import isdir, isfile, join
+from os.path import isdir, isfile, join, realpath, splitext
 from typing import List
 
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.layout import FormattedTextControl, ScrollablePane, Window
 from prompt_toolkit.layout.containers import HSplit, VSplit
 from prompt_toolkit.layout.dimension import D
+from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import Button, Dialog, Frame, Label
 
-from constants import CURRENT_WORK_DIR, PADDING_CHAR, PADDING_WIDTH
+from constants import NOTES_DIR, PADDING_CHAR, PADDING_WIDTH
 from custom_types.ui_types import PopUpDialog
 from text import text_editor
 
@@ -18,9 +19,9 @@ from text import text_editor
 class ScrollMenuDialog(PopUpDialog):
     """Scroll menu added to the info tab dialog box"""
 
-    def __init__(self, title: str, text: str, dir: str = CURRENT_WORK_DIR):
+    def __init__(self, title: str, text: str, dir: str = NOTES_DIR):
         self.future = Future()
-        self.cur_file_path = None
+        self.cur_file_path = text_editor.get_current_path()
 
         self.body = VSplit(
             children=[
@@ -38,14 +39,34 @@ class ScrollMenuDialog(PopUpDialog):
             """Cancel don't open file"""
             self.future.set_result(None)
 
+        # Send error message if attempt to opena ny extension besides .txt and .md
         def set_done() -> None:
-            """Future object when done return None"""
+            """Handles actions related to adding file's contents to text editor"""
             if self.cur_file_path:
+<<<<<<< HEAD
                 with open(self.cur_file_path, "r") as f:
                     f_content = f.read()
                 text_editor.set_text_field(f_content)
                 text_editor.set_current_path(self.cur_file_path)
             self.future.set_result(None)
+=======
+                # The caller is waiting for self.future so setting it to None will
+                # be a flag to indicate that we're done with this dialog
+                self.future.set_result(None)
+                # Only add to text_editor if the given file is text file or markdown file.
+                if splitext(self.cur_file_path)[1] in (".txt", ".md"):
+                    text_editor.set_current_path(self.cur_file_path)
+                    with open(self.cur_file_path, "r") as f:
+                        f_content = f.read()
+                    text_editor.set_text_field(f_content)
+                else:
+                    # Else show a popup message revealing the error message
+                    text_editor.show_message(
+                        title="extension_error",
+                        text="Unsupported file extension. Only '.txt' and '.md' are supported",
+                    )
+            set_title(f"ThoughtBox - {self.cur_file_path}")
+>>>>>>> origin/main
 
         # Add chosen file to editor
         self.ok_button = Button(text="OK", handler=(lambda: set_done()))
@@ -78,16 +99,17 @@ class ScrollMenuDialog(PopUpDialog):
             )
             for item in listdir(dir)
         ]
-        # Add a move-up one directory button
-        frames.insert(
-            0,
-            Frame(
-                Button(
-                    text="../",
-                    handler=functools.partial(self._display_content, "..", dir),
-                )
-            ),
-        )
+        # Add a move-up one directory button, except if in NOTES_DIR
+        if realpath(dir).split("/")[-1] != NOTES_DIR:
+            frames.insert(
+                0,
+                Frame(
+                    Button(
+                        text="../",
+                        handler=functools.partial(self._display_content, "..", dir),
+                    )
+                ),
+            )
         return frames
 
     def _display_content(self, target_content: str, target_dir: str) -> None:
@@ -103,7 +125,8 @@ class ScrollMenuDialog(PopUpDialog):
         if isfile(join(target_dir, target_content)):
             # open file's content
             with open(join(target_dir, target_content), "r") as f:
-                file_content = f.read()
+                # Read up to 1000th character.
+                file_content = f.read(1000)
             self.cur_file_path = join(target_dir, target_content)
 
             # Remove any object that isn't HSplit
