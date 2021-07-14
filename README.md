@@ -17,6 +17,7 @@ You can select to create a new note or continue working on a previous note.
 
 ## Features
 - Scrolling files explore in `File` menu item.
+- Convert text to emoji using scroll bar in "Edit". Convert text such as ":smile:" to 😀, or ":eggplant:" to 🍆. Use shortcut "Ctrl-e" to convert text to emoji.
 
 
 ## Brought to you in part by Team Adaptable Antelopes
