@@ -41,7 +41,7 @@ class ThoughtBox(MenuNav):
             scrollbar=True,
             search_field=self.search_toolbar,
         )
-        #If last path is somehow invalid, don't open a file.
+        # If last path is somehow invalid, don't open a file.
         if self.application_state.current_path:
             try:
                 with open(self.application_state.current_path, "r") as file:

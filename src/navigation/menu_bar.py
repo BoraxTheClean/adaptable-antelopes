@@ -131,7 +131,7 @@ class MenuNav:
             # 1. Is not the empty string or None
             # 2. Doesn't consist exclusively of whitespace
             # 3. Doesn't start with "."
-            # 4. Contains either an existing directory or the empty string 
+            # 4. Contains either an existing directory or the empty string
             if (
                 user_entered_path
                 and not user_entered_path.isspace()
