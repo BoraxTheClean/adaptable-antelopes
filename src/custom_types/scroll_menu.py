@@ -1,7 +1,7 @@
 import functools
 from asyncio import Future
 from os import listdir
-from os.path import basename, isdir, isfile, join, realpath, splitext
+from os.path import basename, dirname, isdir, isfile, join, realpath, splitext
 from typing import List
 
 from prompt_toolkit.application.current import get_app
@@ -142,7 +142,8 @@ class ScrollMenuDialog(PopUpDialog):
             target_content (str): Target's content
             target_dir (str): target's directory
         """
-        if isfile(join(target_dir, target_content)):
+        path = join(target_dir, target_content)
+        if isfile(path):
             # open file's content
             with open(join(target_dir, target_content), "r") as f:
                 # Read up to 1000th character.
@@ -159,8 +160,10 @@ class ScrollMenuDialog(PopUpDialog):
             )
             # Re-focus cursor to ok_button
             get_app().layout.focus(self.ok_button)
-        elif isdir(join(target_dir, target_content)):
-            frames = self._get_contents(join(target_dir, target_content))
+        elif isdir(path):
+            if target_content == "..":
+                path = dirname(target_dir)
+            frames = self._get_contents(path)
             # Assuming the last child is the scrolling menu
             self.body.children.pop()
             # Add a new updated menu
