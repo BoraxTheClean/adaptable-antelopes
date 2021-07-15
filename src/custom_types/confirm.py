@@ -21,8 +21,8 @@ class ConfirmDialog(PopUpDialog):
             """Cancel the dialog."""
             self.future.set_result(False)
 
-        yes_button = Button(text="Yes", handler=(lambda: set_done()))
-        no_button = Button(text="No", handler=(lambda: set_cancel()))
+        yes_button = Button(text="Yes", handler=set_done)
+        no_button = Button(text="No", handler=set_cancel)
 
         self.dialog = Dialog(
             title=title,

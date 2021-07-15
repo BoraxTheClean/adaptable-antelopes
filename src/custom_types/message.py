@@ -18,7 +18,7 @@ class MessageDialog(PopUpDialog):
             """Close this dialog by returning None to indicate the caller that it's done."""
             self.future.set_result(None)
 
-        ok_button = Button(text="OK", handler=(lambda: set_done()))
+        ok_button = Button(text="OK", handler=set_done)
 
         self.dialog = Dialog(
             title=title,
