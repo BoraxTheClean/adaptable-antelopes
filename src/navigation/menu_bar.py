@@ -221,24 +221,47 @@ class MenuNav:
                 show_files=False,
             )
             path = await self.show_dialog_as_float(dialog)
-            if path:
-                dialog = TextInputDialog(
-                    "New Folder", label_text="Enter the name of the folder:"
+            if not path:
+                return
+
+            dialog = TextInputDialog(
+                "New Folder", label_text="Enter the name of the folder:"
+            )
+            folder_name = await self.show_dialog_as_float(dialog)
+            if folder_name is None:
+                return
+
+            # Validate that the folder name:
+            # 1. Is not the empty string or None
+            # 2. Doesn't consist exclusively of whitespace
+            # 3. Doesn't start with "."
+            if (
+                folder_name
+                and not folder_name.isspace()
+                and not folder_name.startswith(".")
+            ):
+                if os.path.exists(os.path.join(path, folder_name)):
+                    return self.show_message(
+                        title="New Folder", text="That folder already exists."
+                    )
+
+                try:
+                    os.mkdir(os.path.join(path, folder_name))
+                except OSError:
+                    self.show_message(
+                        title="New Folder",
+                        text="Please enter a valid folder name.",
+                    )
+                else:
+                    self.show_message(
+                        title="New Folder",
+                        text=f"Folder at {os.path.join(path, folder_name)} was created.",
+                    )
+            else:
+                self.show_message(
+                    title="New Folder",
+                    text="Please enter a valid folder name.",
                 )
-                name = await self.show_dialog_as_float(dialog)
-                if name:
-                    try:
-                        os.makedirs(os.path.join(path, name))
-                    except OSError:
-                        self.show_message(
-                            title="New Folder",
-                            text="That folder already exists or has an invalid name.",
-                        )
-                    else:
-                        self.show_message(
-                            title="New Folder",
-                            text=f"Folder at {os.path.join(path, name)} was created.",
-                        )
 
         ensure_future(coroutine(self))
 
