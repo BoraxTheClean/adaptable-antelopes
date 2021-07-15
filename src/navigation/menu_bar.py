@@ -14,7 +14,7 @@ from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import MenuContainer, MenuItem
 
 from constants import NOTES_DIR
-from custom_types import MessageDialog, PopUpDialog, ScrollMenuDialog, TextInputDialog
+from custom_types import MessageDialog, PopUpDialog, ScrollMenuDialog, TextInputDialog, ColorPicker
 
 
 def is_hex(s):
@@ -74,7 +74,7 @@ class MenuNav:
                     "Info",
                     children=[
                         MenuItem("About", handler=self.do_about),
-                        #MenuItem("Color Picker", handler=self.do_pick_color)
+                        MenuItem("Color Picker", handler=self.do_pick_color)
                     ],
                 ),
             ],
@@ -193,7 +193,7 @@ class MenuNav:
         self.text_field.buffer.cut_selection()
 
     ########################################################
-    def do_color_pick(self) -> None:
+    def do_pick_color(self) -> None:
         """enter hex and prev it"""
 
         async def coroutine() -> None:
@@ -202,9 +202,7 @@ class MenuNav:
 
             If the path entered is a valid file name, save the current note at that path.
             """
-            open_dialog = TextInputDialog(
-                title="Pick Color", label_text="Enter a hex value:", size=6
-            )
+            open_dialog = ColorPicker()
             user_entered_hex = await self.show_dialog_as_float(open_dialog)
             # Validate that the user entered path is
             # 1. len(6)
@@ -217,8 +215,8 @@ class MenuNav:
                     and len(user_entered_hex) == 6
                     and is_hex(user_entered_hex)
             ):
-
-                self.application_state.current_path = path
+                pass
+                #self.application_state.current_path = path
             else:
                 # Fail silently
                 pass
