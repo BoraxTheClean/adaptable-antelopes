@@ -14,7 +14,13 @@ from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import MenuContainer, MenuItem
 
 from constants import NOTES_DIR
-from custom_types import MessageDialog, PopUpDialog, ScrollMenuDialog, TextInputDialog
+from custom_types import (
+    ConfirmDialog,
+    MessageDialog,
+    PopUpDialog,
+    ScrollMenuDialog,
+    TextInputDialog,
+)
 
 
 class MenuNav:
@@ -36,7 +42,7 @@ class MenuNav:
                     "File",
                     children=[
                         MenuItem("New...", handler=self.do_new_file),
-                        MenuItem("Open Scroll", handler=self.do_scroll_menu),
+                        MenuItem("Open", handler=self.do_scroll_menu),
                         MenuItem("Save", handler=self.do_save_file),
                         MenuItem("Save as...", handler=self.do_save_as_file),
                         MenuItem("-", disabled=True),
@@ -127,22 +133,32 @@ class MenuNav:
             # 4. if the file already exists warning of over writing
             if (
                 user_entered_path
-                and not str.isspace(user_entered_path)
+                and not user_entered_path.isspace()
                 and user_entered_path not in [".", ".."]
-                and os.path.isfile(user_entered_path)
             ):
+                path = os.path.join(NOTES_DIR, user_entered_path)
+
+                if os.path.isfile(path):
+                    open_dialog = ConfirmDialog(
+                        title="Save As",
+                        text=f"The file {user_entered_path} already exists. Do you want to override it?",
+                    )
+                    override = await self.show_dialog_as_float(open_dialog)
+                    if not override:
+                        return
+
                 path = os.path.join(NOTES_DIR, user_entered_path)
                 self.application_state.current_path = path
                 self._save_file_at_path(path, self.text_field.text)
             else:
-                # Fail silently
-                pass
+                if user_entered_path is not None:
+                    self.show_message("Invalid Path", "Please enter a valid file name.")
 
         ensure_future(coroutine())
 
     def do_scroll_menu(self) -> None:
         """Open Scroll Menu"""
-        self._show_scroll("Scroll")
+        self._show_scroll("Open Note")
 
     def do_about(self) -> None:
         """About from menu select"""
@@ -238,7 +254,7 @@ class MenuNav:
             set_title(f"ThoughtBox - {path}")
 
     def _show_scroll(self, title: str) -> None:
-        """Shows a MessageDialog with a certain title"""
+        """Shows a ScrollMenu with a certain title"""
 
         async def coroutine(self: MenuNav) -> None:
             dialog = ScrollMenuDialog(self, title)
