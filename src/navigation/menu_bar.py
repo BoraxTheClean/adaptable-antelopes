@@ -126,6 +126,7 @@ class MenuNav:
                 title="Save As", label_text="Enter the path of the file:"
             )
             user_entered_path = await self.show_dialog_as_float(open_dialog)
+            file_name = os.path.basename(user_entered_path)
             # Validate that the user entered path is
             # 1. Not an empty string or None
             # 2. Doesn't consist exclusively of whitespace
@@ -134,6 +135,7 @@ class MenuNav:
                 user_entered_path
                 and not user_entered_path.isspace()
                 and not user_entered_path.startswith(".")
+                and not file_name.startswith(".")
             ):
                 if not (
                     user_entered_path.endswith(".txt")
