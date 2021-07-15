@@ -32,11 +32,15 @@ class ScrollMenuDialog(PopUpDialog):
         self.commander = commander
         self.cur_file_path = self.commander.application_state.current_path
 
+        user_displayed_directory = (
+            "Your Thought Box" if directory == NOTES_DIR else directory
+        )
+
         self.body = VSplit(
             children=[
                 Label(text="File's content here", dont_extend_height=False),
                 Frame(
-                    title=directory,
+                    title=user_displayed_directory,
                     body=ScrollablePane(HSplit(children=self._get_contents(directory))),
                     # style="fg:#ffffff bg:#70ecff bold",
                 ),
