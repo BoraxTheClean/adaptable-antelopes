@@ -18,7 +18,6 @@ python3 -m venv .venv
 pip install -r requirements.txt
 python3 src/application_entry.py
 ```
-
 ## How it works
 
 Running this program <how do they run the program $python src/application_entry.py?> Will turn your terminal
@@ -34,6 +33,17 @@ You can select to create a new note or continue working on a previous note.
 - Scrolling files explore in `File` menu item.
 - Convert text to emoji using scroll bar in "Edit". Convert text such as ":smile:" to 😀, or ":eggplant:" to 🍆. Use shortcut "Ctrl-e" to convert text to emoji.
 - Continue where you last left off
+
+## Keyboard Shortcuts
+- `CTRL+K` Open Top Tool Bar
+- `ESC` Focus cursor on the text field
+- `CTRL+N` Start a new file
+- `CTRL+S` Save current file
+- `CTRL+O` Open an existing note
+- `CTRL+Q` Exit the application
+- `CTRL+A` Select Everything
+- `CTRL+Z` Undo
+- `CTRL+E` Turn text like `:smile:` into :smile:
 
 
 ## Brought to you in part by Team Adaptable Antelopes
