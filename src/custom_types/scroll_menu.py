@@ -1,7 +1,7 @@
 import functools
 from asyncio import Future
 from os import listdir
-from os.path import basename, isdir, isfile, join, realpath, splitext
+from os.path import basename, dirname, isdir, isfile, join, realpath, splitext
 from typing import List
 
 from prompt_toolkit.application.current import get_app
@@ -32,11 +32,15 @@ class ScrollMenuDialog(PopUpDialog):
         self.commander = commander
         self.cur_file_path = self.commander.application_state.current_path
 
+        user_displayed_directory = (
+            "Your Thought Box" if directory == NOTES_DIR else directory
+        )
+
         self.body = VSplit(
             children=[
                 Label(text="File's content here", dont_extend_height=False),
                 Frame(
-                    title=directory,
+                    title=user_displayed_directory,
                     body=ScrollablePane(HSplit(children=self._get_contents(directory))),
                     # style="fg:#ffffff bg:#70ecff bold",
                 ),
@@ -97,12 +101,22 @@ class ScrollMenuDialog(PopUpDialog):
         frames = [
             Frame(
                 Button(
-                    text=item,
-                    handler=functools.partial(self._display_content, item, directory),
+                    text=file_name,
+                    handler=functools.partial(
+                        self._display_content, file_name, directory
+                    ),
                 )
             )
-            for item in listdir(directory)
+            for file_name in listdir(directory)
+            if (
+                not file_name.startswith(".")
+                and (
+                    (file_name.endswith(".txt") or file_name.endswith(".md"))
+                    or (isdir(join(directory, file_name)))
+                )
+            )
         ]
+
         # Add a move-up one directory button, except if in NOTES_DIR
         if basename(realpath(directory)) != NOTES_DIR:
             frames.insert(
@@ -128,7 +142,8 @@ class ScrollMenuDialog(PopUpDialog):
             target_content (str): Target's content
             target_dir (str): target's directory
         """
-        if isfile(join(target_dir, target_content)):
+        path = join(target_dir, target_content)
+        if isfile(path):
             # open file's content
             with open(join(target_dir, target_content), "r") as f:
                 # Read up to 1000th character.
@@ -145,8 +160,10 @@ class ScrollMenuDialog(PopUpDialog):
             )
             # Re-focus cursor to ok_button
             get_app().layout.focus(self.ok_button)
-        elif isdir(join(target_dir, target_content)):
-            frames = self._get_contents(join(target_dir, target_content))
+        elif isdir(path):
+            if target_content == "..":
+                path = dirname(target_dir)
+            frames = self._get_contents(path)
             # Assuming the last child is the scrolling menu
             self.body.children.pop()
             # Add a new updated menu

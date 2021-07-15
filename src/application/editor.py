@@ -1,4 +1,6 @@
 import os
+import os.path
+from shutil import copyfile
 
 from prompt_toolkit.application import Application
 from prompt_toolkit.filters import Condition
@@ -17,7 +19,7 @@ from prompt_toolkit.widgets import SearchToolbar, TextArea
 from pygments.lexers.markup import MarkdownLexer
 
 from application.state import ApplicationState
-from constants import NOTES_DIR
+from constants import ASSETS_DIR, NOTES_DIR, WELCOME_PAGE
 from navigation.menu_bar import MenuNav
 
 
@@ -27,6 +29,10 @@ class ThoughtBox(MenuNav):
     def __init__(self):
         # Create internal application directory.
         os.makedirs(NOTES_DIR, exist_ok=True)
+        # If welcome page isn't present, create it.
+        if not os.path.isfile(NOTES_DIR + "/" + WELCOME_PAGE):
+            copyfile(ASSETS_DIR + WELCOME_PAGE, NOTES_DIR + "/" + WELCOME_PAGE)
+
         self.application_state = ApplicationState()
         self.search_toolbar = SearchToolbar()
         # Define the area where users enter text.
@@ -36,9 +42,13 @@ class ThoughtBox(MenuNav):
             search_field=self.search_toolbar,
         )
         # If the application state has a path saved, we open the file to that path on boot up.
+        # If saved path is invalid, don't open a file.
         if self.application_state.current_path:
-            with open(self.application_state.current_path, "r") as file:
-                self.text_field.text = file.read()
+            try:
+                with open(self.application_state.current_path, "r") as file:
+                    self.text_field.text = file.read()
+            except IOError:
+                pass
 
         # style of menu can def play around here
         self.style = Style.from_dict(

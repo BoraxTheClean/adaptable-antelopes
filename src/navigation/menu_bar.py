@@ -110,29 +110,36 @@ class MenuNav:
                 title="Save As", label_text="Enter the path of the file:"
             )
             user_entered_path = await self.show_dialog_as_float(open_dialog)
-            # Validate that the user entered path is
-            # 1. Not an empty string or None
+            dir_name, file_name = os.path.split(user_entered_path)
+            # Validate that the user entered path:
+            # 1. Is not the empty string or None
             # 2. Doesn't consist exclusively of whitespace
-            # 3. Isn't the string "." or ".."
-            # 4. if the file already exists warning of over writing
+            # 3. Doesn't start with "."
+            # 4. Contains either an existing directory or the empty string
             if (
                 user_entered_path
                 and not user_entered_path.isspace()
-                and user_entered_path not in [".", ".."]
+                and not user_entered_path.startswith(".")
+                and not file_name.startswith(".")
+                and (dir_name == "" or os.path.exists(dir_name))
             ):
+                if not (
+                    user_entered_path.endswith(".txt")
+                    or user_entered_path.endswith(".md")
+                ):
+                    user_entered_path += ".txt"
                 path = os.path.join(NOTES_DIR, user_entered_path)
 
                 if os.path.isfile(path):
                     open_dialog = ConfirmDialog(
                         title="Save As",
-                        text=f"The file {user_entered_path} already exists. Do you want to override it?",
+                        text=f"The file {user_entered_path} already exists. Do you want to overwrite it?",
                     )
                     override = await self.show_dialog_as_float(open_dialog)
                     if not override:
                         return
 
                 path = os.path.join(NOTES_DIR, user_entered_path)
-                self.application_state.current_path = path
                 self._save_file_at_path(path, self.text_field.text)
             else:
                 if user_entered_path is not None:
@@ -246,6 +253,7 @@ class MenuNav:
             self.show_message("Error", "{}".format(e))
         else:
             set_title(f"ThoughtBox - {path}")
+            self.application_state.current_path = path
 
     def _show_scroll(self, title: str) -> None:
         """Shows a ScrollMenu with a certain title"""
