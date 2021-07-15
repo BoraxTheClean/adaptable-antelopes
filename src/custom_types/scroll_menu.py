@@ -97,11 +97,14 @@ class ScrollMenuDialog(PopUpDialog):
         frames = [
             Frame(
                 Button(
-                    text=item,
-                    handler=functools.partial(self._display_content, item, directory),
+                    text=file_name,
+                    handler=functools.partial(
+                        self._display_content, file_name, directory
+                    ),
                 )
             )
-            for item in listdir(directory)
+            for file_name in listdir(directory)
+            if not file_name.startswith(".")
         ]
         # Add a move-up one directory button, except if in NOTES_DIR
         if basename(realpath(directory)) != NOTES_DIR:
