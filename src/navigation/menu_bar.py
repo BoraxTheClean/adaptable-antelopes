@@ -238,9 +238,19 @@ class MenuNav:
 
     def do_convert_to_emoji(self) -> None:
         """Convert all ascii emoji to unicode emoji"""
+        # save cursor position
+        c_pos = (
+            self.text_field.document.cursor_position_row,
+            self.text_field.document.cursor_position_col,
+        )
         self.text_field.text = emojize(
             self.text_field.text, use_aliases=True, variant="emoji_type"
         )
+        # Move cursor back to saved position
+        if c_pos[0] > 0:
+            # Only works if multi-line
+            self.text_field.buffer.cursor_down(c_pos[0])
+        self.text_field.buffer.cursor_right(c_pos[1])
 
     ############ HANDLERS FOR MENU ITEMS #############
     def _save_file_at_path(self, path: str, text: str) -> None:
