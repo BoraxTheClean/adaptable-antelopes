@@ -29,6 +29,7 @@ class ThoughtBox(MenuNav):
     def __init__(self):
         # Create notes directory
         os.makedirs(NOTES_DIR, exist_ok=True)
+        # If welcome page isn't present, create it.
         if not os.path.isfile(NOTES_DIR + "/" + WELCOME_PAGE):
             copyfile(ASSETS_DIR + WELCOME_PAGE, NOTES_DIR + "/" + WELCOME_PAGE)
 

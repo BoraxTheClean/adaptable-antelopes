@@ -1,7 +1,7 @@
 import json
 import os
 
-from constants import ASSETS_DIR, NOTES_DIR, WELCOME_PAGE
+from constants import NOTES_DIR, WELCOME_PAGE
 
 
 class ApplicationState:
@@ -23,5 +23,5 @@ class ApplicationState:
         if self.user_settings.get("last_path"):
             self.current_path = self.user_settings["last_path"]
         else:
-
-            self.current_path = ASSETS_DIR + WELCOME_PAGE
+            # Open the welcome page
+            self.current_path = NOTES_DIR + "/" + WELCOME_PAGE
