@@ -1,4 +1,6 @@
 import os
+import os.path
+from shutil import copyfile
 
 from prompt_toolkit.application import Application
 from prompt_toolkit.filters import Condition
@@ -17,7 +19,7 @@ from prompt_toolkit.widgets import SearchToolbar, TextArea
 from pygments.lexers.markup import MarkdownLexer
 
 from application.state import ApplicationState
-from constants import NOTES_DIR
+from constants import ASSETS_DIR, NOTES_DIR, WELCOME_PAGE
 from navigation.menu_bar import MenuNav
 
 
@@ -27,6 +29,9 @@ class ThoughtBox(MenuNav):
     def __init__(self):
         # Create notes directory
         os.makedirs(NOTES_DIR, exist_ok=True)
+        if not os.path.isfile(NOTES_DIR + "/" + WELCOME_PAGE):
+            copyfile(ASSETS_DIR + WELCOME_PAGE, NOTES_DIR + "/" + WELCOME_PAGE)
+
         self.application_state = ApplicationState()
         self.search_toolbar = SearchToolbar()
 

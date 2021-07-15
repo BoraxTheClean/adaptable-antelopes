@@ -1,14 +1,13 @@
 import json
 import os
 
-from constants import NOTES_DIR
+from constants import ASSETS_DIR, NOTES_DIR, WELCOME_PAGE
 
 
 class ApplicationState:
     """Holds things like settings and current path in an object"""
 
     def __init__(self):
-        self.current_path = None
         try:
             with open(os.path.join(NOTES_DIR, ".user_setting.json"), "r") as f:
                 self.user_settings = json.load(f)
@@ -24,4 +23,5 @@ class ApplicationState:
         if self.user_settings.get("last_path"):
             self.current_path = self.user_settings["last_path"]
         else:
-            self.current_path = None
+
+            self.current_path = ASSETS_DIR + WELCOME_PAGE
