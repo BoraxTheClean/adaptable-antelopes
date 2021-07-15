@@ -10,17 +10,21 @@ from prompt_toolkit.widgets import Button, Dialog, Label, TextArea
 from custom_types.ui_types import PopUpDialog
 
 
-class TextInputDialog(PopUpDialog):
+class ColorPicker(PopUpDialog):
     """Text Input for the open dialog box"""
 
     def __init__(
-        self, title: str = "", label_text: str = "", completer: Completer = None,
+        self, completer: Completer = None
     ):
+
         self.future = Future()
 
         def accept_text(buf: Buffer) -> bool:
             """Accepts text"""
-            get_app().layout.focus(ok_button)
+            # get_app().layout.focus(ok_button)
+            # set style here
+
+
             buf.complete_state = None
             return True
 
@@ -35,16 +39,18 @@ class TextInputDialog(PopUpDialog):
         self.text_area = TextArea(
             completer=completer,
             multiline=False,
-            width=D(preferred=40),
+            width=D(preferred=6),
             accept_handler=accept_text,
         )
+
+        self.sample_frame = Frame('Test')
 
         ok_button = Button(text="OK", handler=accept)
         cancel_button = Button(text="Cancel", handler=cancel)
 
         self.dialog = Dialog(
-            title=title,
-            body=HSplit([Label(text=label_text), self.text_area]),
+            title="Pick A Color",
+            body=HSplit([Label(text="Enter a hex"), self.box,self.text_area]),
             buttons=[ok_button, cancel_button],
             width=D(preferred=80),
             modal=True,

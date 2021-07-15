@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import string
 from asyncio import ensure_future
 
 from prompt_toolkit.application.current import get_app
@@ -14,6 +15,12 @@ from prompt_toolkit.widgets import MenuContainer, MenuItem
 
 from constants import NOTES_DIR
 from custom_types import MessageDialog, PopUpDialog, ScrollMenuDialog, TextInputDialog
+
+
+def is_hex(s):
+    hex_digits = set(string.hexdigits)
+    # if s is long, then it is faster to check against a set
+    return all(c in hex_digits for c in s)
 
 
 class MenuNav:
@@ -67,6 +74,7 @@ class MenuNav:
                     "Info",
                     children=[
                         MenuItem("About", handler=self.do_about),
+                        #MenuItem("Color Picker", handler=self.do_pick_color)
                     ],
                 ),
             ],
@@ -124,10 +132,9 @@ class MenuNav:
             # 3. Isn't the string "." or ".."
             # 4. if the file already exists warning of over writing
             if (
-                user_entered_path
-                and not str.isspace(user_entered_path)
-                and user_entered_path not in [".", ".."]
-                and os.path.isfile(user_entered_path)
+                    user_entered_path
+                    and not str.isspace(user_entered_path)
+                    and user_entered_path not in [".", ".."]
             ):
                 path = os.path.join(NOTES_DIR, user_entered_path)
                 self.application_state.current_path = path
@@ -184,6 +191,43 @@ class MenuNav:
     def do_delete(self) -> None:
         """Delete"""
         self.text_field.buffer.cut_selection()
+
+    ########################################################
+    def do_color_pick(self) -> None:
+        """enter hex and prev it"""
+
+        async def coroutine() -> None:
+            """
+            Prompt the user for a file path to save their note.
+
+            If the path entered is a valid file name, save the current note at that path.
+            """
+            open_dialog = TextInputDialog(
+                title="Pick Color", label_text="Enter a hex value:", size=6
+            )
+            user_entered_hex = await self.show_dialog_as_float(open_dialog)
+            # Validate that the user entered path is
+            # 1. len(6)
+            # 2. only contains 0-9 and a-f
+            # hex_digits = set(string.hexdigits)
+            #      # if s is long, then it is faster to check against a set
+            #      return all(c in hex_digits for c in s)
+            if (
+                    user_entered_hex
+                    and len(user_entered_hex) == 6
+                    and is_hex(user_entered_hex)
+            ):
+
+                self.application_state.current_path = path
+            else:
+                # Fail silently
+                pass
+
+        ensure_future(coroutine())
+
+
+
+    #####################################################
 
     def do_find(self) -> None:
         """Find"""
