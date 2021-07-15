@@ -1,0 +1,2 @@
+# Application
+emoji==1.2.0
