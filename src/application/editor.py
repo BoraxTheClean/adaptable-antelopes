@@ -25,16 +25,17 @@ class ThoughtBox(MenuNav):
     """Thought Box - The minimalist note-taking app"""
 
     def __init__(self):
-        # Create notes directory
+        # Create internal application directory.
         os.makedirs(NOTES_DIR, exist_ok=True)
         self.application_state = ApplicationState()
         self.search_toolbar = SearchToolbar()
-
+        # Define the area where users enter text.
         self.text_field = TextArea(
             lexer=PygmentsLexer(MarkdownLexer),
             scrollbar=True,
             search_field=self.search_toolbar,
         )
+        # If the application state has a path saved, we open the file to that path on boot up.
         if self.application_state.current_path:
             with open(self.application_state.current_path, "r") as file:
                 self.text_field.text = file.read()
@@ -56,7 +57,10 @@ class ThoughtBox(MenuNav):
                 "dialog.body": "bg:#111111 #00aa44",
             }
         )
-
+        # Define the UI elements to appear on the screen.
+        # 1. The text field where users write and read notes.
+        # 2. Menu tool bar
+        # 3. An optional status bar at the bottom of the page.
         self.body = HSplit(
             [
                 self.text_field,
@@ -101,11 +105,11 @@ class ThoughtBox(MenuNav):
         )
 
     def get_statusbar_middle_text(self) -> None:
-        """Gets status bar opens menu"""
+        """Display a shortcut for opening the menu in the status bar."""
         return " Press Ctrl-K to open menu. "
 
     def get_statusbar_right_text(self) -> None:
-        """Get status bar for the right text?"""
+        """Display the current position of the cursor."""
         return " {}:{}  ".format(
             self.text_field.document.cursor_position_row + 1,
             self.text_field.document.cursor_position_col + 1,

@@ -90,22 +90,6 @@ class MenuNav:
 
     ############ MENU ITEMS #############
 
-    #
-    # def do_save_as_file(self) -> None:
-    #     """Try to Save As a file under a new name/path."""
-    #
-    #     async def coroutine() -> None:
-    #         open_dialog = TextInputDialog(
-    #             title="Save As", label_text="Enter the path of the file:"
-    #         )
-    #
-    #         path = await self.show_dialog_as_float(open_dialog)
-    #         self.application_state.current_path = path
-    #         if path := self.application_state.current_path:
-    #             self._save_file_at_path(path, self.text_field.text)
-    #
-    #     ensure_future(coroutine())
-
     def do_save_file(self) -> None:
         """Try to save. If no file is being edited, save as instead to create a new one."""
         if path := self.application_state.current_path:
@@ -285,7 +269,7 @@ class MenuNav:
         ensure_future(coroutine(self))
 
     async def show_dialog_as_float(self, dialog: PopUpDialog) -> None:
-        """Coroutine what does it return idk? the messageDialogs future result which is None?"""
+        """Bring PopUp dialog to the front of the UI and focus cursors accordingly."""
         float_ = Float(content=dialog)
         # Put given dialog on top of everything
         self.root_container.floats.insert(0, float_)
@@ -308,6 +292,7 @@ class MenuNav:
         return result
 
     def _setup_keybindings(self) -> KeyBindings:
+        """Setup Keyboard Shortcuts"""
         bindings = KeyBindings()
 
         @bindings.add("c-k")
