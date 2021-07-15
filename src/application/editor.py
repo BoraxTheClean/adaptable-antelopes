@@ -41,9 +41,13 @@ class ThoughtBox(MenuNav):
             scrollbar=True,
             search_field=self.search_toolbar,
         )
+        # If last path is somehow invalid, don't open a file.
         if self.application_state.current_path:
-            with open(self.application_state.current_path, "r") as file:
-                self.text_field.text = file.read()
+            try:
+                with open(self.application_state.current_path, "r") as file:
+                    self.text_field.text = file.read()
+            except IOError:
+                pass
 
         # style of menu can def play around here
         self.style = Style.from_dict(
