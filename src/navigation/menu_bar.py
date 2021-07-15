@@ -129,12 +129,11 @@ class MenuNav:
             # Validate that the user entered path is
             # 1. Not an empty string or None
             # 2. Doesn't consist exclusively of whitespace
-            # 3. Isn't the string "." or ".."
-            # 4. if the file already exists warning of over writing
+            # 3. Doesn't start with "."
             if (
                 user_entered_path
                 and not user_entered_path.isspace()
-                and user_entered_path not in [".", ".."]
+                and not user_entered_path.startswith(".")
             ):
                 path = os.path.join(NOTES_DIR, user_entered_path)
 
