@@ -156,12 +156,16 @@ class MenuNav:
 
     def do_exit(self) -> None:
         """Exit"""
-        with open(os.path.join(NOTES_DIR, ".user_setting.json"), "w") as j:
-            self.application_state.user_settings[
-                "last_path"
-            ] = self.application_state.current_path
-            user = json.dumps({"last_path": self.application_state.current_path})
-            j.write(user)
+        settings_path = os.path.join(NOTES_DIR, ".user_setting.json")
+        with open(settings_path, "r") as f:
+            user = json.load(f)
+
+        self.application_state.user_settings[
+            "last_path"
+        ] = self.application_state.current_path
+        user["last_path"] = self.application_state.current_path
+        with open(settings_path, "w") as f:
+            json.dump(user, f)
         get_app().exit()
 
     def do_time_date(self) -> None:
