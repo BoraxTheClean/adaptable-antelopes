@@ -13,7 +13,7 @@ from prompt_toolkit.search import start_search
 from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import MenuContainer, MenuItem
 
-from constants import NOTES_DIR
+from constants import DIALOG_WIDTH, NOTES_DIR
 from custom_types import MessageDialog, PopUpDialog, ScrollMenuDialog, TextInputDialog
 
 
@@ -246,8 +246,11 @@ class MenuNav:
 
         ensure_future(coroutine(self))
 
-    def show_message(self, title: str, text: str) -> None:
+    def show_message(self, title: str, text: str, centered: bool = True) -> None:
         """Shows about message"""
+        if centered:
+            text = text.split("\n")
+            text = "\n".join(map(lambda x: x.center(DIALOG_WIDTH - 5), text))
 
         async def coroutine(self: MenuNav) -> None:
             dialog = MessageDialog(title, text)

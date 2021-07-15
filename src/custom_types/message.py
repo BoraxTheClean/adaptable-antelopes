@@ -4,6 +4,7 @@ from prompt_toolkit.layout.containers import HSplit
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.widgets import Button, Dialog, Label
 
+from constants import DIALOG_WIDTH
 from custom_types.ui_types import PopUpDialog
 
 
@@ -23,7 +24,7 @@ class MessageDialog(PopUpDialog):
             title=title,
             body=HSplit([Label(text=text)]),
             buttons=[ok_button],
-            width=D(preferred=80),
+            width=D(preferred=DIALOG_WIDTH),
             modal=True,
         )
 
