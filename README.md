@@ -5,6 +5,20 @@ Thinking outside the box can be exhausting.
 Maybe it's time to go back to simple.
 Free your self from distractions with our minimalists thought journal and note-taking application.
 
+## Usage
+
+### Bash Script
+```bash
+./run.sh
+```
+
+### Venv
+```bash
+python3 -m venv .venv
+pip install -r requirements.txt
+python3 src/application_entry.py
+```
+
 ## How it works
 
 Running this program <how do they run the program $python src/application_entry.py?> Will turn your terminal
