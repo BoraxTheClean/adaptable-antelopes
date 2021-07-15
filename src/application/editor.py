@@ -25,6 +25,8 @@ class ThoughtBox(MenuNav):
     """Thought Box - The minimalist note-taking app"""
 
     def __init__(self):
+        # Create notes directory
+        os.makedirs(NOTES_DIR, exist_ok=True)
         self.application_state = ApplicationState()
         self.search_toolbar = SearchToolbar()
 
@@ -111,6 +113,4 @@ class ThoughtBox(MenuNav):
 
     def run(self) -> None:
         """Run the application"""
-        # Create notes directory
-        os.makedirs(NOTES_DIR, exist_ok=True)
         self.application.run()
