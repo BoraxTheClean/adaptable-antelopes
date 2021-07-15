@@ -108,7 +108,10 @@ class ScrollMenuDialog(PopUpDialog):
                 )
             )
             for file_name in listdir(directory)
-            if not file_name.startswith(".")
+            if (
+                not file_name.startswith(".")
+                and (file_name.endswith(".txt") or file_name.endswith(".md"))
+            )
         ]
         # Add a move-up one directory button, except if in NOTES_DIR
         if basename(realpath(directory)) != NOTES_DIR:

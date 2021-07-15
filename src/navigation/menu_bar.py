@@ -135,6 +135,11 @@ class MenuNav:
                 and not user_entered_path.isspace()
                 and not user_entered_path.startswith(".")
             ):
+                if not (
+                    user_entered_path.endswith(".txt")
+                    or user_entered_path.endswith(".md")
+                ):
+                    user_entered_path += ".txt"
                 path = os.path.join(NOTES_DIR, user_entered_path)
 
                 if os.path.isfile(path):
@@ -147,7 +152,6 @@ class MenuNav:
                         return
 
                 path = os.path.join(NOTES_DIR, user_entered_path)
-                self.application_state.current_path = path
                 self._save_file_at_path(path, self.text_field.text)
             else:
                 if user_entered_path is not None:
@@ -261,6 +265,7 @@ class MenuNav:
             self.show_message("Error", "{}".format(e))
         else:
             set_title(f"ThoughtBox - {path}")
+            self.application_state.current_path = path
 
     def _show_scroll(self, title: str) -> None:
         """Shows a ScrollMenu with a certain title"""
