@@ -115,48 +115,50 @@ class MenuNav:
 
             If the path entered is a valid file name, save the current note at that path.
             """
+            dialog = ScrollMenuDialog(
+                title="Save As",
+                text="Choose the location of the file.",
+                directory=self.application_state.current_dir,
+                show_files=False,
+            )
+            directory = await self.show_dialog_as_float(dialog)
+            if not directory:
+                return
+
             open_dialog = TextInputDialog(
                 title="Save As", label_text="Enter the path of the file:"
             )
-            user_entered_path = await self.show_dialog_as_float(open_dialog)
-            if user_entered_path is None:
+            file_name = await self.show_dialog_as_float(open_dialog)
+            if file_name is None:
                 return
 
-            dir_name, file_name = os.path.split(user_entered_path)
-            # Validate that the user entered path:
+            # Validate that the file name:
             # 1. Is not the empty string or None
             # 2. Doesn't consist exclusively of whitespace
             # 3. Doesn't start with "."
-            # 4. Contains either an existing directory or the empty string
+            # 4. Doesn't contain "/" or "\\"
             if (
-                user_entered_path
-                and not user_entered_path.isspace()
-                and not user_entered_path.startswith(".")
+                file_name
+                and not file_name.isspace()
                 and not file_name.startswith(".")
-                and (
-                    dir_name == "" or os.path.exists(os.path.join(NOTES_DIR, dir_name))
-                )
+                and not any(x in file_name for x in ("/", "\\"))
             ):
-                if not (
-                    user_entered_path.endswith(".txt")
-                    or user_entered_path.endswith(".md")
-                ):
-                    user_entered_path += ".txt"
-                path = os.path.join(NOTES_DIR, user_entered_path)
+                if not any(file_name.endswith(x) for x in (".txt", ".md")):
+                    file_name += ".txt"
+                path = os.path.join(directory, file_name)
 
                 if os.path.isfile(path):
                     open_dialog = ConfirmDialog(
                         title="Save As",
-                        text=f"The file {user_entered_path} already exists. Do you want to overwrite it?",
+                        text=f"The file {path} already exists. Do you want to overwrite it?",
                     )
                     override = await self.show_dialog_as_float(open_dialog)
                     if not override:
                         return
 
-                path = os.path.join(NOTES_DIR, user_entered_path)
                 self._save_file_at_path(path, self.text_field.text)
             else:
-                self.show_message("Invalid Path", "Please enter a valid file name.")
+                self.show_message("Invalid Name", "Please enter a valid file name.")
 
         ensure_future(coroutine(self))
 
@@ -286,10 +288,12 @@ class MenuNav:
             # 1. Is not the empty string or None
             # 2. Doesn't consist exclusively of whitespace
             # 3. Doesn't start with "."
+            # 4. Doesn't contain "/" or "\\"
             if (
                 folder_name
                 and not folder_name.isspace()
                 and not folder_name.startswith(".")
+                and not any(x in folder_name for x in ("/", "\\"))
             ):
                 if os.path.exists(os.path.join(path, folder_name)):
                     return self.show_message(
