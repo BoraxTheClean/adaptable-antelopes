@@ -354,19 +354,20 @@ class MenuNav:
         ensure_future(coroutine(self))
 
     def do_exit(self) -> None:
-        async def coroutine(self: MenuNav): -> None
+        async def coroutine(self: MenuNav) -> None:
             if self.application_state.current_path:
                 with open(self.current_path) as f:
                     text = f.read()
                 if text != self.application.text_field:
-                    dialog = ConfirmDialog(title = "Unsaved Changes",
-                                            text = f"The file {self.application_state.current_path} contains unsaved changes. Are you sure you want to exit without saving?"
-                                            )
-                   confirm_exit =  await self.show_dialog_as_float(dialog)
+                    dialog = ConfirmDialog(
+                        title="Unsaved Changes",
+                        text=f"The file {self.application_state.current_path} contains unsaved changes. Are you sure you want to exit without saving?",
+                    )
+                    confirm_exit = await self.show_dialog_as_float(dialog)
                 else:
                     confirm_exit = False
                 if confirm_exit:
-                
+
                     """Exit"""
                     settings_path = os.path.join(NOTES_DIR, ".user_setting.json")
                     with open(settings_path, "r") as f:
@@ -381,6 +382,7 @@ class MenuNav:
                         json.dump(user, f)
 
                     get_app().exit()
+
         ensure_future(coroutine(self))
 
     def do_time_date(self) -> None:
