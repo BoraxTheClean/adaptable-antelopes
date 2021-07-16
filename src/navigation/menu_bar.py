@@ -212,6 +212,12 @@ class MenuNav:
             if not item_path:
                 return
 
+            if item_path == NOTES_DIR:
+                return self.show_message(
+                    title="Move Item",
+                    text="You cannot move the root folder.",
+                )
+
             dialog = ScrollMenuDialog(
                 title="Move Item",
                 text="Choose the location where you want to move the item to.",
@@ -219,6 +225,15 @@ class MenuNav:
                 show_files=False,
             )
             move_path = await self.show_dialog_as_float(dialog)
+            if not move_path:
+                return
+
+            if os.path.exists(os.path.join(move_path, os.path.basename(item_path))):
+                return self.show_message(
+                    title="Move Item",
+                    text=f"{os.path.basename(item_path)} already exists at that location.",
+                )
+
             try:
                 shutil.move(item_path, move_path)
             except OSError:
