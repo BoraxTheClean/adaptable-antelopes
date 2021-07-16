@@ -25,11 +25,11 @@ class TextInputDialog(PopUpDialog):
             return True
 
         def accept() -> None:
-            """Accept"""
+            """Accept and returns the input"""
             self.future.set_result(self.text_area.text)
 
         def cancel() -> None:
-            """Cancel"""
+            """Cancel to close out the dialog"""
             self.future.set_result(None)
 
         self.text_area = TextArea(
