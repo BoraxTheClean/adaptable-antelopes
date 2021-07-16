@@ -551,9 +551,6 @@ class MenuNav:
             set_title(f"ThoughtBox - {path}")
             self.application_state.current_path = path
 
-    def validate_path(self, path: str) -> bool:
-        """Validates if the path can be created."""
-
     def show_message(self, title: str, text: str, centered: bool = True) -> None:
         """Shows About message"""
         # Align text content center
