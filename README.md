@@ -50,15 +50,9 @@ You can select to create a new note or continue working on a previous note!
 
 
 ## Brought to you in part by Team Adaptable Antelopes
-<!-- [BoraxTheClean](https://github.com/BoraxTheClean) -->
-<!-- [Rishigian](https://github.com/rishigian) -->
-<!-- [ntdkhiem](https://github.com/ntdkhiem) -->
-<!-- [SharpBit](https://github.com/SharpBit) -->
-<!-- [standard-affect](https://github.com/standard-affect) -->
-<!-- [CupOfGeo](https://github.com/CupOfGeo) -->
-[![](https://github.com/BoraxTheClean.png?size=50)](https://github.com/BoraxTheClean)
-[![](https://github.com/rishigian.png?size=50)](https://github.com/rishigian)
-[![](https://github.com/ntdkhiem.png?size=50)](https://github.com/ntdkhiem)
-[![](https://github.com/SharpBit.png?size=50)](https://github.com/SharpBit)
-[![](https://github.com/standard-affect.png?size=50)](https://github.com/standard-affect)
-[![](https://github.com/CupOfGeo.png?size=50)](https://github.com/CupOfGeo)
+
+<a href="https://github.com/BoraxTheClean/adaptable-antelopes/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=BoraxTheClean/adaptable-antelopes" />
+</a>
+
+Made with [contributors-img](https://contrib.rocks).
