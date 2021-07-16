@@ -67,7 +67,6 @@ class MenuNav:
                         MenuItem("-", disabled=True),
                         MenuItem("Find", handler=self.do_find),
                         MenuItem("Find next", handler=self.do_find_next),
-                        # TODO no replace function we can just delete it or try to implement self.do_replace
                         MenuItem("Replace"),
                         MenuItem("Select All", handler=self.do_select_all),
                         MenuItem("Time/Date", handler=self.do_time_date),
@@ -325,6 +324,7 @@ class MenuNav:
                 directory=self.application_state.current_dir,
                 show_files=False,
             )
+
             path = await self.show_dialog_as_float(dialog)
             if not path:
                 return
@@ -366,9 +366,11 @@ class MenuNav:
         self.application_state.user_settings[
             "last_path"
         ] = self.application_state.current_path
+
         user["last_path"] = self.application_state.current_path
         with open(settings_path, "w") as f:
             json.dump(user, f)
+
         get_app().exit()
 
     def do_time_date(self) -> None:
@@ -430,9 +432,11 @@ class MenuNav:
             self.text_field.document.cursor_position_row,
             self.text_field.document.cursor_position_col,
         )
+
         self.text_field.text = emojize(
             self.text_field.text, use_aliases=True, variant="emoji_type"
         )
+
         # Move cursor back to saved position
         if c_pos[0] > 0:
             # Only works if multi-line
@@ -460,6 +464,7 @@ class MenuNav:
 
     def show_message(self, title: str, text: str, centered: bool = True) -> None:
         """Shows About message"""
+        # Align text content center
         if centered:
             text = text.split("\n")
             text = "\n".join(map(lambda x: x.center(DIALOG_WIDTH - 5), text))

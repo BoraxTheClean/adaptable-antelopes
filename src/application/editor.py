@@ -34,6 +34,7 @@ class ThoughtBox(MenuNav):
             copyfile(ASSETS_DIR + WELCOME_PAGE, NOTES_DIR + "/" + WELCOME_PAGE)
 
         self.application_state = ApplicationState()
+
         self.search_toolbar = SearchToolbar()
         # Define the area where users enter text.
         self.text_field = TextArea(
@@ -52,17 +53,11 @@ class ThoughtBox(MenuNav):
 
         self.style = Style.from_dict(
             {
-                # 'text-area': "bg:#00a444",
-                # "top": "bg:#00bb00",
                 "frame-label": "bg:#ffffff #000000",
                 "status": "reverse",
                 "shadow": "bg:#000000 #ffffff",
-                # "menu": "shadow:#440044",
                 "menu": "bg:#004444",
                 "menu-bar": "bg:#00ff00",
-                # "menu.": "#00ff00",
-                # "button" : "bg:#004444"
-                # 'text-field': "#00ff00 bg:#000000",
                 "dialog.body": "bg:#111111 #00aa44",
             }
         )
@@ -77,12 +72,6 @@ class ThoughtBox(MenuNav):
                 ConditionalContainer(
                     content=VSplit(
                         [
-                            # No longer need the bottom title bar
-                            # Window(
-                            #     FormattedTextControl(get_status_bar_left_text),
-                            #     style="class:status",
-                            #     align=WindowAlign.LEFT,
-                            # ),
                             Window(
                                 FormattedTextControl(self.get_statusbar_middle_text),
                                 style="class:status",
@@ -105,6 +94,7 @@ class ThoughtBox(MenuNav):
 
         self.layout = Layout(self.root_container, focused_element=self.text_field)
 
+        # Main application here
         self.application = Application(
             layout=self.layout,
             enable_page_navigation_bindings=True,
