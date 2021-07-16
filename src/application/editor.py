@@ -1,4 +1,6 @@
 import os
+import os.path
+from shutil import copyfile
 
 from prompt_toolkit.application import Application
 from prompt_toolkit.filters import Condition
@@ -17,7 +19,7 @@ from prompt_toolkit.widgets import SearchToolbar, TextArea
 from pygments.lexers.markup import MarkdownLexer
 
 from application.state import ApplicationState
-from constants import NOTES_DIR
+from constants import ASSETS_DIR, NOTES_DIR, WELCOME_PAGE
 from navigation.menu_bar import MenuNav
 
 
@@ -25,6 +27,12 @@ class ThoughtBox(MenuNav):
     """Thought Box - The minimalist note-taking app"""
 
     def __init__(self):
+        # Create notes directory
+        os.makedirs(NOTES_DIR, exist_ok=True)
+        # If welcome page isn't present, create it.
+        if not os.path.isfile(NOTES_DIR + "/" + WELCOME_PAGE):
+            copyfile(ASSETS_DIR + WELCOME_PAGE, NOTES_DIR + "/" + WELCOME_PAGE)
+
         self.application_state = ApplicationState()
         self.search_toolbar = SearchToolbar()
 
@@ -33,12 +41,16 @@ class ThoughtBox(MenuNav):
             scrollbar=True,
             search_field=self.search_toolbar,
         )
+        # If last path is somehow invalid, don't open a file.
         if self.application_state.current_path:
-            with open(self.application_state.current_path, "r") as file:
-                self.text_field.text = file.read()
+            try:
+                with open(self.application_state.current_path, "r") as file:
+                    self.text_field.text = file.read()
+            except IOError:
+                pass
 
         # style of menu can def play around here
-        self.style = Style.from_dict(self.application_state.user_settings['style'])
+        self.style = Style.from_dict(self.application_state.user_settings["style"])
         # self.style = Style.from_dict(
         #     {
         #         # 'text-area': "bg:#00a444",
@@ -112,6 +124,4 @@ class ThoughtBox(MenuNav):
 
     def run(self) -> None:
         """Run the application"""
-        # Create notes directory
-        os.makedirs(NOTES_DIR, exist_ok=True)
         self.application.run()

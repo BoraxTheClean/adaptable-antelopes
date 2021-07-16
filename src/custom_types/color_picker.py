@@ -1,36 +1,33 @@
-import functools
+import json
 import string
 from asyncio import Future
-import json
-from typing import List
 
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.completion import Completer
-from prompt_toolkit.layout import ScrollablePane
-from prompt_toolkit.layout.containers import VSplit, Container, HSplit
+from prompt_toolkit.layout.containers import HSplit
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.styles import Style
-from prompt_toolkit.widgets import Button, Dialog, Label, TextArea, Frame
+from prompt_toolkit.widgets import Button, Dialog, Label, TextArea
 
-from custom_types.ui_types import PopUpDialog
 from constants import USER_SETTINGS_DIR
-
-
+from custom_types.ui_types import PopUpDialog
 
 
 class ColorPicker(PopUpDialog):
     """Text Input for the open dialog box"""
 
-    def __init__(
-            self, completer: Completer = None
-    ):
+    def __init__(self, completer: Completer = None):
         self.future = Future()
+        with open(USER_SETTINGS_DIR, "r") as user_file:
+            self.user_settings = json.load(user_file)
 
-        def is_hex(s):
-            """Validate that the user entered path is
+        def is_hex(s: str) -> bool:
+            """Validate that the user entered text is a 6 digit hex number
+
             1. len(6)
-            2. only contains 0-9 and a-f"""
+            2. only contains 0-9 and a-f
+            """
             if len(s) == 6:
                 hex_digits = set(string.hexdigits)
                 # if s is long, then it is faster to check against a set
@@ -40,42 +37,34 @@ class ColorPicker(PopUpDialog):
 
         def prev() -> None:
             if is_hex(self.text_area.text):
-
-                get_app().style = Style.from_dict(
-                    {
-                        "menu-bar": f"bg:#{self.text_area.text}",
-                    }
-                )
-                self.promp_label.text = 'Enter a hex:'
+                self.user_settings["style"]["menu-bar"] = f"bg:#{self.text_area.text}"
+                get_app().style = Style.from_dict(self.user_settings["style"])
+                self.promp_label.text = "Enter a hex:"
             else:
-                self.promp_label.text = 'Invalid Hex'
-
+                self.promp_label.text = "Invalid Hex!"
 
         def accept_text(buf: Buffer) -> bool:
             prev()
             buf.complete_state = None
             return True
 
-        def accept() -> bool:
+        def accept() -> None:
             """Accept"""
             if is_hex(self.text_area.text):
                 # save to user settings
-                with open(USER_SETTINGS_DIR, 'r') as user_file:
-                    user_json = user_file.read()
-                    user_settings = json.loads(user_json)
-                    user_settings['style']['menu-bar'] = f"bg:#{self.text_area.text}"
-                with open(USER_SETTINGS_DIR,'w') as user_file:
-                    user_file.write(json.dumps(user_settings))
+                self.user_settings["style"]["menu-bar"] = f"bg:#{self.text_area.text}"
 
-                self.future.set_result(False)
+                with open(USER_SETTINGS_DIR, "w") as user_file:
+                    user_file.write(json.dumps(self.user_settings))
+
+                self.future.set_result(None)
             else:
                 # invalid hex don't set_future
-                self.promp_label.text = 'Invalid Hex'
+                self.promp_label.text = "Invalid Hex"
 
-
-        def cancel() -> bool:
+        def cancel() -> None:
             """Cancel"""
-            self.future.set_result(True)
+            self.future.set_result(None)
 
         self.text_area = TextArea(
             completer=completer,
@@ -86,7 +75,7 @@ class ColorPicker(PopUpDialog):
 
         self.promp_label = Label(text="Enter a hex:")
 
-        preview_button = Button('Preview', handler=prev)
+        preview_button = Button(text="Preview", handler=prev)
         ok_button = Button(text="Apply", handler=accept)
         cancel_button = Button(text="Cancel", handler=cancel)
 
@@ -100,8 +89,6 @@ class ColorPicker(PopUpDialog):
 
     def __pt_container__(self):
         return self.dialog
-
-
 
 
 '''

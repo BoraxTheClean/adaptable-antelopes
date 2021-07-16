@@ -1,9 +1,9 @@
 import datetime
 import json
 import os
-import string
 from asyncio import ensure_future
 
+from emoji import emojize
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.key_binding.key_processor import KeyPressEvent
@@ -12,16 +12,17 @@ from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.search import start_search
 from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.styles import Style
-from prompt_toolkit.widgets import MenuContainer, MenuItem, Button
+from prompt_toolkit.widgets import MenuContainer, MenuItem
 
-from constants import NOTES_DIR, USER_SETTINGS_DIR
-from custom_types import MessageDialog, PopUpDialog, ScrollMenuDialog, TextInputDialog, ColorPicker
-
-
-def is_hex(s):
-    hex_digits = set(string.hexdigits)
-    # if s is long, then it is faster to check against a set
-    return all(c in hex_digits for c in s)
+from constants import DIALOG_WIDTH, NOTES_DIR, USER_SETTINGS_DIR
+from custom_types import (
+    ColorPicker,
+    ConfirmDialog,
+    MessageDialog,
+    PopUpDialog,
+    ScrollMenuDialog,
+    TextInputDialog,
+)
 
 
 class MenuNav:
@@ -43,7 +44,7 @@ class MenuNav:
                     "File",
                     children=[
                         MenuItem("New...", handler=self.do_new_file),
-                        MenuItem("Open Scroll", handler=self.do_scroll_menu),
+                        MenuItem("Open", handler=self.do_scroll_menu),
                         MenuItem("Save", handler=self.do_save_file),
                         MenuItem("Save as...", handler=self.do_save_as_file),
                         MenuItem("-", disabled=True),
@@ -65,6 +66,7 @@ class MenuNav:
                         MenuItem("Replace"),
                         MenuItem("Select All", handler=self.do_select_all),
                         MenuItem("Time/Date", handler=self.do_time_date),
+                        MenuItem("Text To Emoji", handler=self.do_convert_to_emoji),
                     ],
                 ),
                 MenuItem(
@@ -75,7 +77,7 @@ class MenuNav:
                     "Info",
                     children=[
                         MenuItem("About", handler=self.do_about),
-                        MenuItem("Color Picker", handler=self.do_pick_color)
+                        MenuItem("Color Picker", handler=self.do_pick_color),
                     ],
                 ),
             ],
@@ -127,28 +129,46 @@ class MenuNav:
                 title="Save As", label_text="Enter the path of the file:"
             )
             user_entered_path = await self.show_dialog_as_float(open_dialog)
-            # Validate that the user entered path is
-            # 1. Not an empty string or None
+            dir_name, file_name = os.path.split(user_entered_path)
+            # Validate that the user entered path:
+            # 1. Is not the empty string or None
             # 2. Doesn't consist exclusively of whitespace
-            # 3. Isn't the string "." or ".."
-            # 4. if the file already exists warning of over writing
+            # 3. Doesn't start with "."
+            # 4. Contains either an existing directory or the empty string
             if (
-                    user_entered_path
-                    and not str.isspace(user_entered_path)
-                    and user_entered_path not in [".", ".."]
+                user_entered_path
+                and not user_entered_path.isspace()
+                and not user_entered_path.startswith(".")
+                and not file_name.startswith(".")
+                and (dir_name == "" or os.path.exists(dir_name))
             ):
+                if not (
+                    user_entered_path.endswith(".txt")
+                    or user_entered_path.endswith(".md")
+                ):
+                    user_entered_path += ".txt"
                 path = os.path.join(NOTES_DIR, user_entered_path)
-                self.application_state.current_path = path
+
+                if os.path.isfile(path):
+                    open_dialog = ConfirmDialog(
+                        title="Save As",
+                        text=f"The file {user_entered_path} already exists. Do you want to overwrite it?",
+                    )
+                    override = await self.show_dialog_as_float(open_dialog)
+                    if not override:
+                        return
+
+                path = os.path.join(NOTES_DIR, user_entered_path)
                 self._save_file_at_path(path, self.text_field.text)
             else:
-                # Fail silently
-                pass
+                if user_entered_path is not None:
+                    self.show_message("Invalid Path", "Please enter a valid file name.")
 
         ensure_future(coroutine())
 
     def do_scroll_menu(self) -> None:
         """Open Scroll Menu"""
-        self._show_scroll("Scroll", "buf")
+        self._show_scroll("Open Note")
 
     def do_about(self) -> None:
         """About from menu select"""
@@ -162,10 +182,17 @@ class MenuNav:
 
     def do_exit(self) -> None:
         """Exit"""
-        with open(USER_SETTINGS_DIR, "w") as j:
-            self.application_state.user_settings["last_path"] = self.application_state.current_path
-            user = json.dumps({"last_path": self.application_state.current_path})
-            j.write(user)
+        with open(USER_SETTINGS_DIR, "r") as f:
+            user = json.load(f)
+
+        self.application_state.user_settings[
+            "last_path"
+        ] = self.application_state.current_path
+
+        user["last_path"] = self.application_state.current_path
+        with open(USER_SETTINGS_DIR, "w") as f:
+            json.dump(user, f)
+
         get_app().exit()
 
     def do_time_date(self) -> None:
@@ -193,7 +220,7 @@ class MenuNav:
 
     ########################################################
     def do_pick_color(self) -> None:
-        """enter hex and prev it"""
+        """Enter hex and prev it"""
 
         async def coroutine() -> None:
             """
@@ -204,19 +231,16 @@ class MenuNav:
             open_dialog = ColorPicker()
 
             # waiting for ColorPicker to set_future
-            cancelled = await self.show_dialog_as_float(open_dialog)
+            await self.show_dialog_as_float(open_dialog)
 
-            if cancelled:
-                pass
-            else:
-                # self.application_state.current_path = path
-                # open_dialog.sample_frame.style = f'bg:{user_entered_hex}'
-                # open_dialog.style = f'{user_entered_hex}'
-                with open(USER_SETTINGS_DIR, 'r') as user_file:
-                    user_settings = json.loads(user_file.read())
+            # self.application_state.current_path = path
+            # open_dialog.sample_frame.style = f'bg:{user_entered_hex}'
+            # open_dialog.style = f'{user_entered_hex}'
+            with open(USER_SETTINGS_DIR, "r") as user_file:
+                user_settings = json.loads(user_file.read())
 
-                style_dict = user_settings['style']
-                get_app().style = Style.from_dict(style_dict)
+            style_dict = user_settings["style"]
+            get_app().style = Style.from_dict(style_dict)
 
         ensure_future(coroutine())
 
@@ -251,6 +275,22 @@ class MenuNav:
             not self.application_state.show_status_bar
         )
 
+    def do_convert_to_emoji(self) -> None:
+        """Convert all ascii emoji to unicode emoji"""
+        # save cursor position
+        c_pos = (
+            self.text_field.document.cursor_position_row,
+            self.text_field.document.cursor_position_col,
+        )
+        self.text_field.text = emojize(
+            self.text_field.text, use_aliases=True, variant="emoji_type"
+        )
+        # Move cursor back to saved position
+        if c_pos[0] > 0:
+            # Only works if multi-line
+            self.text_field.buffer.cursor_down(c_pos[0])
+        self.text_field.buffer.cursor_right(c_pos[1])
+
     ############ HANDLERS FOR MENU ITEMS #############
     def _save_file_at_path(self, path: str, text: str) -> None:
         """Saves text (changes) to a file path"""
@@ -261,18 +301,22 @@ class MenuNav:
             self.show_message("Error", "{}".format(e))
         else:
             set_title(f"ThoughtBox - {path}")
+            self.application_state.current_path = path
 
-    def _show_scroll(self, title: str, text: str) -> None:
-        """Shows a MessageDialog with a certain title and text"""
+    def _show_scroll(self, title: str) -> None:
+        """Shows a ScrollMenu with a certain title"""
 
         async def coroutine(self: MenuNav) -> None:
-            dialog = ScrollMenuDialog(self, title, text)
+            dialog = ScrollMenuDialog(self, title)
             await self.show_dialog_as_float(dialog)
 
         ensure_future(coroutine(self))
 
-    def show_message(self, title: str, text: str) -> None:
+    def show_message(self, title: str, text: str, centered: bool = True) -> None:
         """Shows about message"""
+        if centered:
+            text = text.split("\n")
+            text = "\n".join(map(lambda x: x.center(DIALOG_WIDTH - 5), text))
 
         async def coroutine(self: MenuNav) -> None:
             dialog = MessageDialog(title, text)
@@ -360,5 +404,10 @@ class MenuNav:
         def undo_changes(event: KeyPressEvent) -> None:
             """Undo with Ctrl-Z"""
             self.do_undo()
+
+        @bindings.add("c-e")
+        def convert_to_emoji(event: KeyPressEvent) -> None:
+            """Convert text to emoji using Ctrl-E"""
+            self.do_convert_to_emoji()
 
         return bindings
