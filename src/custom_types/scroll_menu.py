@@ -2,7 +2,7 @@ import functools
 from asyncio import Future
 from os import listdir
 from os.path import basename, dirname, isdir, isfile, join, realpath
-from typing import List
+from typing import List, Optional
 
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.layout import FormattedTextControl, ScrollablePane, Window
@@ -18,7 +18,12 @@ class ScrollMenuDialog(PopUpDialog):
     """Scroll menu added to the info tab dialog box"""
 
     def __init__(
-        self, title: str, text: str, directory: str = NOTES_DIR, show_files: bool = True
+        self,
+        title: str,
+        text: str,
+        directory: str = NOTES_DIR,
+        show_files: bool = True,
+        path: Optional[str] = None,
     ):
         """Initialize Scroll Menu Dialog
 
@@ -27,9 +32,16 @@ class ScrollMenuDialog(PopUpDialog):
             text (str): Body of dialog
             directory (str): Default directory to open
             show_files (bool): Whether or not to show files in the scroll menu
+            path (Optional[str]): Set the initial path.
+                If None, defaults to None if show_files is True, otherwise defaults to directory.
         """
         self.future = Future()
-        self.path = None if show_files else directory
+        if path:
+            self.path = path
+        elif show_files:
+            self.path = None
+        else:
+            self.path = directory
 
         user_displayed_directory = "Explorer" if directory == NOTES_DIR else directory
 
