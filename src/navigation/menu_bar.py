@@ -11,9 +11,10 @@ from prompt_toolkit.layout.containers import Float
 from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.search import start_search
 from prompt_toolkit.shortcuts import set_title
-from prompt_toolkit.widgets import MenuContainer, MenuItem
+from prompt_toolkit.styles import Style
+from prompt_toolkit.widgets import MenuContainer, MenuItem, Button
 
-from constants import NOTES_DIR
+from constants import NOTES_DIR, USER_SETTINGS_DIR
 from custom_types import MessageDialog, PopUpDialog, ScrollMenuDialog, TextInputDialog, ColorPicker
 
 
@@ -161,10 +162,8 @@ class MenuNav:
 
     def do_exit(self) -> None:
         """Exit"""
-        with open(os.path.join(NOTES_DIR, ".user_setting.json"), "w") as j:
-            self.application_state.user_settings[
-                "last_path"
-            ] = self.application_state.current_path
+        with open(USER_SETTINGS_DIR, "w") as j:
+            self.application_state.user_settings["last_path"] = self.application_state.current_path
             user = json.dumps({"last_path": self.application_state.current_path})
             j.write(user)
         get_app().exit()
@@ -198,32 +197,28 @@ class MenuNav:
 
         async def coroutine() -> None:
             """
-            Prompt the user for a file path to save their note.
+            Prompt the user for hex value
 
-            If the path entered is a valid file name, save the current note at that path.
+            If its a valid hex preview it and maybe apply
             """
             open_dialog = ColorPicker()
-            user_entered_hex = await self.show_dialog_as_float(open_dialog)
-            # Validate that the user entered path is
-            # 1. len(6)
-            # 2. only contains 0-9 and a-f
-            # hex_digits = set(string.hexdigits)
-            #      # if s is long, then it is faster to check against a set
-            #      return all(c in hex_digits for c in s)
-            if (
-                    user_entered_hex
-                    and len(user_entered_hex) == 6
-                    and is_hex(user_entered_hex)
-            ):
+
+            # waiting for ColorPicker to set_future
+            cancelled = await self.show_dialog_as_float(open_dialog)
+
+            if cancelled:
                 pass
-                #self.application_state.current_path = path
             else:
-                # Fail silently
-                pass
+                # self.application_state.current_path = path
+                # open_dialog.sample_frame.style = f'bg:{user_entered_hex}'
+                # open_dialog.style = f'{user_entered_hex}'
+                with open(USER_SETTINGS_DIR, 'r') as user_file:
+                    user_settings = json.loads(user_file.read())
+
+                style_dict = user_settings['style']
+                get_app().style = Style.from_dict(style_dict)
 
         ensure_future(coroutine())
-
-
 
     #####################################################
 

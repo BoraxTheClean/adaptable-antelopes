@@ -163,3 +163,5 @@ class ScrollMenuDialog(PopUpDialog):
 
     def __pt_container__(self):
         return self.dialog
+
+

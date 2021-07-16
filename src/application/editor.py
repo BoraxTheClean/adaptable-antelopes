@@ -38,22 +38,23 @@ class ThoughtBox(MenuNav):
                 self.text_field.text = file.read()
 
         # style of menu can def play around here
-        self.style = Style.from_dict(
-            {
-                # 'text-area': "bg:#00a444",
-                # "top": "bg:#00bb00",
-                "frame-label": "bg:#ffffff #000000",
-                "status": "reverse",
-                "shadow": "bg:#000000 #ffffff",
-                # "menu": "shadow:#440044",
-                "menu": "bg:#004444",
-                "menu-bar": "bg:#00ff00",
-                # "menu.": "#00ff00",
-                # "button" : "bg:#004444"
-                # 'text-field': "#00ff00 bg:#000000",
-                "dialog.body": "bg:#111111 #00aa44",
-            }
-        )
+        self.style = Style.from_dict(self.application_state.user_settings['style'])
+        # self.style = Style.from_dict(
+        #     {
+        #         # 'text-area': "bg:#00a444",
+        #         # "top": "bg:#00bb00",
+        #         "frame-label": "bg:#ffffff #000000",
+        #         "status": "reverse",
+        #         "shadow": "bg:#000000 #ffffff",
+        #         # "menu": "shadow:#440044",
+        #         "menu": "bg:#004444",
+        #         "menu-bar": "bg:#00ff00",
+        #         # "menu.": "#00ff00",
+        #         # "button" : "bg:#004444"
+        #         # 'text-field': "#00ff00 bg:#000000",
+        #         "dialog.body": "bg:#111111 #00aa44",
+        #     }
+        # )
 
         self.body = HSplit(
             [
