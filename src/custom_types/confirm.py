@@ -4,6 +4,7 @@ from prompt_toolkit.layout.containers import HSplit
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.widgets import Button, Dialog, Label
 
+from application import display_path
 from constants import DIALOG_WIDTH
 from custom_types.ui_types import PopUpDialog
 
@@ -27,7 +28,7 @@ class ConfirmDialog(PopUpDialog):
 
         self.dialog = Dialog(
             title=title,
-            body=HSplit([Label(text=text)]),
+            body=HSplit([Label(text=display_path(text))]),
             buttons=[yes_button, no_button],
             width=D(preferred=DIALOG_WIDTH),
             modal=True,

@@ -16,6 +16,7 @@ from prompt_toolkit.search import start_search
 from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import MenuContainer, MenuItem
 
+from application import display_path
 from constants import DIALOG_WIDTH, NOTES_DIR
 from custom_types import (
     ConfirmDialog,
@@ -180,7 +181,7 @@ class MenuNav:
                     with open(path, "r") as f:
                         self.text_field.text = f.read()
 
-                    set_title(f"ThoughtBox - {path}")
+                    set_title(f"ThoughtBox - {display_path(path)}")
                 else:
                     # Else show a popup message revealing the error message
                     self.show_message(
@@ -247,7 +248,7 @@ class MenuNav:
                 if (
                     current_path := self.application_state.current_path
                 ) and current_path.startswith(item_path):
-                    set_title(f"ThoughtBox - {current_path} (Moved)")
+                    set_title(f"ThoughtBox - {display_path(current_path)} (Moved)")
                     self.application_state.current_path = None
                 self.show_message(
                     title="Move Item",
@@ -381,7 +382,7 @@ class MenuNav:
                     if (
                         current_path := self.application_state.current_path
                     ) and current_path.startswith(path):
-                        set_title(f"ThoughtBox - {current_path} (Moved)")
+                        set_title(f"ThoughtBox - {display_path(current_path)} (Moved)")
                         self.application_state.current_path = None
                     self.show_message(
                         title="Rename Item",
@@ -448,7 +449,9 @@ class MenuNav:
                     if (
                         current_path := self.application_state.current_path
                     ) and current_path.startswith(path):
-                        set_title(f"ThoughtBox - {current_path} (Deleted)")
+                        set_title(
+                            f"ThoughtBox - {display_path(current_path)} (Deleted)"
+                        )
                         self.application_state.current_path = None
                     self.show_message(
                         title="Delete Folder",
@@ -559,7 +562,7 @@ class MenuNav:
         except IOError as e:
             self.show_message("Error", "{}".format(e))
         else:
-            set_title(f"ThoughtBox - {path}")
+            set_title(f"ThoughtBox - {display_path(path)}")
             self.application_state.current_path = path
 
     def show_message(self, title: str, text: str, centered: bool = True) -> None:
