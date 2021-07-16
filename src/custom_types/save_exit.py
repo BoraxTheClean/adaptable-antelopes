@@ -17,7 +17,7 @@ class SaveExitDialog(PopUpDialog):
         def set_save_exit() -> None:
             """Save file and exit"""
             self.future.set_result("save")
-            
+
         def set_nosave_exit() -> None:
             """Exit without saving file"""
             self.future.set_result("nosave")
@@ -28,7 +28,7 @@ class SaveExitDialog(PopUpDialog):
 
         save_exit_button = Button(text="Yes", handler=set_save_exit)
         nosave_exit_button = Button(text="No", handler=set_nosave_exit)
-        cancel_button = Button(text="Cancel", handler = set_cancel)
+        cancel_button = Button(text="Cancel", handler=set_cancel)
         self.dialog = Dialog(
             title=title,
             body=HSplit([Label(text=text)]),
