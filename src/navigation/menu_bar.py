@@ -1,8 +1,8 @@
 import datetime
 import json
 import os
+import shutil
 from asyncio import ensure_future
-from shutil import rmtree
 from typing import Optional, Union
 
 from emoji import emojize
@@ -43,10 +43,12 @@ class MenuNav:
                 MenuItem(
                     "File",
                     children=[
-                        MenuItem("New Note...", handler=self.do_new_file),
+                        MenuItem("New Note", handler=self.do_new_file),
                         MenuItem("Open", handler=self.do_scroll_menu),
                         MenuItem("Save", handler=self.do_save_file),
                         MenuItem("Save as...", handler=self.do_save_as_file),
+                        MenuItem("-", disabled=True),
+                        MenuItem("Move...", handler=self.do_move),
                         MenuItem("-", disabled=True),
                         MenuItem("New Folder", handler=self.do_new_folder),
                         MenuItem("Rename Folder", handler=self.do_rename_folder),
@@ -66,7 +68,6 @@ class MenuNav:
                         MenuItem("-", disabled=True),
                         MenuItem("Find", handler=self.do_find),
                         MenuItem("Find next", handler=self.do_find_next),
-                        MenuItem("Replace"),
                         MenuItem("Select All", handler=self.do_select_all),
                         MenuItem("Time/Date", handler=self.do_time_date),
                         MenuItem("Text To Emoji", handler=self.do_convert_to_emoji),
@@ -192,6 +193,42 @@ class MenuNav:
         self.text_field.text = ""
         self.application_state.current_path = None
         set_title("ThoughtBox - Untitled")
+
+    def do_move(self) -> None:
+        """Move a folder or file to a different directory."""
+
+        async def coroutine(self: MenuNav) -> None:
+            dialog = ScrollMenuDialog(
+                title="Move Item",
+                text="Choose the folder/note you want to move.",
+                directory=self.application_state.current_dir,
+                show_files=True,
+            )
+            item_path = await self.show_dialog_as_float(dialog)
+            if not item_path:
+                return
+
+            dialog = ScrollMenuDialog(
+                title="Move Item",
+                text="Choose the location where you want to move the item to.",
+                directory=self.application_state.current_dir,
+                show_files=False,
+            )
+            move_path = await self.show_dialog_as_float(dialog)
+            try:
+                shutil.move(item_path, move_path)
+            except OSError:
+                self.show_message(
+                    title="Move Item",
+                    text="Unable to move item to that location.",
+                )
+            else:
+                self.show_message(
+                    title="Move Item",
+                    text=f"Item successfully moved to {move_path}.",
+                )
+
+        ensure_future(coroutine(self))
 
     def do_new_folder(self) -> None:
         """Creates a folder"""
@@ -339,7 +376,7 @@ class MenuNav:
 
             if confirm_delete:
                 try:
-                    rmtree(path)
+                    shutil.rmtree(path)
                 except OSError:
                     self.show_message(
                         title="Delete Folder",
