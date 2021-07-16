@@ -447,7 +447,7 @@ class MenuNav:
             self.application_state.current_path = path
 
     def show_message(self, title: str, text: str, centered: bool = True) -> None:
-        """Shows about message"""
+        """Shows About message"""
         if centered:
             text = text.split("\n")
             text = "\n".join(map(lambda x: x.center(DIALOG_WIDTH - 5), text))
@@ -466,6 +466,7 @@ class MenuNav:
         # Put given dialog on top of everything
         self.root_container.floats.insert(0, float_)
 
+        # Get currently active application
         app = get_app()
 
         # Put current window in a temp variable
@@ -484,6 +485,7 @@ class MenuNav:
         return result
 
     def _setup_keybindings(self) -> KeyBindings:
+        """Setup Keyboard Shortcuts"""
         bindings = KeyBindings()
 
         @bindings.add("c-k")
