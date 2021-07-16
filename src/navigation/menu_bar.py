@@ -385,10 +385,7 @@ class MenuNav:
                 choice = "nosave"
             if choice != "cancel":
                 if choice == "save":
-                    if self.application_state.current_path:
-                        self.do_save_file()
-                    else:
-                        self.do_save_as_file()
+                    self.do_save_file()
                 # Exit
                 settings_path = os.path.join(NOTES_DIR, ".user_setting.json")
                 with open(settings_path, "r") as f:
