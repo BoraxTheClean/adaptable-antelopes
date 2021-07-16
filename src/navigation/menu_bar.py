@@ -242,10 +242,10 @@ class MenuNav:
                     text="Unable to move item to that location.",
                 )
             else:
-                if self.application_state.current_path.startswith(item_path):
-                    set_title(
-                        f"ThoughtBox - {self.application_state.current_path} (Moved)"
-                    )
+                if (
+                    current_path := self.application_state.current_path
+                ) and current_path.startswith(item_path):
+                    set_title(f"ThoughtBox - {current_path} (Moved)")
                     self.application_state.current_path = None
                 self.show_message(
                     title="Move Item",
@@ -374,10 +374,10 @@ class MenuNav:
                         text="Please enter a valid name.",
                     )
                 else:
-                    if self.application_state.current_path.startswith(path):
-                        set_title(
-                            f"ThoughtBox - {self.application_state.current_path} (Moved)"
-                        )
+                    if (
+                        current_path := self.application_state.current_path
+                    ) and current_path.startswith(path):
+                        set_title(f"ThoughtBox - {current_path} (Moved)")
                         self.application_state.current_path = None
                     self.show_message(
                         title="Rename Item",
@@ -441,10 +441,10 @@ class MenuNav:
                         text="Failed to delete the folder.",
                     )
                 else:
-                    if self.application_state.current_path.startswith(path):
-                        set_title(
-                            f"ThoughtBox - {self.application_state.current_path} (Deleted)"
-                        )
+                    if (
+                        current_path := self.application_state.current_path
+                    ) and current_path.startswith(path):
+                        set_title(f"ThoughtBox - {current_path} (Deleted)")
                         self.application_state.current_path = None
                     self.show_message(
                         title="Delete Folder",
