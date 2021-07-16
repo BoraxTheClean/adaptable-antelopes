@@ -1,9 +1,9 @@
 import datetime
 import json
 import os
+import shutil
 import webbrowser
 from asyncio import ensure_future
-from shutil import rmtree
 from typing import Optional, Union
 
 from emoji import emojize
@@ -44,14 +44,16 @@ class MenuNav:
                 MenuItem(
                     "File",
                     children=[
-                        MenuItem("New Note...", handler=self.do_new_file),
-                        MenuItem("Open", handler=self.do_scroll_menu),
+                        MenuItem("New Note", handler=self.do_new_file),
+                        MenuItem("Open Note", handler=self.do_scroll_menu),
                         MenuItem("Save", handler=self.do_save_file),
                         MenuItem("Save as...", handler=self.do_save_as_file),
                         MenuItem("-", disabled=True),
                         MenuItem("New Folder", handler=self.do_new_folder),
-                        MenuItem("Rename Folder", handler=self.do_rename_folder),
-                        MenuItem("Delete Folder", handler=self.do_delete_folder),
+                        MenuItem("-", disabled=True),
+                        MenuItem("Move...", handler=self.do_move_item),
+                        MenuItem("Rename...", handler=self.do_rename_item),
+                        MenuItem("Delete...", handler=self.do_delete_item),
                         MenuItem("-", disabled=True),
                         MenuItem("Exit", handler=self.do_exit),
                     ],
@@ -67,7 +69,6 @@ class MenuNav:
                         MenuItem("-", disabled=True),
                         MenuItem("Find", handler=self.do_find),
                         MenuItem("Find next", handler=self.do_find_next),
-                        MenuItem("Replace"),
                         MenuItem("Select All", handler=self.do_select_all),
                         MenuItem("Time/Date", handler=self.do_time_date),
                         MenuItem("Text To Emoji", handler=self.do_convert_to_emoji),
@@ -97,7 +98,7 @@ class MenuNav:
             key_bindings=self._setup_keybindings(),
         )
 
-    ############ MENU ITEMS #############
+    ############ HANDLERS FOR MENU ITEMS #############
     def do_save_file(self) -> None:
         """Try to save. If no file is being edited, save as instead to create a new one."""
         if path := self.application_state.current_path:
@@ -197,22 +198,85 @@ class MenuNav:
         self.application_state.current_path = None
         set_title("ThoughtBox - Untitled")
 
+    def do_move_item(self) -> None:
+        """Move a folder or file to a different directory."""
+
+        async def coroutine(self: MenuNav) -> None:
+            dialog = ScrollMenuDialog(
+                title="Move Item",
+                text="Choose the folder/note you want to move.",
+                directory=self.application_state.current_dir,
+                show_files=True,
+            )
+            item_path = await self.show_dialog_as_float(dialog)
+            if not item_path:
+                return
+
+            if item_path == NOTES_DIR:
+                return self.show_message(
+                    title="Move Item",
+                    text="You cannot move the root folder.",
+                )
+
+            dialog = ScrollMenuDialog(
+                title="Move Item",
+                text="Choose the location where you want to move the item to.",
+                directory=self.application_state.current_dir,
+                show_files=False,
+            )
+            move_path = await self.show_dialog_as_float(dialog)
+            if not move_path:
+                return
+
+            if os.path.exists(os.path.join(move_path, os.path.basename(item_path))):
+                return self.show_message(
+                    title="Move Item",
+                    text=f"{os.path.basename(item_path)} already exists at that location.",
+                )
+
+            try:
+                shutil.move(item_path, move_path)
+            except OSError:
+                self.show_message(
+                    title="Move Item",
+                    text="Unable to move item to that location.",
+                )
+            else:
+                if (
+                    current_path := self.application_state.current_path
+                ) and current_path.startswith(item_path):
+                    set_title(f"ThoughtBox - {current_path} (Moved)")
+                    self.application_state.current_path = None
+                self.show_message(
+                    title="Move Item",
+                    text=f"Item successfully moved to {move_path}.",
+                )
+
+        ensure_future(coroutine(self))
+
     def do_new_folder(self) -> None:
         """Creates a folder"""
 
         async def coroutine(self: MenuNav) -> None:
-            dialog = ScrollMenuDialog(
-                title="New Folder",
-                text="Choose the location of the new folder.",
-                directory=self.application_state.current_dir,
-                show_files=False,
+            has_folders = any(
+                os.path.isdir(os.path.join(NOTES_DIR, f)) for f in os.listdir(NOTES_DIR)
             )
-            path = await self.show_dialog_as_float(dialog)
-            if not path:
-                return
+            if has_folders:
+                dialog = ScrollMenuDialog(
+                    title="New Folder",
+                    text="Choose the location of the new folder.",
+                    directory=self.application_state.current_dir,
+                    show_files=False,
+                )
+                path = await self.show_dialog_as_float(dialog)
+                if not path:
+                    return
+            else:
+                # Skip the scroll menu if there are no folders yet (to not confuse users)
+                path = NOTES_DIR
 
             dialog = TextInputDialog(
-                "New Folder", label_text="Enter the name of the folder:"
+                "New Folder", label_text="Enter the name of the new folder:"
             )
             folder_name = await self.show_dialog_as_float(dialog)
             if folder_name is None:
@@ -252,15 +316,16 @@ class MenuNav:
 
         ensure_future(coroutine(self))
 
-    def do_rename_folder(self) -> None:
-        """Renames a folder"""
+    def do_rename_item(self) -> None:
+        """Renames a folder/note"""
 
         async def coroutine(self: MenuNav) -> None:
             dialog = ScrollMenuDialog(
-                title="Rename Folder",
-                text="Choose the folder you want to rename.",
+                title="Rename Item",
+                text="Choose the folder/note you want to rename.",
                 directory=self.application_state.current_dir,
-                show_files=False,
+                show_files=True,
+                path=self.application_state.current_dir,
             )
             path = await self.show_dialog_as_float(dialog)
             if not path:
@@ -268,61 +333,77 @@ class MenuNav:
 
             if path == NOTES_DIR:
                 return self.show_message(
-                    title="Rename Folder",
+                    title="Rename Item",
                     text="You cannot rename the root folder.",
                 )
 
             dialog = TextInputDialog(
-                "Rename Folder", label_text="Enter the new name of the folder:"
+                "Rename Item", label_text="Enter the new name of the folder/note:"
             )
-            folder_name = await self.show_dialog_as_float(dialog)
-            if folder_name is None:
+            new_name = await self.show_dialog_as_float(dialog)
+            if new_name is None:
                 return
 
             # Validate that the folder name:
             # 1. Is not the empty string or None
             # 2. Doesn't consist exclusively of whitespace
             # 3. Doesn't start with "."
+            # 4. Doesn't contain "/" or "\\"
+            # 5. Ends with ".txt" or ".md" if the original path was a file
             if (
-                folder_name
-                and not folder_name.isspace()
-                and not folder_name.startswith(".")
+                new_name
+                and not new_name.isspace()
+                and not new_name.startswith(".")
+                and not any(x in new_name for x in ("/", "\\"))
+                and (
+                    os.path.isdir(path)
+                    or any(new_name.endswith(x) for x in (".txt", ".md"))
+                )
             ):
-                new_path = os.path.join(os.path.dirname(path), folder_name)
+                new_path = os.path.join(os.path.dirname(path), new_name)
                 if os.path.exists(new_path):
                     return self.show_message(
-                        title="Rename Folder", text="That folder already exists."
+                        title="Rename Item", text="That folder/note already exists."
                     )
 
                 try:
                     os.rename(path, new_path)
                 except OSError:
                     self.show_message(
-                        title="Rename Folder",
-                        text="Please enter a valid folder name.",
+                        title="Rename Item",
+                        text="Please enter a valid name.",
                     )
                 else:
+                    if (
+                        current_path := self.application_state.current_path
+                    ) and current_path.startswith(path):
+                        set_title(f"ThoughtBox - {current_path} (Moved)")
+                        self.application_state.current_path = None
                     self.show_message(
-                        title="Rename Folder",
+                        title="Rename Item",
                         text=f"{path} was successfully renamed to {new_path}.",
                     )
             else:
+                text = "Please enter a valid name."
+                if os.path.isfile(path):
+                    text += " Files must end with '.txt' or '.md'"
                 self.show_message(
-                    title="Rename Folder",
-                    text="Please enter a valid folder name.",
+                    title="Rename Item",
+                    text=text,
                 )
 
         ensure_future(coroutine(self))
 
-    def do_delete_folder(self) -> None:
-        """Delete a folder"""
+    def do_delete_item(self) -> None:
+        """Delete a folder/note"""
 
         async def coroutine(self: MenuNav) -> None:
             dialog = ScrollMenuDialog(
-                title="Delete Folder",
-                text="Choose the folder you want to delete.",
+                title="Delete Item",
+                text="Choose the item you want to delete.",
                 directory=self.application_state.current_dir,
-                show_files=False,
+                show_files=True,
+                path=self.application_state.current_dir,
             )
 
             path = await self.show_dialog_as_float(dialog)
@@ -331,25 +412,40 @@ class MenuNav:
 
             if path == NOTES_DIR:
                 return self.show_message(
-                    title="Delete Folder",
+                    title="Delete Item",
                     text="You cannot delete the root folder.",
                 )
 
+            text = f"Are you sure you want to delete {path}"
+            if os.path.isdir(path):
+                text += "\nand all of its contents"
             dialog = ConfirmDialog(
-                title="Delete Folder",
-                text=f"Are you sure you want to delete {path} and all of its contents?",
+                title="Delete Item",
+                text=text + "?",
             )
             confirm_delete = await self.show_dialog_as_float(dialog)
 
             if confirm_delete:
                 try:
-                    rmtree(path)
+                    if os.path.isdir(path):
+                        shutil.rmtree(path)
+                    elif os.path.isfile(path):
+                        os.remove(path)
+                    else:
+                        raise ValueError(
+                            "Selected path is neither a file nor directory."
+                        )
                 except OSError:
                     self.show_message(
                         title="Delete Folder",
                         text="Failed to delete the folder.",
                     )
                 else:
+                    if (
+                        current_path := self.application_state.current_path
+                    ) and current_path.startswith(path):
+                        set_title(f"ThoughtBox - {current_path} (Deleted)")
+                        self.application_state.current_path = None
                     self.show_message(
                         title="Delete Folder",
                         text=f"{path} was successfully deleted.",
@@ -450,7 +546,7 @@ class MenuNav:
             # Then open in new tab
             webbrowser.open_new_tab(word)
 
-    ############ HANDLERS FOR MENU ITEMS #############
+    ############ HELPER FUNCTIONS #############
     def _save_file_at_path(self, path: str, text: str) -> None:
         """Saves text (changes) to a file path"""
         try:
