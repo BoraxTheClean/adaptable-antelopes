@@ -10,8 +10,7 @@ from prompt_toolkit.layout.containers import HSplit, VSplit
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.widgets import Button, Dialog, Frame, Label
 
-# from application.editor import ThoughtBox
-from constants import NOTES_DIR, PADDING_CHAR, PADDING_WIDTH
+from constants import DIALOG_WIDTH, NOTES_DIR, PADDING_CHAR, PADDING_WIDTH
 from custom_types.ui_types import PopUpDialog
 
 
@@ -32,9 +31,7 @@ class ScrollMenuDialog(PopUpDialog):
         self.future = Future()
         self.path = None if show_files else directory
 
-        user_displayed_directory = (
-            "Your Thought Box" if directory == NOTES_DIR else directory
-        )
+        user_displayed_directory = "Explorer" if directory == NOTES_DIR else directory
 
         self.body = VSplit(
             children=[
@@ -48,7 +45,6 @@ class ScrollMenuDialog(PopUpDialog):
                             )
                         )
                     ),
-                    # style="fg:#ffffff bg:#70ecff bold",
                 ),
             ],
             padding_char=PADDING_CHAR,
@@ -73,7 +69,7 @@ class ScrollMenuDialog(PopUpDialog):
             title=title,
             body=self.body,
             buttons=[self.ok_button, self.cancel_button],
-            width=D(preferred=80),
+            width=D(preferred=DIALOG_WIDTH),
             modal=True,
         )
 

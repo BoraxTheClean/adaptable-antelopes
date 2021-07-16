@@ -7,6 +7,7 @@ from prompt_toolkit.layout.containers import HSplit
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.widgets import Button, Dialog, Label, TextArea
 
+from constants import DIALOG_WIDTH
 from custom_types.ui_types import PopUpDialog
 
 
@@ -46,7 +47,7 @@ class TextInputDialog(PopUpDialog):
             title=title,
             body=HSplit([Label(text=label_text), self.text_area]),
             buttons=[ok_button, cancel_button],
-            width=D(preferred=80),
+            width=D(preferred=DIALOG_WIDTH),
             modal=True,
         )
 

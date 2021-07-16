@@ -12,9 +12,8 @@ class ApplicationState:
             with open(os.path.join(NOTES_DIR, ".user_setting.json"), "r") as f:
                 self.user_settings = json.load(f)
         except FileNotFoundError:
-            # if for some reason the file is deleted but then i need to maintain all the setting here
-            # no style dict atm for users prefs not used anywhere yet
-            self.user_settings = {"last_path": None, "style": ""}  # color picker?
+            # Use default settings when the file got accidentally deleted.
+            self.user_settings = {"last_path": None, "style": ""}
             with open(os.path.join(NOTES_DIR, ".user_setting.json"), "w") as f:
                 json.dump(self.user_settings, f)
 
