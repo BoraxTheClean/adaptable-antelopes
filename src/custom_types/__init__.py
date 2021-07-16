@@ -1,4 +1,4 @@
-from .color_picker import ColorPicker
+from .color_picker import ColorPicker, ScrollMenuColorDialog
 from .confirm import ConfirmDialog
 from .message import MessageDialog
 from .scroll_menu import ScrollMenuDialog
@@ -12,4 +12,5 @@ __all__ = [
     ConfirmDialog,
     PopUpDialog,
     ColorPicker,
+    ScrollMenuColorDialog,
 ]

@@ -23,6 +23,7 @@ from custom_types import (
     ConfirmDialog,
     MessageDialog,
     PopUpDialog,
+    ScrollMenuColorDialog,
     ScrollMenuDialog,
     TextInputDialog,
 )
@@ -86,7 +87,8 @@ class MenuNav:
                     "Info",
                     children=[
                         MenuItem("About", handler=self.do_about),
-                        MenuItem("Color Picker", handler=self.do_pick_color),
+                        MenuItem("Menu-bar color change", handler=self.do_pick_color),
+                        MenuItem("Color Picker", handler=self.do_color_scroll),
                     ],
                 ),
             ],
@@ -408,7 +410,7 @@ class MenuNav:
 
             If its a valid hex preview it and maybe apply
             """
-            open_dialog = ColorPicker()
+            open_dialog = ColorPicker(style_class="menu_bar")
 
             # waiting for ColorPicker to set_future
             await self.show_dialog_as_float(open_dialog)
@@ -416,6 +418,23 @@ class MenuNav:
             # self.application_state.current_path = path
             # open_dialog.sample_frame.style = f'bg:{user_entered_hex}'
             # open_dialog.style = f'{user_entered_hex}'
+            with open(USER_SETTINGS_DIR, "r") as user_file:
+                user_settings = json.loads(user_file.read())
+
+            style_dict = user_settings["style"]
+            get_app().style = Style.from_dict(style_dict)
+
+        ensure_future(coroutine())
+
+    def do_color_scroll(self) -> None:
+        """Open Scroll Menu"""
+
+        async def coroutine() -> None:
+
+            dialog = ScrollMenuColorDialog()
+            style_class = await self.show_dialog_as_float(dialog)
+            color_input_dialog = ColorPicker(style_class)
+            await self.show_dialog_as_float(color_input_dialog)
             with open(USER_SETTINGS_DIR, "r") as user_file:
                 user_settings = json.loads(user_file.read())
 

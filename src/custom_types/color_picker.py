@@ -1,15 +1,15 @@
+import functools
 import json
 import string
 from asyncio import Future
 
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.buffer import Buffer
-from prompt_toolkit.completion import Completer
-from prompt_toolkit.layout import FormattedTextControl
+from prompt_toolkit.layout import FormattedTextControl, ScrollablePane
 from prompt_toolkit.layout.containers import HSplit, Window
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.styles import Style
-from prompt_toolkit.widgets import Button, Dialog, Label, TextArea
+from prompt_toolkit.widgets import Button, Dialog, Frame, Label, TextArea
 
 from constants import USER_SETTINGS_DIR
 from custom_types.ui_types import PopUpDialog
@@ -18,7 +18,7 @@ from custom_types.ui_types import PopUpDialog
 class ColorPicker(PopUpDialog):
     """Text Input for the open dialog box"""
 
-    def __init__(self, completer: Completer = None):
+    def __init__(self, style_class: str):
         self.future = Future()
         with open(USER_SETTINGS_DIR, "r") as user_file:
             self.user_settings = json.load(user_file)
@@ -38,7 +38,7 @@ class ColorPicker(PopUpDialog):
 
         def prev() -> None:
             if is_hex(self.text_area.text):
-                self.user_settings["style"]["menu-bar"] = f"bg:#{self.text_area.text}"
+                self.user_settings["style"][style_class] = f"bg:#{self.text_area.text}"
                 get_app().style = Style.from_dict(self.user_settings["style"])
                 self.sample_window.style = f"bg:#{self.text_area.text}"
                 self.promp_label.text = "Enter a hex:"
@@ -54,7 +54,7 @@ class ColorPicker(PopUpDialog):
             """Accept"""
             if is_hex(self.text_area.text):
                 # save to user settings
-                self.user_settings["style"]["menu-bar"] = f"bg:#{self.text_area.text}"
+                self.user_settings["style"][style_class] = f"bg:#{self.text_area.text}"
 
                 with open(USER_SETTINGS_DIR, "w") as user_file:
                     user_file.write(json.dumps(self.user_settings))
@@ -69,7 +69,6 @@ class ColorPicker(PopUpDialog):
             self.future.set_result(None)
 
         self.text_area = TextArea(
-            completer=completer,
             multiline=False,
             width=D(preferred=6),
             accept_handler=accept_text,
@@ -94,151 +93,79 @@ class ColorPicker(PopUpDialog):
         return self.dialog
 
 
-'''
 class ScrollMenuColorDialog(PopUpDialog):
     """Scroll menu added to the info tab dialog box
+
     {
     "frame-label": "bg:#ffffff #000000",
     "status": "reverse",
     "shadow": "bg:#000000 #ffffff",
     "menu": "bg:#004400",
     "menu-bar": "bg:#00ff00",
-    "dialog.body": "bg:#111111 #00aa44",}"""
+    "dialog.body": "bg:#111111 #00aa44",}
+    """
 
-    def __init__(self, commander: object):
+    def __init__(self):
         """Initialize Scroll Menu Dialog
 
         Args:
             commander (object): Instance of ThoughtBox (required for modifying text in the editor)
         """
         self.future = Future()
-        self.commander = commander
 
-        # self.cur_style = self.commander.application_state.cur_style
+        style_list = ["frame-label", "menu", "menu-bar", "dialog.body"]
 
-        style_list = ['frame-label', 'menu', 'menu-bar', 'dialog.body']
-
-        self.body = VSplit(
-            padding_char=PADDING_CHAR,
-            children=[
-                Label(text="Style Elements", dont_extend_height=False),
-                Frame(body=ScrollablePane(HSplit(children=self._get_contents(style_list))))
-            ],
-            padding=PADDING_WIDTH,
-        )
+        # self.body = VSplit(
+        #     padding_char=PADDING_CHAR,
+        #     children=[
+        #         Label(text="Style Elements", dont_extend_height=False),
+        #         Frame(body=ScrollablePane(HSplit(children=self._get_contents(style_list))))
+        #     ],
+        #     padding=PADDING_WIDTH,
+        # )
 
         def set_cancel() -> None:
-            """Cancel don't open file"""
+            """Cancel"""
             self.future.set_result(None)
 
         # Send error message if attempt to open any extension besides .txt and .md
         def set_done() -> None:
-            """Handles actions related to adding file's contents to text editor"""
-            if self.cur_style:
-                # The caller is waiting for self.future so setting it to None will
-                # be a flag to indicate that we're done with this dialog
-                self.future.set_result(None)
-                self.commander.show_message(
-                    title="extension_error",
-                    text="Unsupported file extension. Only '.txt' and '.md' are supported",
+            """OK"""
+            self.future.set_result(None)
+
+        def set_style_class(style_element: str) -> None:
+            """Passes the chosen style class to the menu_bar"""
+            self.future.set_result(style_element)
+
+        self.body = Frame(
+            ScrollablePane(
+                HSplit(
+                    [
+                        Frame(
+                            Button(
+                                text=style_class,
+                                handler=functools.partial(set_style_class, style_class),
+                                width=20,
+                            )
+                        )
+                        for style_class in style_list
+                    ]
                 )
+                # ScrollablePane(HSplit([TextArea(text=f"label-{i}") for i in range(20)]))
+            )
+        )
 
         # Add chosen file to editor
         self.ok_button = Button(text="OK", handler=(lambda: set_done()))
-
         self.cancel_button = Button(text="Cancel", handler=(lambda: set_cancel()))
 
         self.dialog = Dialog(
-            title='Color Picker',
+            title="Color Picker",
             body=self.body,
             buttons=[self.ok_button, self.cancel_button],
             width=D(preferred=80),
             modal=True,
         )
 
-    def _get_contents(self, opt_list=None) -> List[Frame]:
-        """Get contents from the given directory
-
-        Args:
-            dir (str): directory's name
-
-        Returns:
-            List[Frame]: List of frames to add to the container
-        """
-        frames = [
-            Frame(
-                Button(
-                    text=item,
-                    handler=functools.partial(self._display_content, item),
-                )
-            )
-            for item in opt_list
-        ]
-
-        # Add a move-up one a level if your in an element
-        if self.level == 1:
-            frames.insert(
-                0,
-                Frame(
-                    Button(
-                        text="../",
-                        handler=functools.partial(self._display_content, ".."),
-                    )
-                ),
-            )
-        return frames
-
-    def _display_content(self, target_content: str) -> None:
-        """Display content.
-
-        If target's content is a file, display it in the left column.
-        If the target_content is a directory, replace the right column with its content.
-
-        Args:
-            target_content (str): Target's content
-            target_dir (str): target's directory
-        """
-        # on he first level with men. menu-bar ...
-        if self.level == 0:
-            frames = self._get_contents(['bg','fg'])
-
-        if isfile(join(target_dir, target_content)):
-            # open file's content
-            with open(join(target_dir, target_content), "r") as f:
-                # Read up to 1000th character.
-                file_content = f.read(1000)
-            self.cur_file_path = join(target_dir, target_content)
-
-            # Remove any object that isn't HSplit
-            self.body.children = list(
-                filter(lambda x: type(x) == HSplit, self.body.children)
-            )
-            # Prepend the file_content to the body
-            self.body.children.insert(
-                0, Window(content=FormattedTextControl(file_content))
-            )
-            # Re-focus cursor to ok_button
-            get_app().layout.focus(self.ok_button)
-
-        elif isdir(join(target_dir, target_content)):
-            frames = self._get_contents()
-            # Assuming the last child is the scrolling menu
-            self.body.children.pop()
-            # Add a new updated menu
-            self.body.children.append(
-                HSplit(
-                    [
-                        ScrollablePane(
-                            content=HSplit(children=frames), keep_cursor_visible=True
-                        )
-                    ]
-                )
-            )
-            # Re-focus the cursor back to the dialog
-            get_app().layout.focus(self.body)
-        else:
-            raise ValueError("The target' content is neither a file or directory")
-
     def __pt_container__(self):
         return self.dialog
-'''
