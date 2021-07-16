@@ -21,14 +21,14 @@ class ConfirmDialog(PopUpDialog):
             """Cancel the dialog."""
             self.future.set_result(False)
 
-        yes_button = Button(text="Yes", handler=(lambda: set_done()))
-        no_button = Button(text="No", handler=(lambda: set_cancel()))
+        yes_button = Button(text="Yes", handler=set_done)
+        no_button = Button(text="No", handler=set_cancel)
 
         self.dialog = Dialog(
             title=title,
             body=HSplit([Label(text=text)]),
             buttons=[yes_button, no_button],
-            width=D(preferred=80),
+            width=D(preferred=100),
             modal=True,
         )
 
