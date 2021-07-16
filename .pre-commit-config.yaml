@@ -11,7 +11,7 @@ repos:
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
-        args: [--markdown-linebreak-ext=md]
+        args: ["--markdown-linebreak-ext=md,markdown"]
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.5.1
