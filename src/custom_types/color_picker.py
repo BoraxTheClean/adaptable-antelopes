@@ -38,10 +38,18 @@ class ColorPicker(PopUpDialog):
 
         def prev() -> None:
             if is_hex(self.text_area.text):
-                self.user_settings["style"][style_class] = f"bg:#{self.text_area.text}"
-                get_app().style = Style.from_dict(self.user_settings["style"])
-                self.sample_window.style = f"bg:#{self.text_area.text}"
-                self.promp_label.text = "Enter a hex:"
+                if style_class == 'text':
+                    # TODO parse the list of strings in each style dict entry
+                    self.user_settings["style"]['menu'] = f"#{self.text_area.text}" # im over riding menu
+                    self.user_settings["style"]['dialog'] = f"#{self.text_area.text}"
+                    get_app().style = Style.from_dict(self.user_settings["style"])
+                    self.sample_window.style = f"#{self.text_area.text}"
+                    self.promp_label.text = "Enter a hex:"
+                else:
+                    self.user_settings["style"][style_class] = f"bg:#{self.text_area.text}"
+                    get_app().style = Style.from_dict(self.user_settings["style"])
+                    self.sample_window.style = f"bg:#{self.text_area.text}"
+                    self.promp_label.text = "Enter a hex:"
             else:
                 self.promp_label.text = "Invalid Hex!"
 
@@ -113,7 +121,7 @@ class ScrollMenuColorDialog(PopUpDialog):
         """
         self.future = Future()
 
-        style_list = ["frame-label",'text', "menu", "menu-bar", "dialog.body"]
+        style_list = ["frame-label", 'text', "menu", "menu-bar", "dialog.body", 'shadow']
 
         # self.body = VSplit(
         #     padding_char=PADDING_CHAR,
