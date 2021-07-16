@@ -27,21 +27,23 @@ class ThoughtBox(MenuNav):
     """Thought Box - The minimalist note-taking app"""
 
     def __init__(self):
-        # Create notes directory
+        # Create internal application directory.
         os.makedirs(NOTES_DIR, exist_ok=True)
         # If welcome page isn't present, create it.
         if not os.path.isfile(NOTES_DIR + "/" + WELCOME_PAGE):
             copyfile(ASSETS_DIR + WELCOME_PAGE, NOTES_DIR + "/" + WELCOME_PAGE)
 
         self.application_state = ApplicationState()
-        self.search_toolbar = SearchToolbar()
 
+        self.search_toolbar = SearchToolbar()
+        # Define the area where users enter text.
         self.text_field = TextArea(
             lexer=PygmentsLexer(MarkdownLexer),
             scrollbar=True,
             search_field=self.search_toolbar,
         )
-        # If last path is somehow invalid, don't open a file.
+        # If the application state has a path saved, we open the file to that path on boot up.
+        # If saved path is invalid, don't open a file.
         if self.application_state.current_path:
             try:
                 with open(self.application_state.current_path, "r") as file:
@@ -51,22 +53,11 @@ class ThoughtBox(MenuNav):
 
         # style of menu can def play around here
         self.style = Style.from_dict(self.application_state.user_settings["style"])
-        # self.style = Style.from_dict(
-        #     {
-        #         # 'text-area': "bg:#00a444",
-        #         # "top": "bg:#00bb00",
-        #         "frame-label": "bg:#ffffff #000000",
-        #         "status": "reverse",
-        #         "shadow": "bg:#000000 #ffffff",
-        #         # "menu": "shadow:#440044",
-        #         "menu": "bg:#004444",
-        #         "menu-bar": "bg:#00ff00",
-        #         # "menu.": "#00ff00",
-        #         # "button" : "bg:#004444"
-        #         # 'text-field': "#00ff00 bg:#000000",
-        #         "dialog.body": "bg:#111111 #00aa44",
-        #     }
-        # )
+
+        # Define the UI elements to appear on the screen.
+        # 1. The text field where users write and read notes.
+        # 2. Menu tool bar
+        # 3. An optional status bar at the bottom of the page.
 
         self.body = HSplit(
             [
@@ -75,12 +66,6 @@ class ThoughtBox(MenuNav):
                 ConditionalContainer(
                     content=VSplit(
                         [
-                            # No longer need the bottom title bar
-                            # Window(
-                            #     FormattedTextControl(get_status_bar_left_text),
-                            #     style="class:status",
-                            #     align=WindowAlign.LEFT,
-                            # ),
                             Window(
                                 FormattedTextControl(self.get_statusbar_middle_text),
                                 style="class:status",
@@ -103,6 +88,7 @@ class ThoughtBox(MenuNav):
 
         self.layout = Layout(self.root_container, focused_element=self.text_field)
 
+        # Main application here
         self.application = Application(
             layout=self.layout,
             enable_page_navigation_bindings=True,
@@ -112,11 +98,11 @@ class ThoughtBox(MenuNav):
         )
 
     def get_statusbar_middle_text(self) -> None:
-        """Gets status bar opens menu"""
+        """Display a shortcut for opening the menu in the status bar."""
         return " Press Ctrl-K to open menu. "
 
     def get_statusbar_right_text(self) -> None:
-        """Get status bar for the right text?"""
+        """Display the current position of the cursor."""
         return " {}:{}  ".format(
             self.text_field.document.cursor_position_row + 1,
             self.text_field.document.cursor_position_col + 1,

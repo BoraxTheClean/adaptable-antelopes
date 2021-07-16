@@ -7,6 +7,7 @@ from prompt_toolkit.layout.containers import HSplit
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.widgets import Button, Dialog, Label, TextArea
 
+from constants import DIALOG_WIDTH
 from custom_types.ui_types import PopUpDialog
 
 
@@ -14,7 +15,10 @@ class TextInputDialog(PopUpDialog):
     """Text Input for the open dialog box"""
 
     def __init__(
-        self, title: str = "", label_text: str = "", completer: Completer = None,
+        self,
+        title: str = "",
+        label_text: str = "",
+        completer: Completer = None,
     ):
         self.future = Future()
 
@@ -25,11 +29,11 @@ class TextInputDialog(PopUpDialog):
             return True
 
         def accept() -> None:
-            """Accept"""
+            """Accept and returns the input"""
             self.future.set_result(self.text_area.text)
 
         def cancel() -> None:
-            """Cancel"""
+            """Cancel to close out the dialog"""
             self.future.set_result(None)
 
         self.text_area = TextArea(
@@ -46,7 +50,7 @@ class TextInputDialog(PopUpDialog):
             title=title,
             body=HSplit([Label(text=label_text), self.text_area]),
             buttons=[ok_button, cancel_button],
-            width=D(preferred=80),
+            width=D(preferred=DIALOG_WIDTH),
             modal=True,
         )
 

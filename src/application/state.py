@@ -15,20 +15,17 @@ class ApplicationState:
 
         except FileNotFoundError:
             # if for some reason the file is deleted but then i need to maintain all the setting here
-            # no style dict atm for users prefs not used anywhere yet
+            # possible things to style
             default_style = {
                 # 'text-area': "bg:#00a444",
                 # "top": "bg:#00bb00",
-                "frame-label": "bg:#ffffff #000000",
+                # "frame-label": "bg:#ffbbff #00bb00",
                 "status": "reverse",
-                "shadow": "bg:#000000 #ffffff",
-                # "menu": "shadow:#440044",
-                "menu": "bg:#004444",
-                "menu-bar": "bg:#00ff00",
-                # "menu.": "#00ff00",
-                # "button" : "bg:#004444"
-                # 'text-field': "#00ff00 bg:#000000",
-                "dialog.body": "bg:#111111 #00aa44",
+                "shadow": "bg:#000000 #00ff00",
+                "menu": "bg:#abcdef",
+                "menu-bar": "bg:#abcdef",
+                "button": "bg:#004444",
+                "dialog.body": "bg:#111111 #abcdef",
             }
 
             self.user_settings = {
@@ -36,8 +33,7 @@ class ApplicationState:
                 "style": default_style,
             }
             with open(USER_SETTINGS_DIR, "w") as j:
-                default_user_settings = json.dumps(self.user_settings)
-                j.write(default_user_settings)
+                json.dump(self.user_settings, j)
 
         self.show_status_bar = True
         if self.user_settings.get("last_path"):
@@ -45,3 +41,14 @@ class ApplicationState:
         else:
             # Open the welcome page
             self.current_path = NOTES_DIR + "/" + WELCOME_PAGE
+
+    @property
+    def current_dir(self) -> str:
+        """
+        Returns the directory of the current path.
+
+        If there is no current path, return NOTES_DIR
+        """
+        if self.current_path:
+            return os.path.dirname(self.current_path)
+        return NOTES_DIR

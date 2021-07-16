@@ -5,7 +5,8 @@ from asyncio import Future
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.completion import Completer
-from prompt_toolkit.layout.containers import HSplit
+from prompt_toolkit.layout import FormattedTextControl
+from prompt_toolkit.layout.containers import HSplit, Window
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import Button, Dialog, Label, TextArea
@@ -39,6 +40,7 @@ class ColorPicker(PopUpDialog):
             if is_hex(self.text_area.text):
                 self.user_settings["style"]["menu-bar"] = f"bg:#{self.text_area.text}"
                 get_app().style = Style.from_dict(self.user_settings["style"])
+                self.sample_window.style = f"bg:#{self.text_area.text}"
                 self.promp_label.text = "Enter a hex:"
             else:
                 self.promp_label.text = "Invalid Hex!"
@@ -74,6 +76,7 @@ class ColorPicker(PopUpDialog):
         )
 
         self.promp_label = Label(text="Enter a hex:")
+        self.sample_window = Window(content=FormattedTextControl("Hello"))
 
         preview_button = Button(text="Preview", handler=prev)
         ok_button = Button(text="Apply", handler=accept)
@@ -81,7 +84,7 @@ class ColorPicker(PopUpDialog):
 
         self.dialog = Dialog(
             title="Pick A Color",
-            body=HSplit([self.promp_label, self.text_area]),
+            body=HSplit([self.promp_label, self.text_area, self.sample_window]),
             buttons=[preview_button, ok_button, cancel_button],
             width=D(preferred=80),
             modal=True,
