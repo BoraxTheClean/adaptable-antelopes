@@ -108,7 +108,7 @@ class MenuNav:
     def do_save_as_file(self) -> None:
         """Try to Save As a file under a new name/path."""
 
-        async def coroutine() -> None:
+        async def coroutine(self: MenuNav) -> None:
             """
             Prompt the user for a file path to save their note.
 
