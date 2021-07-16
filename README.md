@@ -44,6 +44,7 @@ You can select to create a new note or continue working on a previous note.
 - `CTRL+A` Select Everything
 - `CTRL+Z` Undo
 - `CTRL+E` Turn text like `:smile:` into :smile:
+- `ALT+O` Open link under cursor
 
 
 ## Brought to you in part by Team Adaptable Antelopes
