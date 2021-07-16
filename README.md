@@ -1,7 +1,7 @@
 # ThoughtBox
 
 ## Welcome to thinking inside the box
-Thinking outside the box can be exhausting. 
+Thinking outside the box can be exhausting.
 
 It's time to go back to simple.
 
