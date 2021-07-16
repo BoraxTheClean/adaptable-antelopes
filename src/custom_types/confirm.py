@@ -28,7 +28,7 @@ class ConfirmDialog(PopUpDialog):
             title=title,
             body=HSplit([Label(text=text)]),
             buttons=[yes_button, no_button],
-            width=D(preferred=80),
+            width=D(preferred=100),
             modal=True,
         )
 
