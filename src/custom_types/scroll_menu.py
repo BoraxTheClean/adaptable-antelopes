@@ -90,10 +90,10 @@ class ScrollMenuDialog(PopUpDialog):
         )
 
     def _get_contents(self, directory: str) -> List[Frame]:
-        """Get contents from the given directory
+        """Get file names and content previews from the given directory.
 
         Args:
-            dir (str): directory's name
+            directory (str): directory's name
 
         Returns:
             List[Frame]: List of frames to add to the container
