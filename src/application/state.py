@@ -23,6 +23,7 @@ class ApplicationState:
                 "status": "reverse",
                 "shadow": "bg:#000000 #00ff00",
                 "menu": "bg:#abcdef",
+                "text": "#000000",
                 "menu-bar": "bg:#abcdef",
                 "button": "bg:#004444",
                 "dialog.body": "bg:#111111 #abcdef",

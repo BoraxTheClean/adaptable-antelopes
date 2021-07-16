@@ -113,7 +113,7 @@ class ScrollMenuColorDialog(PopUpDialog):
         """
         self.future = Future()
 
-        style_list = ["frame-label", "menu", "menu-bar", "dialog.body"]
+        style_list = ["frame-label",'text', "menu", "menu-bar", "dialog.body"]
 
         # self.body = VSplit(
         #     padding_char=PADDING_CHAR,
@@ -124,14 +124,10 @@ class ScrollMenuColorDialog(PopUpDialog):
         #     padding=PADDING_WIDTH,
         # )
 
-        def set_cancel() -> None:
+        def set_cancel() -> bool:
             """Cancel"""
-            self.future.set_result(None)
+            self.future.set_result(False)
 
-        # Send error message if attempt to open any extension besides .txt and .md
-        def set_done() -> None:
-            """OK"""
-            self.future.set_result(None)
 
         def set_style_class(style_element: str) -> None:
             """Passes the chosen style class to the menu_bar"""
@@ -156,13 +152,13 @@ class ScrollMenuColorDialog(PopUpDialog):
         )
 
         # Add chosen file to editor
-        self.ok_button = Button(text="OK", handler=(lambda: set_done()))
+        # self.ok_button = Button(text="OK", handler=(lambda: set_done()))
         self.cancel_button = Button(text="Cancel", handler=(lambda: set_cancel()))
 
         self.dialog = Dialog(
             title="Color Picker",
             body=self.body,
-            buttons=[self.ok_button, self.cancel_button],
+            buttons=[self.cancel_button],
             width=D(preferred=80),
             modal=True,
         )
