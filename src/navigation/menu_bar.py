@@ -258,18 +258,25 @@ class MenuNav:
         """Creates a folder"""
 
         async def coroutine(self: MenuNav) -> None:
-            dialog = ScrollMenuDialog(
-                title="New Folder",
-                text="Choose the location of the new folder.",
-                directory=self.application_state.current_dir,
-                show_files=False,
+            has_folders = any(
+                os.path.isdir(os.path.join(NOTES_DIR, f)) for f in os.listdir(NOTES_DIR)
             )
-            path = await self.show_dialog_as_float(dialog)
-            if not path:
-                return
+            if has_folders:
+                dialog = ScrollMenuDialog(
+                    title="New Folder",
+                    text="Choose the location of the new folder.",
+                    directory=self.application_state.current_dir,
+                    show_files=False,
+                )
+                path = await self.show_dialog_as_float(dialog)
+                if not path:
+                    return
+            else:
+                # Skip the scroll menu if there are no folders yet (to not confuse users)
+                path = NOTES_DIR
 
             dialog = TextInputDialog(
-                "New Folder", label_text="Enter the name of the folder:"
+                "New Folder", label_text="Enter the name of the new folder:"
             )
             folder_name = await self.show_dialog_as_float(dialog)
             if folder_name is None:
