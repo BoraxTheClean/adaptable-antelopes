@@ -35,7 +35,7 @@ class MenuNav:
     """
 
     def __init__(self):
-        """__init__."""
+        """Create the menu items"""
         self.root_container = MenuContainer(
             body=self.body,
             menu_items=[
@@ -93,24 +93,7 @@ class MenuNav:
             key_bindings=self._setup_keybindings(),
         )
 
-    ############ MENU ITEMS #############
-
-    #
-    # def do_save_as_file(self) -> None:
-    #     """Try to Save As a file under a new name/path."""
-    #
-    #     async def coroutine() -> None:
-    #         open_dialog = TextInputDialog(
-    #             title="Save As", label_text="Enter the path of the file:"
-    #         )
-    #
-    #         path = await self.show_dialog_as_float(open_dialog)
-    #         self.application_state.current_path = path
-    #         if path := self.application_state.current_path:
-    #             self._save_file_at_path(path, self.text_field.text)
-    #
-    #     ensure_future(coroutine())
-
+    ############ HANDLERS FOR MENU ITEMS #############
     def do_save_file(self) -> None:
         """Try to save. If no file is being edited, save as instead to create a new one."""
         if path := self.application_state.current_path:
@@ -170,7 +153,7 @@ class MenuNav:
             else:
                 self.show_message("Invalid Path", "Please enter a valid file name.")
 
-        ensure_future(coroutine())
+        ensure_future(coroutine(self))
 
     def do_scroll_menu(self) -> None:
         """Open Scroll Menu"""
@@ -268,6 +251,65 @@ class MenuNav:
     def do_rename_folder(self) -> None:
         """Renames a folder"""
 
+        async def coroutine(self: MenuNav) -> None:
+            dialog = ScrollMenuDialog(
+                title="Rename Folder",
+                text="Choose the folder you want to rename.",
+                directory=self.application_state.current_dir,
+                show_files=False,
+            )
+            path = await self.show_dialog_as_float(dialog)
+            if not path:
+                return
+
+            if path == NOTES_DIR:
+                return self.show_message(
+                    title="Rename Folder",
+                    text="You cannot choose the root folder.",
+                )
+
+            dialog = TextInputDialog(
+                "Rename Folder", label_text="Enter the new name of the folder:"
+            )
+            folder_name = await self.show_dialog_as_float(dialog)
+            if folder_name is None:
+                return
+
+            # Validate that the folder name:
+            # 1. Is not the empty string or None
+            # 2. Doesn't consist exclusively of whitespace
+            # 3. Doesn't start with "."
+            if (
+                folder_name
+                and not folder_name.isspace()
+                and not folder_name.startswith(".")
+            ):
+                new_path = os.path.join(os.path.dirname(path), folder_name)
+                if os.path.exists(new_path):
+                    return self.show_message(
+                        title="Rename Folder", text="That folder already exists."
+                    )
+
+                try:
+                    os.rename(path, new_path)
+                except OSError:
+                    self.show_message(
+                        title="Rename Folder",
+                        text="Please enter a valid folder name.",
+                    )
+                else:
+                    self.show_message(
+                        title="Rename Folder",
+                        text=f"{path} was successfully renamed to {new_path}.",
+                    )
+            else:
+                self.show_message(
+                    title="Rename Folder",
+                    text="Please enter a valid folder name.",
+                )
+
+        ensure_future(coroutine(self))
+
     def do_delete_folder(self) -> None:
         """Delete a folder"""
 
@@ -353,7 +395,6 @@ class MenuNav:
             self.text_field.buffer.cursor_down(c_pos[0])
         self.text_field.buffer.cursor_right(c_pos[1])
 
-    ############ HANDLERS FOR MENU ITEMS #############
     def _save_file_at_path(self, path: str, text: str) -> None:
         """Saves text (changes) to a file path"""
         try:
