@@ -1,8 +1,10 @@
 # ThoughtBox
 
 ## Welcome to thinking inside the box
-Thinking outside the box can be exhausting.
-Maybe it's time to go back to simple.
+Thinking outside the box can be exhausting. 
+
+It's time to go back to simple.
+
 Free your self from distractions with our minimalists thought journal and note-taking application.
 
 ## Usage
@@ -12,7 +14,7 @@ Free your self from distractions with our minimalists thought journal and note-t
 ./run.sh
 ```
 
-### Venv
+### Virtualenv
 ```bash
 python3 -m venv .venv
 pip install -r requirements.txt
@@ -20,9 +22,9 @@ python3 src/application_entry.py
 ```
 ## How it works
 
-Running this program will turn your terminal into your very own ThoughtBox where you are free to take your notes however you like as long as its ascii approved.
+Running this program will turn your terminal into your very own **Thought Box** where you are free to take your notes however you like as long as its ascii approved.
 
-Built with Python [Prompt Toolkit](!https://github.com/prompt-toolkit/python-prompt-toolkit) you can navigate the entire program without a **mouse**.
+Built with Python [Prompt Toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit) you can navigate the entire program without a **mouse**.
 
 You can open the menu with `CTR-K` that contains tons of minimalist functionality.
 
