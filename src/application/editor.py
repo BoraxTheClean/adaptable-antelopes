@@ -50,7 +50,6 @@ class ThoughtBox(MenuNav):
             except IOError:
                 pass
 
-        # style of menu can def play around here
         self.style = Style.from_dict(
             {
                 # 'text-area': "bg:#00a444",
