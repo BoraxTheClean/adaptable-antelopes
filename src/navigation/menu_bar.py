@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import shutil
+import webbrowser
 from asyncio import ensure_future
 from typing import Optional, Union
 
@@ -75,7 +76,10 @@ class MenuNav:
                 ),
                 MenuItem(
                     "View",
-                    children=[MenuItem("Status Bar", handler=self.do_status_bar)],
+                    children=[
+                        MenuItem("Status Bar", handler=self.do_status_bar),
+                        MenuItem("Open Link", handler=self.do_open_link),
+                    ],
                 ),
                 MenuItem(
                     "Info",
@@ -94,7 +98,7 @@ class MenuNav:
             key_bindings=self._setup_keybindings(),
         )
 
-    ############ HANDLERS FOR MENU ITEMS #############
+    ############ MENU ITEMS #############
     def do_save_file(self) -> None:
         """Try to save. If no file is being edited, save as instead to create a new one."""
         if path := self.application_state.current_path:
@@ -513,6 +517,13 @@ class MenuNav:
             self.text_field.buffer.cursor_down(c_pos[0])
         self.text_field.buffer.cursor_right(c_pos[1])
 
+    def do_open_link(self) -> None:
+        """Validate whether link is internal or external and open the link to the browser (or in the app)"""
+        if word := self.text_field.document.get_word_under_cursor(WORD=True):
+            # Validate url (whether internal or external)
+            # Then open in new tab
+            webbrowser.open_new_tab(word)
+
     ############ HELPER FUNCTIONS #############
     def _save_file_at_path(self, path: str, text: str) -> None:
         """Saves text (changes) to a file path"""
@@ -630,5 +641,10 @@ class MenuNav:
         def convert_to_emoji(event: KeyPressEvent) -> None:
             """Convert text to emoji using Ctrl-E"""
             self.do_convert_to_emoji()
+
+        @bindings.add("escape", "o")
+        def open_link(event: KeyPressEvent) -> None:
+            """Open a clickable link using Alt-O"""
+            self.do_open_link()
 
         return bindings
