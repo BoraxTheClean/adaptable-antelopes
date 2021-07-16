@@ -98,7 +98,7 @@ class MenuNav:
             key_bindings=self._setup_keybindings(),
         )
 
-    ############ MENU ITEMS #############
+    ############ HANDLERS FOR MENU ITEMS #############
     def do_save_file(self) -> None:
         """Try to save. If no file is being edited, save as instead to create a new one."""
         if path := self.application_state.current_path:
