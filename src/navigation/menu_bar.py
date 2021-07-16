@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 from asyncio import ensure_future
+from shutil import rmtree
 from typing import Optional, Union
 
 from emoji import emojize
@@ -265,7 +266,7 @@ class MenuNav:
             if path == NOTES_DIR:
                 return self.show_message(
                     title="Rename Folder",
-                    text="You cannot choose the root folder.",
+                    text="You cannot rename the root folder.",
                 )
 
             dialog = TextInputDialog(
@@ -312,6 +313,45 @@ class MenuNav:
 
     def do_delete_folder(self) -> None:
         """Delete a folder"""
+
+        async def coroutine(self: MenuNav) -> None:
+            dialog = ScrollMenuDialog(
+                title="Delete Folder",
+                text="Choose the folder you want to delete.",
+                directory=self.application_state.current_dir,
+                show_files=False,
+            )
+            path = await self.show_dialog_as_float(dialog)
+            if not path:
+                return
+
+            if path == NOTES_DIR:
+                return self.show_message(
+                    title="Delete Folder",
+                    text="You cannot delete the root folder.",
+                )
+
+            dialog = ConfirmDialog(
+                title="Delete Folder",
+                text=f"Are you sure you want to delete {path} and all of its contents?",
+            )
+            confirm_delete = await self.show_dialog_as_float(dialog)
+
+            if confirm_delete:
+                try:
+                    rmtree(path)
+                except OSError:
+                    self.show_message(
+                        title="Delete Folder",
+                        text="Failed to delete the folder.",
+                    )
+                else:
+                    self.show_message(
+                        title="Delete Folder",
+                        text=f"{path} was successfully deleted.",
+                    )
+
+        ensure_future(coroutine(self))
 
     def do_exit(self) -> None:
         """Exit"""
