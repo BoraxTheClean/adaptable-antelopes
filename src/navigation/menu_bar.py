@@ -88,6 +88,12 @@ class MenuNav:
                         MenuItem("About", handler=self.do_about),
                     ],
                 ),
+                MenuItem(
+                    "Shortcuts_Menu",
+                    children=[
+                        MenuItem("- `CTRL+K`: Open Top Tool Bar.\n- ESC: Focus cursor on the text field\n- CTRL+N: Start a new file\n- CTRL+S: Save current file\n- CTRL+O: Open an existing note\n- CTRL+Q: Exit the application\n- CTRL+A: Select Everything\n- CTRL+Z: Undo\n- CTRL+E: Turn text like :smile: into emoji\n- ALT+O: Open link under cursor"),
+                            ],
+                ),
             ],
             floats=[
                 Float(
