@@ -560,9 +560,25 @@ class MenuNav:
             # Validate url (whether internal or external)
             # Then open in new tab
             webbrowser.open_new_tab(word)
-    
+
     def do_show_shortcuts(self) -> None:
-        self.show_message("Shortcuts","- `CTRL+K`: Open Top Tool Bar.\n- ESC: Focus cursor on the text field\n- CTRL+N: Start a new file\n- CTRL+S: Save current file\n- CTRL+O: Open an existing note\n- CTRL+Q: Exit the application\n- CTRL+A: Select Everything\n- CTRL+Z: Undo\n- CTRL+E: Turn text like :smile: into emoji\n- ALT+O: Open link under cursor")
+        """Open a popup to show the shortcuts"""
+        self.show_message(
+            "Shortcuts",
+            (
+                "CTRL+K: Open Menu.\n"
+                "ESC: Focus cursor on the text field\n"
+                "CTRL+N: Start a new file\n"
+                "CTRL+S: Save current file\n"
+                "CTRL+O: Open an existing note\n"
+                "CTRL+Q: Exit the application\n"
+                "CTRL+A: Select All\n"
+                "CTRL+Z: Undo\n"
+                "CTRL+E: Turn text like :smile: into emoji\n"
+                "ALT+O: Open link under cursor"
+            ),
+            centered=False,
+        )
 
     ############ HELPER FUNCTIONS #############
     def _save_file_at_path(self, path: str, text: str) -> None:
