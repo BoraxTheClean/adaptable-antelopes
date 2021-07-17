@@ -23,8 +23,8 @@ from custom_types import (
     ConfirmDialog,
     MessageDialog,
     PopUpDialog,
-    ScrollMenuColorDialog,
     SaveExitDialog,
+    ScrollMenuColorDialog,
     ScrollMenuDialog,
     TextInputDialog,
 )
