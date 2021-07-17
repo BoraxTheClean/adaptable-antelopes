@@ -556,7 +556,7 @@ class MenuNav:
                     await self.show_dialog_as_float(color_input_dialog)
                     # just loads any style back if any change were saved it will keep them loaded
                     with open(USER_SETTINGS_DIR, "r") as user_file:
-                        user_settings = json.loads(user_file.read())
+                        user_settings = json.load(user_file)
 
                     style_dict = user_settings["style"]
                     get_app().style = Style.from_dict(style_dict)
