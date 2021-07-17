@@ -543,17 +543,17 @@ class MenuNav:
 
             dialog = ScrollMenuColorDialog()
             style_class = await self.show_dialog_as_float(dialog)
-            if style_class:
+            if style_class != "cancel":
                 dialog = ScrollMenuColorDialog(inner=True)
                 style_class_attr = await self.show_dialog_as_float(dialog)
+                if style_class_attr != "cancel":
+                    color_input_dialog = ColorPicker(style_class, style_class_attr)
+                    await self.show_dialog_as_float(color_input_dialog)
+                    with open(USER_SETTINGS_DIR, "r") as user_file:
+                        user_settings = json.loads(user_file.read())
 
-                color_input_dialog = ColorPicker(style_class, style_class_attr)
-                await self.show_dialog_as_float(color_input_dialog)
-                with open(USER_SETTINGS_DIR, "r") as user_file:
-                    user_settings = json.loads(user_file.read())
-
-                style_dict = user_settings["style"]
-                get_app().style = Style.from_dict(style_dict)
+                    style_dict = user_settings["style"]
+                    get_app().style = Style.from_dict(style_dict)
             else:
                 # else canceled
                 pass

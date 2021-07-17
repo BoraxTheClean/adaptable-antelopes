@@ -22,15 +22,17 @@ class ApplicationState:
     def _load_settings(self) -> Dict[str, any]:
         """Load user settings from disk. Use default settings for any missing settings."""
         default_style = {
-            # 'text-area': "bg:#00a444",
-            # "frame-label": "bg:#ffbbff #00bb00",
             "status": "reverse",
-            "shadow": "bg:#000000 #00ff00",
-            "menu": "bg:#abcdef",
+            "shadow": "bg:#00ffff",
+            "menu": "bg:#5555ff",
+            "text": "bg:#abcdef",
             "menu-bar": "bg:#abcdef",
-            "button": "bg:#004444",
+            "button": "bg:#004444 #abcdef",
             "dialog.body": "bg:#111111 #abcdef",
+            "dialog": "#abcdef",
+            "text-area": "",
         }
+
         default_path = os.path.join(NOTES_DIR, "welcome.md")
         try:
             with open(USER_SETTINGS_DIR, "r") as j:

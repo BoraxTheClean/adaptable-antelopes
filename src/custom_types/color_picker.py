@@ -57,6 +57,8 @@ class ColorPicker(PopUpDialog):
 
         def string_to_dict(s: str) -> dict:
             out = {}
+            if len(s) == 0:
+                return out
             items = s.split(" ")
             for elm in items:
                 key, pair = elm.split("#")
@@ -72,6 +74,16 @@ class ColorPicker(PopUpDialog):
                     out += key + ":" + pair
                 out += " "
             return out[:-1]
+
+        def get_hex_style(style_class,style_class_attr) -> str:
+            style_menu = self.user_settings["style"][style_class]
+            style_menu_dict = string_to_dict(style_menu)
+            try:
+                out = style_menu_dict[style_class_attr].replace('#','')
+            except:
+                out = ''
+            return out
+
 
         def prev() -> None:
             if is_hex(self.text_area.text):
@@ -99,9 +111,7 @@ class ColorPicker(PopUpDialog):
                     style_menu = self.user_settings["style"][style_class]
                     style_menu_dict = string_to_dict(style_menu)
                     if style_class_attr != "":
-                        style_menu_dict[
-                            ""
-                        ] = f"{style_class_attr}:#{self.text_area.text}"
+                        style_menu_dict[""] = f"{style_class_attr}:#{self.text_area.text}"
                     else:
                         style_menu_dict[""] = f"#{self.text_area.text}"
                     style_menu = dict_to_string(style_menu_dict)
@@ -137,6 +147,7 @@ class ColorPicker(PopUpDialog):
             self.future.set_result(None)
 
         self.text_area = TextArea(
+            text=get_hex_style(style_class, style_class_attr),
             multiline=False,
             width=D(preferred=6),
             accept_handler=accept_text,
@@ -162,22 +173,13 @@ class ColorPicker(PopUpDialog):
 
 
 class ScrollMenuColorDialog(PopUpDialog):
-    """Scroll menu added to the info tab dialog box
-
-    {
-    "frame-label": "bg:#ffffff #000000",
-    "status": "reverse",
-    "shadow": "bg:#000000 #ffffff",
-    "menu": "bg:#004400",
-    "menu-bar": "bg:#00ff00",
-    "dialog.body": "bg:#111111 #00aa44",}
-    """
+    """Scroll menu to pick which style you would like to change"""
 
     def __init__(self, inner: bool = False):
         """Initialize Scroll Menu Dialog
 
         Args:
-            commander (object): Instance of ThoughtBox (required for modifying text in the editor)
+            inner (bool) is the selection the outer style classes or the inner style class attributes
         """
         self.future = Future()
 
@@ -185,16 +187,15 @@ class ScrollMenuColorDialog(PopUpDialog):
         style_list = [
             "shadow",
             "menu",
-            "text",
+            "text-area",
             "menu-bar",
             "button",
             "dialog.body",
-            "dialog",
         ]
 
-        def set_cancel() -> bool:
+        def set_cancel() -> str:
             """Cancel"""
-            self.future.set_result(False)
+            self.future.set_result("cancel")
 
         def set_class_attr(style_attr: str) -> None:
             self.future.set_result(style_attr)
@@ -225,7 +226,7 @@ class ScrollMenuColorDialog(PopUpDialog):
 
         else:
             opt = ["bg", "fg", ""]
-            opt_dic = {"bg": "background", "fg": "forground", "": "text"}
+            opt_dic = {"bg": "background", "fg": "foreground", "": "text"}
             self.body = Frame(
                 ScrollablePane(
                     HSplit(
