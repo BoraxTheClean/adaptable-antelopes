@@ -17,7 +17,6 @@ from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import MenuContainer, MenuItem
 
 from constants import DIALOG_WIDTH, NOTES_DIR
-from utils import get_unique_filename 
 from custom_types import (
     ConfirmDialog,
     MessageDialog,
@@ -26,7 +25,7 @@ from custom_types import (
     ScrollMenuDialog,
     TextInputDialog,
 )
-from utils import display_path
+from utils import display_path, get_unique_filename
 
 
 class MenuNav:
@@ -501,7 +500,9 @@ class MenuNav:
                 if choice == "save":
                     # If not yet saved, generate generic name to save to
                     if not current_path_valid:
-                        self.application_state.current_path = os.path.join(NOTES_DIR, get_unique_filename(NOTES_DIR) + ".txt")
+                        self.application_state.current_path = os.path.join(
+                            NOTES_DIR, get_unique_filename(NOTES_DIR) + ".txt"
+                        )
                     self.do_save_file()
                 # Exit
                 settings_path = os.path.join(NOTES_DIR, ".user_setting.json")

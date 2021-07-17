@@ -21,6 +21,7 @@ def get_unique_filename(path: str) -> str:
 
     return candidate_file_name
 
+
 def get_dynamic_filename(directory: str, generic: str) -> str:
     """Determines the next in the sequence of dynamic filenames
 
@@ -28,9 +29,7 @@ def get_dynamic_filename(directory: str, generic: str) -> str:
     The sequence goes 'Thought Box Note', 'Thought Box Note - 1',
     'Thought Box Note - 2',...
     """
-    if not os.path.exists(
-        zeroth := os.path.join(directory, generic + ".txt")
-    ):
+    if not os.path.exists(zeroth := os.path.join(directory, generic + ".txt")):
         return zeroth
     elif not os.path.exists(
         first := os.path.join(directory, generic + " - 1" + ".txt")
@@ -50,7 +49,4 @@ def get_dynamic_filename(directory: str, generic: str) -> str:
             if generic + " - " in f and os.path.splitext(f)[0][-1].isdigit()
         ]
         latest_n = int(sorted(files)[-1][-1])
-        return os.path.join(
-            directory, generic + " - " + str(latest_n + 1) + ".txt"
-        )
-
+        return os.path.join(directory, generic + " - " + str(latest_n + 1) + ".txt")
