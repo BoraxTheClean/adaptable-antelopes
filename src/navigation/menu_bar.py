@@ -210,7 +210,7 @@ class MenuNav:
         )
 
     def do_new_file(self) -> None:
-        """Makes a new file"""
+        """Make a new file"""
         self.text_field.text = ""
         self.application_state.current_path = None
         set_title("ThoughtBox - Untitled")
@@ -518,7 +518,7 @@ class MenuNav:
         start_search(self.text_field.control)
 
     def do_find_next(self) -> None:
-        """Fine next"""
+        """Find next"""
         search_state = get_app().current_search_state
 
         cursor_position = self.text_field.buffer.get_search_position(
@@ -537,7 +537,7 @@ class MenuNav:
         self.text_field.buffer.cursor_position = len(self.text_field.buffer.text)
 
     def do_status_bar(self) -> None:
-        """Opens ar closes status bar"""
+        """Opens or closes status bar"""
         self.application_state.show_status_bar = (
             not self.application_state.show_status_bar
         )
