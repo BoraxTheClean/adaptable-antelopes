@@ -86,13 +86,8 @@ class MenuNav:
                     "Info",
                     children=[
                         MenuItem("About", handler=self.do_about),
+                        MenuItem("Shortcuts", handler=self.do_show_shortcuts),
                     ],
-                ),
-                MenuItem(
-                    "Shortcuts_Menu",
-                    children=[
-                        MenuItem("- `CTRL+K`: Open Top Tool Bar.\n- ESC: Focus cursor on the text field\n- CTRL+N: Start a new file\n- CTRL+S: Save current file\n- CTRL+O: Open an existing note\n- CTRL+Q: Exit the application\n- CTRL+A: Select Everything\n- CTRL+Z: Undo\n- CTRL+E: Turn text like :smile: into emoji\n- ALT+O: Open link under cursor"),
-                            ],
                 ),
             ],
             floats=[
@@ -565,6 +560,9 @@ class MenuNav:
             # Validate url (whether internal or external)
             # Then open in new tab
             webbrowser.open_new_tab(word)
+    
+    def do_show_shortcuts(self) -> None:
+        self.show_message("Shortcuts","- `CTRL+K`: Open Top Tool Bar.\n- ESC: Focus cursor on the text field\n- CTRL+N: Start a new file\n- CTRL+S: Save current file\n- CTRL+O: Open an existing note\n- CTRL+Q: Exit the application\n- CTRL+A: Select Everything\n- CTRL+Z: Undo\n- CTRL+E: Turn text like :smile: into emoji\n- ALT+O: Open link under cursor")
 
     ############ HELPER FUNCTIONS #############
     def _save_file_at_path(self, path: str, text: str) -> None:
