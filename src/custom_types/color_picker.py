@@ -33,8 +33,7 @@ class ColorPicker(PopUpDialog):
                 hex_digits = set(string.hexdigits)
                 # if s is long, then it is faster to check against a set
                 return all(c in hex_digits for c in s)
-            else:
-                return False
+            return False
 
         def string_to_dict(s: str) -> dict:
             """Turns a single style classes string into a dict
