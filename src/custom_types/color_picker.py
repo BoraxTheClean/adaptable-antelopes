@@ -71,7 +71,7 @@ class ColorPicker(PopUpDialog):
                 out = ""
             return out
 
-        def prev() -> None:
+        def preview_changes() -> None:
             """Preview the given change of style
 
             by setting it to applications style but not to the user_settings file
@@ -96,7 +96,7 @@ class ColorPicker(PopUpDialog):
                 self.promp_label.text = "Invalid Hex!"
 
         def accept_text(buf: Buffer) -> bool:
-            prev()
+            preview_changes()
             buf.complete_state = None
             return True
 
@@ -127,7 +127,7 @@ class ColorPicker(PopUpDialog):
 
         self.promp_label = Label(text="Enter a hex:")
 
-        preview_button = Button(text="Preview", handler=prev)
+        preview_button = Button(text="Preview", handler=preview_changes)
         ok_button = Button(text="Apply", handler=accept)
         cancel_button = Button(text="Cancel", handler=cancel)
 
