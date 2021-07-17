@@ -37,7 +37,7 @@ from custom_types.ui_types import PopUpDialog
 class ColorPicker(PopUpDialog):
     """Text Input for the open dialog box"""
 
-    def __init__(self, style_class: str):
+    def __init__(self, style_class: str, style_class_attr: str):
         self.future = Future()
         with open(USER_SETTINGS_DIR, "r") as user_file:
             self.user_settings = json.load(user_file)
@@ -89,16 +89,27 @@ class ColorPicker(PopUpDialog):
                     # self.user_settings["style"]['menu'] = f"#{self.text_area.text}" # im over-riding menu
                     # self.user_settings["style"]['dialog'] = f"#{self.text_area.text}"
 
-                    get_app().style = Style.from_dict(self.user_settings["style"])
-                    self.sample_window.style = f"#{self.text_area.text}"
-                    self.promp_label.text = "Enter a hex:"
+                    # get_app().style = Style.from_dict(self.user_settings["style"])
+                    # #self.sample_window.style = f"#{self.text_area.text}"
+                    # self.promp_label.text = "Enter a hex:"
+
                 else:
-                    self.user_settings["style"][
-                        style_class
-                    ] = f"bg:#{self.text_area.text}"
-                    get_app().style = Style.from_dict(self.user_settings["style"])
-                    self.sample_window.style = f"bg:#{self.text_area.text}"
-                    self.promp_label.text = "Enter a hex:"
+                    # self.user_settings["style"][style_class] = f"bg:#{self.text_area.text}"
+
+                    style_menu = self.user_settings["style"][style_class]
+                    style_menu_dict = string_to_dict(style_menu)
+                    if style_class_attr != "":
+                        style_menu_dict[
+                            ""
+                        ] = f"{style_class_attr}:#{self.text_area.text}"
+                    else:
+                        style_menu_dict[""] = f"#{self.text_area.text}"
+                    style_menu = dict_to_string(style_menu_dict)
+                    self.user_settings["style"][style_class] = style_menu
+
+                get_app().style = Style.from_dict(self.user_settings["style"])
+                # self.sample_window.style = f"bg:#{self.text_area.text}"
+                self.promp_label.text = "Enter a hex:"
             else:
                 self.promp_label.text = "Invalid Hex!"
 
@@ -162,7 +173,7 @@ class ScrollMenuColorDialog(PopUpDialog):
     "dialog.body": "bg:#111111 #00aa44",}
     """
 
-    def __init__(self):
+    def __init__(self, inner: bool = False):
         """Initialize Scroll Menu Dialog
 
         Args:
@@ -185,27 +196,54 @@ class ScrollMenuColorDialog(PopUpDialog):
             """Cancel"""
             self.future.set_result(False)
 
+        def set_class_attr(style_attr: str) -> None:
+            self.future.set_result(style_attr)
+
         def set_style_class(style_element: str) -> None:
-            """Passes the chosen style class to the menu_bar"""
+            """Passes the chosen style class to the menu_bar and resets body to be ready for next selection"""
             self.future.set_result(style_element)
 
-        self.body = Frame(
-            ScrollablePane(
-                HSplit(
-                    [
-                        Frame(
-                            Button(
-                                text=style_class,
-                                handler=functools.partial(set_style_class, style_class),
-                                width=20,
+        if not inner:
+            self.body = Frame(
+                ScrollablePane(
+                    HSplit(
+                        [
+                            Frame(
+                                Button(
+                                    text=style_class,
+                                    handler=functools.partial(
+                                        set_style_class, style_class
+                                    ),
+                                    width=70,
+                                )
                             )
-                        )
-                        for style_class in style_list
-                    ]
+                            for style_class in style_list
+                        ]
+                    )
                 )
-                # ScrollablePane(HSplit([TextArea(text=f"label-{i}") for i in range(20)]))
             )
-        )
+
+        else:
+            opt = ["bg", "fg", ""]
+            opt_dic = {"bg": "background", "fg": "forground", "": "text"}
+            self.body = Frame(
+                ScrollablePane(
+                    HSplit(
+                        [
+                            Frame(
+                                Button(
+                                    text=opt_dic[class_attr],
+                                    handler=functools.partial(
+                                        set_class_attr, class_attr
+                                    ),
+                                    width=70,
+                                )
+                            )
+                            for class_attr in opt
+                        ]
+                    )
+                )
+            )
 
         # Add chosen file to editor
         # self.ok_button = Button(text="OK", handler=(lambda: set_done()))

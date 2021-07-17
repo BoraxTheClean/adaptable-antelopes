@@ -83,6 +83,7 @@ class MenuNav:
                     children=[
                         MenuItem("Status Bar", handler=self.do_status_bar),
                         MenuItem("Open Link", handler=self.do_open_link),
+                        MenuItem("Color Settings", handler=self.do_color_scroll),
                     ],
                 ),
                 MenuItem(
@@ -90,7 +91,6 @@ class MenuNav:
                     children=[
                         MenuItem("About", handler=self.do_about),
                         # MenuItem("Menu-bar color change", handler=self.do_pick_color),
-                        MenuItem("Color Picker", handler=self.do_color_scroll),
                     ],
                 ),
             ],
@@ -537,7 +537,10 @@ class MenuNav:
             dialog = ScrollMenuColorDialog()
             style_class = await self.show_dialog_as_float(dialog)
             if style_class:
-                color_input_dialog = ColorPicker(style_class)
+                dialog = ScrollMenuColorDialog(inner=True)
+                style_class_attr = await self.show_dialog_as_float(dialog)
+
+                color_input_dialog = ColorPicker(style_class, style_class_attr)
                 await self.show_dialog_as_float(color_input_dialog)
                 with open(USER_SETTINGS_DIR, "r") as user_file:
                     user_settings = json.loads(user_file.read())
