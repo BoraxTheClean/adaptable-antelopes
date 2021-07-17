@@ -1,3 +1,4 @@
+from .color_picker import ColorPicker, ScrollMenuColorDialog
 from .confirm import ConfirmDialog
 from .message import MessageDialog
 from .save_exit import SaveExitDialog
@@ -10,6 +11,8 @@ __all__ = [
     ScrollMenuDialog,
     MessageDialog,
     ConfirmDialog,
+    ColorPicker,
+    ScrollMenuColorDialog,
     SaveExitDialog,
     PopUpDialog,
 ]

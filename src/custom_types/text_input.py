@@ -16,7 +16,10 @@ class TextInputDialog(PopUpDialog):
     """Text Input for the open dialog box"""
 
     def __init__(
-        self, title: str = "", label_text: str = "", completer: Completer = None
+        self,
+        title: str = "",
+        label_text: str = "",
+        completer: Completer = None,
     ):
         self.future = Future()
 

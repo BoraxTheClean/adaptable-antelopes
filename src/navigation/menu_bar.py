@@ -14,14 +14,17 @@ from prompt_toolkit.layout.containers import Float
 from prompt_toolkit.layout.menus import CompletionsMenu
 from prompt_toolkit.search import start_search
 from prompt_toolkit.shortcuts import set_title
+from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import MenuContainer, MenuItem
 
-from constants import DIALOG_WIDTH, NOTES_DIR
+from constants import DIALOG_WIDTH, NOTES_DIR, USER_SETTINGS_DIR
 from custom_types import (
+    ColorPicker,
     ConfirmDialog,
     MessageDialog,
     PopUpDialog,
     SaveExitDialog,
+    ScrollMenuColorDialog,
     ScrollMenuDialog,
     TextInputDialog,
 )
@@ -81,6 +84,10 @@ class MenuNav:
                     children=[
                         MenuItem("Status Bar", handler=self.do_status_bar),
                         MenuItem("Open Link", handler=self.do_open_link),
+                        MenuItem("Color Settings", handler=self.do_color_scroll),
+                        MenuItem(
+                            "Reset to default styles", handler=self.do_reset_styles
+                        ),
                     ],
                 ),
                 MenuItem(
@@ -101,7 +108,7 @@ class MenuNav:
             key_bindings=self._setup_keybindings(),
         )
 
-    ############ HANDLERS FOR MENU ITEMS #############
+    ############ HANDLERS FOR MENU ITEMS ############
     def do_save_file(self) -> None:
         """Try to save. If no file is being edited, save as instead to create a new one."""
         if path := self.application_state.current_path:
@@ -550,6 +557,66 @@ class MenuNav:
     def do_delete(self) -> None:
         """Delete"""
         self.text_field.buffer.cut_selection()
+
+    def do_color_scroll(self) -> None:
+        """Open Scroll Menu"""
+
+        async def coroutine(self: MenuNav) -> None:
+            # first scroll dialog
+            style_class_attr = "back"
+            style_class = ""
+            while (
+                style_class_attr == "back"
+                and style_class != "cancel"
+                and style_class_attr != "cancel"
+            ):
+                dialog = ScrollMenuColorDialog()
+                style_class = await self.show_dialog_as_float(dialog)
+                if style_class != "cancel":
+                    # second dialog
+                    dialog = ScrollMenuColorDialog(inner=True)
+                    style_class_attr = await self.show_dialog_as_float(dialog)
+            if style_class == "cancel":
+                pass
+
+            elif style_class_attr != "cancel":
+                color_input_dialog = ColorPicker(style_class, style_class_attr)
+                await self.show_dialog_as_float(color_input_dialog)
+
+                # just loads any style back if any change were saved it will keep them loaded
+                with open(USER_SETTINGS_DIR, "r") as user_file:
+                    user_settings = json.load(user_file)
+
+                style_dict = user_settings["style"]
+                get_app().style = Style.from_dict(style_dict)
+
+            else:
+                # else canceled
+                pass
+
+        ensure_future(coroutine(self))
+
+    def do_reset_styles(self) -> None:
+        """Reset to default color settings"""
+
+        async def coroutine(self: MenuNav) -> None:
+            open_dialog = ConfirmDialog(
+                title="Reset Styles",
+                text="Are you sure you want to reset to default color settings?",
+            )
+            confirm = await self.show_dialog_as_float(open_dialog)
+            if not confirm:
+                return
+
+            self.application_state._load_settings(reset_style=True)
+            self.show_message(
+                title="Reset Styles", text="Successfully reset color settings."
+            )
+            with open(USER_SETTINGS_DIR, "r") as f:
+                styles = json.load(f)["style"]
+            get_app().style = Style.from_dict(styles)
+
+        ensure_future(coroutine(self))
 
     def do_find(self) -> None:
         """Find"""
