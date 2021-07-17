@@ -364,7 +364,9 @@ class MenuNav:
         async def coroutine(self: MenuNav) -> None:
             title = "Unsaved Changes"
             # If file previously saved, check if current version matches saved
-            if self.application_state.current_path:
+            if self.application_state.current_path and os.path.exists(
+                self.application_state.current_path
+            ):
                 text = "\n".join(
                     (
                         f"The file {self.application_state.current_path}",
