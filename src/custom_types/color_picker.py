@@ -14,6 +14,26 @@ from prompt_toolkit.widgets import Button, Dialog, Frame, Label, TextArea
 from constants import USER_SETTINGS_DIR
 from custom_types.ui_types import PopUpDialog
 
+# class UserSettings():
+#     def __init__(self, dict):
+#         self.last_path = None
+#         self.style_dict = set_style_dict()
+#
+#
+#     def set_style_dict(self):
+#
+#
+#     def style_to_dict(self):
+#         for key in self.style_dict.keys():
+#             style_attr = self.style_dict[key].split(' ')
+#             if len(style_attr) == 1:
+#                 pass
+#             else:
+#                 style_dict[key] = style_attr[]
+#
+#     def dict_to_style(self):
+
+
 
 class ColorPicker(PopUpDialog):
     """Text Input for the open dialog box"""
@@ -36,12 +56,42 @@ class ColorPicker(PopUpDialog):
             else:
                 return False
 
+        def string_to_dict(s: str) -> dict:
+            out = {}
+            items = s.split(' ')
+            for elm in items:
+                key, pair = elm.split('#')
+                out[key.replace(':','')] = '#' + pair
+            return out
+
+        def dict_to_string(d: dict) -> str:
+            out = ''
+            for key, pair in d.items():
+                if key == '':
+                    out += key + pair
+                else:
+                    out += key + ':' + pair
+                out += ' '
+            return out[:-1]
+
+
+
         def prev() -> None:
             if is_hex(self.text_area.text):
                 if style_class == 'text':
                     # TODO parse the list of strings in each style dict entry
-                    self.user_settings["style"]['menu'] = f"#{self.text_area.text}" # im over riding menu
-                    self.user_settings["style"]['dialog'] = f"#{self.text_area.text}"
+                    for keys in self.user_settings["style"].keys():
+                        if keys != 'shadow' and keys != 'status' and keys != 'menu-bar':
+                            style_menu = self.user_settings["style"][keys]
+                            style_menu_dict = string_to_dict(style_menu)
+                            style_menu_dict[''] = f"#{self.text_area.text}"
+                            style_menu = dict_to_string(style_menu_dict)
+                            self.user_settings["style"][keys] = style_menu
+                    # style_menu[0] + f"#{self.text_area.text}
+                    # "menu": "bg:#004400 #ffffff",
+                    # self.user_settings["style"]['menu'] = f"#{self.text_area.text}" # im over-riding menu
+                    # self.user_settings["style"]['dialog'] = f"#{self.text_area.text}"
+
                     get_app().style = Style.from_dict(self.user_settings["style"])
                     self.sample_window.style = f"#{self.text_area.text}"
                     self.promp_label.text = "Enter a hex:"
@@ -121,8 +171,8 @@ class ScrollMenuColorDialog(PopUpDialog):
         """
         self.future = Future()
 
-        style_list = ["frame-label", 'text', "menu", "menu-bar", "dialog.body", 'shadow']
-
+        # ["frame-label", 'text', "menu", "menu-bar", "dialog.body", 'shadow']
+        style_list = ["shadow", "menu", "text", "menu-bar", "button", "dialog.body", "dialog"]
         # self.body = VSplit(
         #     padding_char=PADDING_CHAR,
         #     children=[
