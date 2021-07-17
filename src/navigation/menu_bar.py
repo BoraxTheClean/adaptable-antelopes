@@ -572,8 +572,8 @@ class MenuNav:
         self.show_message(
             "Shortcuts",
             (
-                "CTRL+K: Open Menu.\n"
                 "ESC: Focus cursor on the text field\n"
+                "CTRL+K: Open Menu.\n"
                 "CTRL+N: Start a new file\n"
                 "CTRL+S: Save current file\n"
                 "CTRL+O: Open an existing note\n"
