@@ -1,2 +1,4 @@
 # Application
+prompt-toolkit==3.0.19
 emoji==1.2.0
+Pygments==2.9.0
