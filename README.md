@@ -5,7 +5,7 @@ Thinking outside the box can be exhausting.
 
 It's time to go back to simple.
 
-Free your self from distractions with our minimalists thought journal and note-taking application.
+Free your self from distractions with our minimalist's thought journal and note-taking application.
 
 ## Usage
 
@@ -22,11 +22,11 @@ python3 src/application_entry.py
 ```
 ## How it works
 
-Running this program will turn your terminal into your very own **Thought Box** where you are free to take your notes however you like as long as its ascii approved.
+Running this program will turn your terminal into your very own **Thought Box** where you are free to take your notes however you like as long as it's ascii approved.
 
 Built with Python [Prompt Toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit) you can navigate the entire program without a **mouse**.
 
-You can open the menu with `CTR-K` that contains tons of minimalist functionality.
+You can open the menu with `CTRL-K` that contains tons of minimalist functionality.
 
 No more having to worry about centering or choosing the 'right' font anymore!
 
@@ -35,7 +35,7 @@ You can select to create a new note or continue working on a previous note!
 
 ## Features
 - Scrolling files explore in `File` menu item.
-- Convert text to emoji using scroll bar in "Edit". Convert text such as ":smile:" to 😀, or ":eggplant:" to 🍆. Use shortcut "Ctrl-e" to convert text to emoji.
+- Convert text to emoji using scroll bar in "Edit". Convert text such as `:smile:` to 😀, or `:eggplant:` to 🍆. Use shortcut `CTRL-E` to convert text to emoji.
 - Continue where you last left off
 - Open an external URL straight from the app!
 
