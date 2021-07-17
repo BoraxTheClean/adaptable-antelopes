@@ -533,7 +533,7 @@ class MenuNav:
             await self.show_dialog_as_float(open_dialog)
 
             with open(USER_SETTINGS_DIR, "r") as user_file:
-                user_settings = json.loads(user_file.read())
+                user_settings = json.load(user_file)
 
             style_dict = user_settings["style"]
             get_app().style = Style.from_dict(style_dict)
