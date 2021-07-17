@@ -612,9 +612,9 @@ class MenuNav:
             self.show_message(
                 title="Reset Styles", text="Successfully reset color settings."
             )
-            get_app().style = Style.from_dict(
-                self.application_state.user_settings["style"]
-            )
+            with open(USER_SETTINGS_DIR, "r") as f:
+                styles = json.load(f)["style"]
+            get_app().style = Style.from_dict(styles)
 
         ensure_future(coroutine(self))
 
