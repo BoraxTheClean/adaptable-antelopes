@@ -21,6 +21,7 @@ from custom_types import (
     ConfirmDialog,
     MessageDialog,
     PopUpDialog,
+    SaveExitDialog,
     ScrollMenuDialog,
     TextInputDialog,
 )
@@ -468,20 +469,49 @@ class MenuNav:
         ensure_future(coroutine(self))
 
     def do_exit(self) -> None:
-        """Exit"""
-        settings_path = os.path.join(NOTES_DIR, ".user_setting.json")
-        with open(settings_path, "r") as f:
-            user = json.load(f)
+        """Exit app, with warning if current file unsaved"""
 
-        self.application_state.user_settings[
-            "last_path"
-        ] = self.application_state.current_path
+        async def coroutine(self: MenuNav) -> None:
+            title = "Unsaved Changes"
+            # If file previously saved, check if current version matches saved
+            if self.application_state.current_path:
+                text = "\n".join(
+                    (
+                        f"The file {self.application_state.current_path}",
+                        "contains unsaved changes. Save before exit?",
+                    )
+                )
+                with open(self.application_state.current_path) as f:
+                    written = f.read()
+                unsaved_changes = written != self.text_field.text
+            # If file not previously saved, warn if contains any text
+            else:
+                text = "This file has not yet been saved. Save before exit?"
+                unsaved_changes = self.text_field.text != ""
+            if unsaved_changes:
+                dialog = SaveExitDialog(title=title, text=text)
+                choice = await self.show_dialog_as_float(dialog)
+            else:
+                choice = "nosave"
+            if choice != "cancel":
+                if choice == "save":
+                    self.do_save_file()
+                # Exit
+                settings_path = os.path.join(NOTES_DIR, ".user_setting.json")
+                with open(settings_path, "r") as f:
+                    user = json.load(f)
 
-        user["last_path"] = self.application_state.current_path
-        with open(settings_path, "w") as f:
-            json.dump(user, f)
+                self.application_state.user_settings[
+                    "last_path"
+                ] = self.application_state.current_path
 
-        get_app().exit()
+                user["last_path"] = self.application_state.current_path
+                with open(settings_path, "w") as f:
+                    json.dump(user, f)
+
+                get_app().exit()
+
+        ensure_future(coroutine(self))
 
     def do_time_date(self) -> None:
         """Inserts current datetime into self.text_field from menu"""
