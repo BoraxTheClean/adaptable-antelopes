@@ -17,6 +17,7 @@ from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import MenuContainer, MenuItem
 
 from constants import DIALOG_WIDTH, NOTES_DIR
+from utils import get_unique_filename 
 from custom_types import (
     ConfirmDialog,
     MessageDialog,
@@ -472,39 +473,6 @@ class MenuNav:
         """Exit app, with warning if current file unsaved"""
 
         async def coroutine(self: MenuNav) -> None:
-            def get_dynamic_filename(directory: str, generic: str) -> str:
-                """Determines the next in the sequence of dynamic filenames
-
-                to use for a file not yet saved to a path by the user.
-                The sequence goes 'Thought Box Note', 'Thought Box Note - 1',
-                'Thought Box Note - 2',...
-                """
-                if not os.path.exists(
-                    zeroth := os.path.join(directory, generic + ".txt")
-                ):
-                    return zeroth
-                elif not os.path.exists(
-                    first := os.path.join(directory, generic + " - 1" + ".txt")
-                ):
-                    return first
-                # If Thought Box Note - 1 exists, find highest n of Thought Box Notes - n
-                # and return Thought Box Note - n + 1
-                else:
-                    files = [
-                        f
-                        for f in os.listdir(directory)
-                        if os.path.isfile(os.path.join(directory, f))
-                    ]
-                    files = [
-                        os.path.splitext(f)[0]
-                        for f in files
-                        if generic + " - " in f and os.path.splitext(f)[0][-1].isdigit()
-                    ]
-                    latest_n = int(sorted(files)[-1][-1])
-                    return os.path.join(
-                        directory, generic + " - " + str(latest_n + 1) + ".txt"
-                    )
-
             title = "Unsaved Changes"
             # If file previously saved, check if current version matches saved
             if (
@@ -533,9 +501,7 @@ class MenuNav:
                 if choice == "save":
                     # If not yet saved, generate generic name to save to
                     if not current_path_valid:
-                        self.application_state.current_path = get_dynamic_filename(
-                            NOTES_DIR, "Thought Box Note"
-                        )
+                        self.application_state.current_path = os.path.join(NOTES_DIR, get_unique_filename(NOTES_DIR) + ".txt")
                     self.do_save_file()
                 # Exit
                 settings_path = os.path.join(NOTES_DIR, ".user_setting.json")
