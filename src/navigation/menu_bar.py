@@ -545,21 +545,33 @@ class MenuNav:
 
         async def coroutine() -> None:
             # first scroll dialog
-            dialog = ScrollMenuColorDialog()
-            style_class = await self.show_dialog_as_float(dialog)
-            if style_class != "cancel":
-                # second dialog
-                dialog = ScrollMenuColorDialog(inner=True)
-                style_class_attr = await self.show_dialog_as_float(dialog)
-                if style_class_attr != "cancel":
-                    color_input_dialog = ColorPicker(style_class, style_class_attr)
-                    await self.show_dialog_as_float(color_input_dialog)
-                    # just loads any style back if any change were saved it will keep them loaded
-                    with open(USER_SETTINGS_DIR, "r") as user_file:
-                        user_settings = json.load(user_file)
+            style_class_attr = "back"
+            style_class = ""
+            while (
+                style_class_attr == "back"
+                and style_class != "cancel"
+                and style_class_attr != "cancel"
+            ):
+                dialog = ScrollMenuColorDialog()
+                style_class = await self.show_dialog_as_float(dialog)
+                if style_class != "cancel":
+                    # second dialog
+                    dialog = ScrollMenuColorDialog(inner=True)
+                    style_class_attr = await self.show_dialog_as_float(dialog)
+            if style_class == "cancel":
+                pass
 
-                    style_dict = user_settings["style"]
-                    get_app().style = Style.from_dict(style_dict)
+            elif style_class_attr != "cancel":
+                color_input_dialog = ColorPicker(style_class, style_class_attr)
+                await self.show_dialog_as_float(color_input_dialog)
+
+                # just loads any style back if any change were saved it will keep them loaded
+                with open(USER_SETTINGS_DIR, "r") as user_file:
+                    user_settings = json.load(user_file)
+
+                style_dict = user_settings["style"]
+                get_app().style = Style.from_dict(style_dict)
+
             else:
                 # else canceled
                 pass

@@ -175,6 +175,9 @@ class ScrollMenuColorDialog(PopUpDialog):
             """Passes the chosen style class to the menu_bar and resets body to be ready for next selection"""
             self.future.set_result(style_element)
 
+        def go_back() -> None:
+            self.future.set_result("back")
+
         if not inner:
             # first menu selection
             self.body = Frame(
@@ -219,12 +222,15 @@ class ScrollMenuColorDialog(PopUpDialog):
                 )
             )
 
+        self.back_button = Button(text="Back", handler=go_back)
         self.cancel_button = Button(text="Cancel", handler=(lambda: set_cancel()))
 
         self.dialog = Dialog(
             title="Color Picker",
             body=self.body,
-            buttons=[self.cancel_button],
+            buttons=[self.cancel_button, self.back_button]
+            if inner
+            else [self.cancel_button],
             width=D(preferred=80),
             modal=True,
         )

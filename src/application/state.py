@@ -23,14 +23,14 @@ class ApplicationState:
         """Load user settings from disk. Use default settings for any missing settings."""
         default_style = {
             "status": "reverse",
-            "shadow": "bg:#00ffff",
-            "menu": "bg:#5555ff",
-            "text": "bg:#abcdef",
-            "menu-bar": "bg:#abcdef",
+            "shadow": "bg:#000000 #ffffff",
+            "menu": "bg:#22aa22",
+            "menu-bar": "bg:#00ff00",
             "button": "bg:#004444 #abcdef",
-            "dialog.body": "bg:#111111 #abcdef",
+            "dialog.body": "bg:#111111 #00aa44",
             "dialog": "#abcdef",
             "text-area": "",
+            "frame-label": "bg:#ffffff #000000",
         }
 
         default_path = os.path.join(NOTES_DIR, "welcome.md")

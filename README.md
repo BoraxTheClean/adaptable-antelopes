@@ -51,6 +51,10 @@ You can select to create a new note or continue working on a previous note!
 - `CTRL+E` Turn text like `:smile:` into :smile:
 - `ALT+O` Open link under cursor
 
+## Now with more color customization  
+- Under the View tab is now color settings
+- Set custom colors to all the features of your thought box
+- Preview you change before apply
 
 ## Brought to you in part by Team Adaptable Antelopes
 
