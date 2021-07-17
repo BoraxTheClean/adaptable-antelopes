@@ -16,7 +16,6 @@ from prompt_toolkit.search import start_search
 from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.widgets import MenuContainer, MenuItem
 
-from application import display_path
 from constants import DIALOG_WIDTH, NOTES_DIR
 from custom_types import (
     ConfirmDialog,
@@ -25,6 +24,7 @@ from custom_types import (
     ScrollMenuDialog,
     TextInputDialog,
 )
+from utils import display_path
 
 
 class MenuNav:
@@ -127,7 +127,7 @@ class MenuNav:
                 return
 
             open_dialog = TextInputDialog(
-                title="Save As", label_text="Enter the path of the file:"
+                title="Save As", label_text="Enter the name of the file:"
             )
             file_name = await self.show_dialog_as_float(open_dialog)
             if file_name is None:

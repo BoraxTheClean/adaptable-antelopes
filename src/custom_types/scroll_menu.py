@@ -10,9 +10,9 @@ from prompt_toolkit.layout.containers import HSplit, VSplit
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.widgets import Button, Dialog, Frame, Label
 
-from application import display_path
 from constants import DIALOG_WIDTH, NOTES_DIR, PADDING_CHAR, PADDING_WIDTH
 from custom_types.ui_types import PopUpDialog
+from utils import display_path
 
 
 class ScrollMenuDialog(PopUpDialog):
@@ -46,7 +46,7 @@ class ScrollMenuDialog(PopUpDialog):
         current_path = (
             self.path if self.path else directory  # In case self.path is None
         )
-        self.prepend_path(current_path, text)
+        self.text = self.prepend_path(current_path, text)
 
         self.body = VSplit(
             children=[
@@ -162,7 +162,7 @@ class ScrollMenuDialog(PopUpDialog):
                 filter(lambda x: type(x) == HSplit, self.body.children)
             )
             # Prepend the file_content to the body
-            self.prepend_path(self.path, file_content)
+            self.text = self.prepend_path(self.path, file_content)
             self.body.children.insert(
                 0, Window(content=FormattedTextControl(self.text))
             )
@@ -187,7 +187,7 @@ class ScrollMenuDialog(PopUpDialog):
 
             # Change the header (selected path)
             self.body.children.pop(0)
-            self.modify_header(self.path)
+            self.text = self.modify_header(self.path)
             self.body.children.insert(
                 0, Window(content=FormattedTextControl(self.text))
             )
@@ -196,14 +196,16 @@ class ScrollMenuDialog(PopUpDialog):
         else:
             raise ValueError("The target content is neither a file nor directory")
 
-    def prepend_path(self, path: str, text: str) -> None:
-        """Adds the path onto the header text and set it to self.text"""
-        self.text = f"Selected path: {display_path(path)}\n{'-' * DIALOG_WIDTH}\n{text}"
+    def prepend_path(self, path: str, text: str) -> str:
+        """Adds the path onto the header text"""
+        return f"Selected path: {display_path(path)}\n{'-' * DIALOG_WIDTH}\n{text}"
 
-    def modify_header(self, new_path: str) -> None:
+    def modify_header(self, new_path: str) -> str:
         """Modifies the header text with a new path"""
+        # Keep everything but the first two lines (the header) since we only want the text
         text = "\n".join(self.text.split("\n")[2:])
-        self.prepend_path(new_path, text)
+        # Add the header with the new path onto the old text
+        return self.prepend_path(new_path, text)
 
     def __pt_container__(self):
         return self.dialog

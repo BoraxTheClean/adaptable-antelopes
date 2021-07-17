@@ -7,9 +7,9 @@ from prompt_toolkit.layout.containers import HSplit
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.widgets import Button, Dialog, Label, TextArea
 
-from application import display_path
 from constants import DIALOG_WIDTH
 from custom_types.ui_types import PopUpDialog
+from utils import display_path
 
 
 class TextInputDialog(PopUpDialog):
