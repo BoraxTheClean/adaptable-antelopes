@@ -84,6 +84,9 @@ class MenuNav:
                         MenuItem("Status Bar", handler=self.do_status_bar),
                         MenuItem("Open Link", handler=self.do_open_link),
                         MenuItem("Color Settings", handler=self.do_color_scroll),
+                        MenuItem(
+                            "Reset to default styles", handler=self.do_reset_styles
+                        ),
                     ],
                 ),
                 MenuItem(
@@ -516,34 +519,10 @@ class MenuNav:
         """Delete"""
         self.text_field.buffer.cut_selection()
 
-    # >>>>>>>>>>>> COLOR PICKER STUFF >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    # Unused just a test
-    def do_pick_color(self) -> None:
-        """Enter hex and prev it"""
-
-        async def coroutine() -> None:
-            """
-            Prompt the user for hex value
-
-            If its a valid hex preview it and maybe apply
-            """
-            open_dialog = ColorPicker(style_class="menu_bar")
-
-            # waiting for ColorPicker to set_future
-            await self.show_dialog_as_float(open_dialog)
-
-            with open(USER_SETTINGS_DIR, "r") as user_file:
-                user_settings = json.load(user_file)
-
-            style_dict = user_settings["style"]
-            get_app().style = Style.from_dict(style_dict)
-
-        ensure_future(coroutine())
-
     def do_color_scroll(self) -> None:
         """Open Scroll Menu"""
 
-        async def coroutine() -> None:
+        async def coroutine(self: MenuNav) -> None:
             # first scroll dialog
             style_class_attr = "back"
             style_class = ""
@@ -576,9 +555,29 @@ class MenuNav:
                 # else canceled
                 pass
 
-        ensure_future(coroutine())
+        ensure_future(coroutine(self))
 
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    def do_reset_styles(self) -> None:
+        """Reset to default color settings"""
+
+        async def coroutine(self: MenuNav) -> None:
+            open_dialog = ConfirmDialog(
+                title="Reset Styles",
+                text="Are you sure you want to reset to default color settings?",
+            )
+            confirm = await self.show_dialog_as_float(open_dialog)
+            if not confirm:
+                return
+
+            self.application_state._load_settings(reset_style=True)
+            self.show_message(
+                title="Reset Styles", text="Successfully reset color settings."
+            )
+            get_app().style = Style.from_dict(
+                self.application_state.user_settings["style"]
+            )
+
+        ensure_future(coroutine(self))
 
     def do_find(self) -> None:
         """Find"""

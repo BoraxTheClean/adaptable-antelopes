@@ -2,7 +2,7 @@ import json
 import os
 from typing import Dict
 
-from constants import NOTES_DIR, USER_SETTINGS_DIR, WELCOME_PAGE
+from constants import DEFAULT_STYLE, NOTES_DIR, USER_SETTINGS_DIR, WELCOME_PAGE
 
 
 class ApplicationState:
@@ -19,40 +19,35 @@ class ApplicationState:
             # Open the welcome page
             self.current_path = NOTES_DIR + "/" + WELCOME_PAGE
 
-    def _load_settings(self) -> Dict[str, any]:
+    def _load_settings(self, reset_style: bool = False) -> Dict[str, str]:
         """Load user settings from disk. Use default settings for any missing settings."""
-        default_style = {
-            "status": "reverse",
-            "shadow": "bg:#000000 #ffffff",
-            "menu": "bg:#22aa22",
-            "menu-bar": "bg:#00ff00",
-            "button": "bg:#004444 #abcdef",
-            "dialog.body": "bg:#111111 #00aa44",
-            "dialog": "#abcdef",
-            "text-area": "",
-            "frame-label": "bg:#ffffff #000000",
-        }
-
         default_path = os.path.join(NOTES_DIR, "welcome.md")
         try:
-            with open(USER_SETTINGS_DIR, "r") as j:
+            with open(USER_SETTINGS_DIR, "r") as f:
                 # There is a failure case here, in that `.user_setting.json` could be an empty file.
                 # In which case this raises a JSONDecodeError exception.
                 # This should not be encountered in a normal user flow, but this is a risk.
-                user_settings = json.load(j)
+                user_settings = json.load(f)
         except FileNotFoundError:
             # If for some reason the file is not present, then use the default settings and write them to disk.
             user_settings = {
                 "last_path": default_path,
-                "style": default_style,
+                "style": DEFAULT_STYLE,
             }
-            with open(USER_SETTINGS_DIR, "w") as j:
-                json.dump(user_settings, j)
+            with open(USER_SETTINGS_DIR, "w") as f:
+                json.dump(user_settings, f)
             return user_settings
+        else:
+            if reset_style:
+                user_settings["style"] = DEFAULT_STYLE
+            with open(USER_SETTINGS_DIR, "w") as f:
+                json.dump(user_settings, f)
+
         if "last_path" not in user_settings:
             user_settings["last_path"] = default_path
         if "style" not in user_settings or type(user_settings["style"]) is not dict:
-            user_settings["style"] = default_style
+            user_settings["style"] = DEFAULT_STYLE
+
         return user_settings
 
     @property
