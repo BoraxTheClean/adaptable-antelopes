@@ -14,6 +14,7 @@ from prompt_toolkit.layout.containers import (
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.lexers import PygmentsLexer
+from prompt_toolkit.shortcuts import set_title
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import SearchToolbar, TextArea
 from pygments.lexers.markup import MarkdownLexer
@@ -21,6 +22,7 @@ from pygments.lexers.markup import MarkdownLexer
 from application.state import ApplicationState
 from constants import ASSETS_DIR, NOTES_DIR, WELCOME_PAGE
 from navigation.menu_bar import MenuNav
+from utils import display_path
 
 
 class ThoughtBox(MenuNav):
@@ -30,8 +32,11 @@ class ThoughtBox(MenuNav):
         # Create internal application directory.
         os.makedirs(NOTES_DIR, exist_ok=True)
         # If welcome page isn't present, create it.
-        if not os.path.isfile(NOTES_DIR + "/" + WELCOME_PAGE):
-            copyfile(ASSETS_DIR + WELCOME_PAGE, NOTES_DIR + "/" + WELCOME_PAGE)
+        if not os.path.isfile(os.path.join(NOTES_DIR, WELCOME_PAGE)):
+            copyfile(
+                os.path.join(ASSETS_DIR, WELCOME_PAGE),
+                os.path.join(NOTES_DIR, WELCOME_PAGE),
+            )
 
         self.application_state = ApplicationState()
 
@@ -43,13 +48,13 @@ class ThoughtBox(MenuNav):
             search_field=self.search_toolbar,
         )
         # If the application state has a path saved, we open the file to that path on boot up.
-        # If saved path is invalid, don't open a file.
+        # If saved path is invalid, open a new file.
         if self.application_state.current_path:
             try:
-                with open(self.application_state.current_path, "r") as file:
-                    self.text_field.text = file.read()
+                with open(self.application_state.current_path, "r") as f:
+                    self.text_field.text = f.read()
             except IOError:
-                pass
+                self.application_state.current_path = None
 
         # style of menu can def play around here
         self.style = Style.from_dict(self.application_state.user_settings["style"])
@@ -95,6 +100,7 @@ class ThoughtBox(MenuNav):
             style=self.style,
             mouse_support=True,
             full_screen=True,
+            after_render=self.set_title_bar,
         )
 
     def get_statusbar_middle_text(self) -> None:
@@ -107,6 +113,13 @@ class ThoughtBox(MenuNav):
             self.text_field.document.cursor_position_row + 1,
             self.text_field.document.cursor_position_col + 1,
         )
+
+    def set_title_bar(self, app: Application) -> None:
+        """Set the title bar to the current file as soon as the app starts"""
+        if path := self.application_state.current_path:
+            set_title(f"ThoughtBox - {display_path(path)}")
+        else:
+            set_title("ThoughtBox - Untitled")
 
     def run(self) -> None:
         """Run the application"""
