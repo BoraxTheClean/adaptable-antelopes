@@ -116,15 +116,22 @@ class MenuNav:
 
             If the path entered is a valid file name, save the current note at that path.
             """
-            dialog = ScrollMenuDialog(
-                title="Save As",
-                text="Choose the location of the file.",
-                directory=self.application_state.current_dir,
-                show_files=False,
+            has_folders = any(
+                os.path.isdir(os.path.join(NOTES_DIR, f)) for f in os.listdir(NOTES_DIR)
             )
-            directory = await self.show_dialog_as_float(dialog)
-            if not directory:
-                return
+            if has_folders:
+                dialog = ScrollMenuDialog(
+                    title="Save As",
+                    text="Choose the location of the file.",
+                    directory=self.application_state.current_dir,
+                    show_files=False,
+                )
+                directory = await self.show_dialog_as_float(dialog)
+                if not directory:
+                    return
+            else:
+                # Skip the scroll menu if there are no folders yet (to not confuse users)
+                directory = NOTES_DIR
 
             open_dialog = TextInputDialog(
                 title="Save As", label_text="Enter the name of the file:"
