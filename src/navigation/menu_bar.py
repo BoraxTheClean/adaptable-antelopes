@@ -201,11 +201,11 @@ class MenuNav:
     def do_about(self) -> None:
         """About from menu select"""
         self.show_message(
-                "About",
-                "ThoughtBox\n" +
-                "Created by Adaptable Antelopes.\n" +
-                "--------------------\n\n" +
-                "Welcome to thinking inside the box\n"
+            "About",
+            "ThoughtBox\n"
+            + "Created by Adaptable Antelopes.\n"
+            + "--------------------\n\n"
+            + "Welcome to thinking inside the box\n",
         )
 
     def do_new_file(self) -> None:
