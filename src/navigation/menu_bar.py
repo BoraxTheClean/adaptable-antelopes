@@ -501,7 +501,7 @@ class MenuNav:
                     # If not yet saved, generate generic name to save to
                     if not current_path_valid:
                         self.application_state.current_path = os.path.join(
-                            NOTES_DIR, get_unique_filename(NOTES_DIR) + ".txt"
+                            NOTES_DIR, get_unique_filename(NOTES_DIR)
                         )
                     self.do_save_file()
                 # Exit
