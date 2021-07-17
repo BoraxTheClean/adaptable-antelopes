@@ -107,7 +107,7 @@ class ColorPicker(PopUpDialog):
                 self.user_settings["style"][style_class] = f"bg:#{self.text_area.text}"
 
                 with open(USER_SETTINGS_DIR, "w") as user_file:
-                    user_file.write(json.dumps(self.user_settings))
+                    json.dump(self.user_settings, user_file)
 
                 self.future.set_result(None)
             else:
