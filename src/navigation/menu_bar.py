@@ -604,7 +604,7 @@ class MenuNav:
         self.text_field.buffer.cursor_position = len(self.text_field.buffer.text)
 
     def do_status_bar(self) -> None:
-        """Opens or closes status bar"""
+        """Toggles status bar"""
         self.application_state.show_status_bar = (
             not self.application_state.show_status_bar
         )
@@ -681,7 +681,7 @@ class MenuNav:
     async def show_dialog_as_float(
         self, dialog: PopUpDialog
     ) -> Optional[Union[str, bool]]:
-        """Focuses a dialog. Returns the dialog's future. Then refocuses the original window."""
+        """Focuses a dialog. Returns the dialog's future. Then refocuses the original window"""
         float_ = Float(content=dialog)
         # Put given dialog on top of everything
         self.root_container.floats.insert(0, float_)
@@ -715,7 +715,7 @@ class MenuNav:
 
         @bindings.add("escape")
         def close_menu(event: KeyPressEvent) -> None:
-            """Focus text field."""
+            """Focus text field"""
             event.app.layout.focus(self.text_field)
 
         @bindings.add("c-n")
@@ -735,7 +735,7 @@ class MenuNav:
 
         @bindings.add("c-q")
         def exit_editor(event: KeyPressEvent) -> None:
-            """Exit terminal with Ctrl-Q"""
+            """Exit application with Ctrl-Q"""
             self.do_exit()
 
         @bindings.add("c-a")
