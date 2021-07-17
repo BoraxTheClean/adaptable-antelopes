@@ -34,7 +34,6 @@ from custom_types.ui_types import PopUpDialog
 #     def dict_to_style(self):
 
 
-
 class ColorPicker(PopUpDialog):
     """Text Input for the open dialog box"""
 
@@ -58,33 +57,31 @@ class ColorPicker(PopUpDialog):
 
         def string_to_dict(s: str) -> dict:
             out = {}
-            items = s.split(' ')
+            items = s.split(" ")
             for elm in items:
-                key, pair = elm.split('#')
-                out[key.replace(':','')] = '#' + pair
+                key, pair = elm.split("#")
+                out[key.replace(":", "")] = "#" + pair
             return out
 
         def dict_to_string(d: dict) -> str:
-            out = ''
+            out = ""
             for key, pair in d.items():
-                if key == '':
+                if key == "":
                     out += key + pair
                 else:
-                    out += key + ':' + pair
-                out += ' '
+                    out += key + ":" + pair
+                out += " "
             return out[:-1]
-
-
 
         def prev() -> None:
             if is_hex(self.text_area.text):
-                if style_class == 'text':
+                if style_class == "text":
                     # TODO parse the list of strings in each style dict entry
                     for keys in self.user_settings["style"].keys():
-                        if keys != 'shadow' and keys != 'status' and keys != 'menu-bar':
+                        if keys != "shadow" and keys != "status" and keys != "menu-bar":
                             style_menu = self.user_settings["style"][keys]
                             style_menu_dict = string_to_dict(style_menu)
-                            style_menu_dict[''] = f"#{self.text_area.text}"
+                            style_menu_dict[""] = f"#{self.text_area.text}"
                             style_menu = dict_to_string(style_menu_dict)
                             self.user_settings["style"][keys] = style_menu
                     # style_menu[0] + f"#{self.text_area.text}
@@ -96,7 +93,9 @@ class ColorPicker(PopUpDialog):
                     self.sample_window.style = f"#{self.text_area.text}"
                     self.promp_label.text = "Enter a hex:"
                 else:
-                    self.user_settings["style"][style_class] = f"bg:#{self.text_area.text}"
+                    self.user_settings["style"][
+                        style_class
+                    ] = f"bg:#{self.text_area.text}"
                     get_app().style = Style.from_dict(self.user_settings["style"])
                     self.sample_window.style = f"bg:#{self.text_area.text}"
                     self.promp_label.text = "Enter a hex:"
@@ -172,20 +171,19 @@ class ScrollMenuColorDialog(PopUpDialog):
         self.future = Future()
 
         # ["frame-label", 'text', "menu", "menu-bar", "dialog.body", 'shadow']
-        style_list = ["shadow", "menu", "text", "menu-bar", "button", "dialog.body", "dialog"]
-        # self.body = VSplit(
-        #     padding_char=PADDING_CHAR,
-        #     children=[
-        #         Label(text="Style Elements", dont_extend_height=False),
-        #         Frame(body=ScrollablePane(HSplit(children=self._get_contents(style_list))))
-        #     ],
-        #     padding=PADDING_WIDTH,
-        # )
+        style_list = [
+            "shadow",
+            "menu",
+            "text",
+            "menu-bar",
+            "button",
+            "dialog.body",
+            "dialog",
+        ]
 
         def set_cancel() -> bool:
             """Cancel"""
             self.future.set_result(False)
-
 
         def set_style_class(style_element: str) -> None:
             """Passes the chosen style class to the menu_bar"""

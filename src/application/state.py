@@ -23,7 +23,6 @@ class ApplicationState:
         """Load user settings from disk. Use default settings for any missing settings."""
         default_style = {
             # 'text-area': "bg:#00a444",
-            # "top": "bg:#00bb00",
             # "frame-label": "bg:#ffbbff #00bb00",
             "status": "reverse",
             "shadow": "bg:#000000 #00ff00",

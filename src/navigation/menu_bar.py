@@ -87,7 +87,7 @@ class MenuNav:
                     "Info",
                     children=[
                         MenuItem("About", handler=self.do_about),
-                        MenuItem("Menu-bar color change", handler=self.do_pick_color),
+                        # MenuItem("Menu-bar color change", handler=self.do_pick_color),
                         MenuItem("Color Picker", handler=self.do_color_scroll),
                     ],
                 ),
@@ -400,7 +400,7 @@ class MenuNav:
         """Delete"""
         self.text_field.buffer.cut_selection()
 
-    ##############COLOR PICKER STUFF##########################################
+    # >>>>>>>>>>>> COLOR PICKER STUFF >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     def do_pick_color(self) -> None:
         """Enter hex and prev it"""
 
@@ -447,7 +447,7 @@ class MenuNav:
 
         ensure_future(coroutine())
 
-    #####################################################
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
     def do_find(self) -> None:
         """Find"""
