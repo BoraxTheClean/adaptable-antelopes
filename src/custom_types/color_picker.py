@@ -5,33 +5,14 @@ from asyncio import Future
 
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.buffer import Buffer
-from prompt_toolkit.layout import FormattedTextControl, ScrollablePane
-from prompt_toolkit.layout.containers import HSplit, Window
+from prompt_toolkit.layout import ScrollablePane
+from prompt_toolkit.layout.containers import HSplit
 from prompt_toolkit.layout.dimension import D
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import Button, Dialog, Frame, Label, TextArea
 
 from constants import USER_SETTINGS_DIR
 from custom_types.ui_types import PopUpDialog
-
-# class UserSettings():
-#     def __init__(self, dict):
-#         self.last_path = None
-#         self.style_dict = set_style_dict()
-#
-#
-#     def set_style_dict(self):
-#
-#
-#     def style_to_dict(self):
-#         for key in self.style_dict.keys():
-#             style_attr = self.style_dict[key].split(' ')
-#             if len(style_attr) == 1:
-#                 pass
-#             else:
-#                 style_dict[key] = style_attr[]
-#
-#     def dict_to_style(self):
 
 
 class ColorPicker(PopUpDialog):
@@ -56,6 +37,10 @@ class ColorPicker(PopUpDialog):
                 return False
 
         def string_to_dict(s: str) -> dict:
+            """Turns a single style classes string into a dict
+
+            Ex 'bg:#123456 fg:#654321 #abcdef' -> {'bg':123456, 'fg':'654321', '':'abcdef'}
+            """
             out = {}
             if len(s) == 0:
                 return out
@@ -66,6 +51,7 @@ class ColorPicker(PopUpDialog):
             return out
 
         def dict_to_string(d: dict) -> str:
+            """Turns the style dict back to a single string"""
             out = ""
             for key, pair in d.items():
                 if key == "":
@@ -75,51 +61,38 @@ class ColorPicker(PopUpDialog):
                 out += " "
             return out[:-1]
 
-        def get_hex_style(style_class,style_class_attr) -> str:
-            style_menu = self.user_settings["style"][style_class]
-            style_menu_dict = string_to_dict(style_menu)
-            try:
-                out = style_menu_dict[style_class_attr].replace('#','')
-            except:
-                out = ''
+        def get_hex_style(style_c: str, style_c_attr: str) -> str:
+            """Gets previously set hex value for user reference"""
+            style_ = self.user_settings["style"][style_c]
+            style_dict = string_to_dict(style_)
+            if style_c_attr in style_dict.keys():
+                # if key is real
+                out = style_dict[style_c_attr].replace("#", "")
+            else:
+                out = ""
             return out
 
-
         def prev() -> None:
+            """Preview the given change of style
+
+            by setting it to applications style but not to the user_settings file
+            """
             if is_hex(self.text_area.text):
-                if style_class == "text":
-                    # TODO parse the list of strings in each style dict entry
-                    for keys in self.user_settings["style"].keys():
-                        if keys != "shadow" and keys != "status" and keys != "menu-bar":
-                            style_menu = self.user_settings["style"][keys]
-                            style_menu_dict = string_to_dict(style_menu)
-                            style_menu_dict[""] = f"#{self.text_area.text}"
-                            style_menu = dict_to_string(style_menu_dict)
-                            self.user_settings["style"][keys] = style_menu
-                    # style_menu[0] + f"#{self.text_area.text}
-                    # "menu": "bg:#004400 #ffffff",
-                    # self.user_settings["style"]['menu'] = f"#{self.text_area.text}" # im over-riding menu
-                    # self.user_settings["style"]['dialog'] = f"#{self.text_area.text}"
+                self.promp_label.text = "Enter a hex:"
+                # just reset if it was set to Invalid
 
-                    # get_app().style = Style.from_dict(self.user_settings["style"])
-                    # #self.sample_window.style = f"#{self.text_area.text}"
-                    # self.promp_label.text = "Enter a hex:"
-
+                style_menu = self.user_settings["style"][style_class]
+                style_menu_dict = string_to_dict(style_menu)
+                if style_class_attr != "":
+                    # if class attribute is '' save as just #123456
+                    style_menu_dict[""] = f"{style_class_attr}:#{self.text_area.text}"
                 else:
-                    # self.user_settings["style"][style_class] = f"bg:#{self.text_area.text}"
-
-                    style_menu = self.user_settings["style"][style_class]
-                    style_menu_dict = string_to_dict(style_menu)
-                    if style_class_attr != "":
-                        style_menu_dict[""] = f"{style_class_attr}:#{self.text_area.text}"
-                    else:
-                        style_menu_dict[""] = f"#{self.text_area.text}"
-                    style_menu = dict_to_string(style_menu_dict)
-                    self.user_settings["style"][style_class] = style_menu
+                    style_menu_dict[""] = f"#{self.text_area.text}"
+                style_menu = dict_to_string(style_menu_dict)
+                self.user_settings["style"][style_class] = style_menu
 
                 get_app().style = Style.from_dict(self.user_settings["style"])
-                # self.sample_window.style = f"bg:#{self.text_area.text}"
-                self.promp_label.text = "Enter a hex:"
+
             else:
                 self.promp_label.text = "Invalid Hex!"
 
@@ -129,7 +102,7 @@ class ColorPicker(PopUpDialog):
             return True
 
         def accept() -> None:
-            """Accept"""
+            """Accept the change save the style to the user_settings file"""
             if is_hex(self.text_area.text):
                 # save to user settings
                 self.user_settings["style"][style_class] = f"bg:#{self.text_area.text}"
@@ -154,7 +127,6 @@ class ColorPicker(PopUpDialog):
         )
 
         self.promp_label = Label(text="Enter a hex:")
-        self.sample_window = Window(content=FormattedTextControl("Hello"))
 
         preview_button = Button(text="Preview", handler=prev)
         ok_button = Button(text="Apply", handler=accept)
@@ -162,7 +134,7 @@ class ColorPicker(PopUpDialog):
 
         self.dialog = Dialog(
             title="Pick A Color",
-            body=HSplit([self.promp_label, self.text_area, self.sample_window]),
+            body=HSplit([self.promp_label, self.text_area]),
             buttons=[preview_button, ok_button, cancel_button],
             width=D(preferred=80),
             modal=True,
@@ -183,7 +155,6 @@ class ScrollMenuColorDialog(PopUpDialog):
         """
         self.future = Future()
 
-        # ["frame-label", 'text', "menu", "menu-bar", "dialog.body", 'shadow']
         style_list = [
             "shadow",
             "menu",
@@ -194,10 +165,11 @@ class ScrollMenuColorDialog(PopUpDialog):
         ]
 
         def set_cancel() -> str:
-            """Cancel"""
+            """Cancel return cancel so menu_bar knows to stop"""
             self.future.set_result("cancel")
 
         def set_class_attr(style_attr: str) -> None:
+            """Selection of style class attribute"""
             self.future.set_result(style_attr)
 
         def set_style_class(style_element: str) -> None:
@@ -205,6 +177,7 @@ class ScrollMenuColorDialog(PopUpDialog):
             self.future.set_result(style_element)
 
         if not inner:
+            # first menu selection
             self.body = Frame(
                 ScrollablePane(
                     HSplit(
@@ -225,6 +198,7 @@ class ScrollMenuColorDialog(PopUpDialog):
             )
 
         else:
+            # second menu selection
             opt = ["bg", "fg", ""]
             opt_dic = {"bg": "background", "fg": "foreground", "": "text"}
             self.body = Frame(
@@ -246,8 +220,6 @@ class ScrollMenuColorDialog(PopUpDialog):
                 )
             )
 
-        # Add chosen file to editor
-        # self.ok_button = Button(text="OK", handler=(lambda: set_done()))
         self.cancel_button = Button(text="Cancel", handler=(lambda: set_cancel()))
 
         self.dialog = Dialog(

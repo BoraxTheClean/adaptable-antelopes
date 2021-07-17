@@ -511,6 +511,7 @@ class MenuNav:
         self.text_field.buffer.cut_selection()
 
     # >>>>>>>>>>>> COLOR PICKER STUFF >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    # Unused just a test
     def do_pick_color(self) -> None:
         """Enter hex and prev it"""
 
@@ -525,9 +526,6 @@ class MenuNav:
             # waiting for ColorPicker to set_future
             await self.show_dialog_as_float(open_dialog)
 
-            # self.application_state.current_path = path
-            # open_dialog.sample_frame.style = f'bg:{user_entered_hex}'
-            # open_dialog.style = f'{user_entered_hex}'
             with open(USER_SETTINGS_DIR, "r") as user_file:
                 user_settings = json.loads(user_file.read())
 
@@ -540,15 +538,17 @@ class MenuNav:
         """Open Scroll Menu"""
 
         async def coroutine() -> None:
-
+            # first scroll dialog
             dialog = ScrollMenuColorDialog()
             style_class = await self.show_dialog_as_float(dialog)
             if style_class != "cancel":
+                # second dialog
                 dialog = ScrollMenuColorDialog(inner=True)
                 style_class_attr = await self.show_dialog_as_float(dialog)
                 if style_class_attr != "cancel":
                     color_input_dialog = ColorPicker(style_class, style_class_attr)
                     await self.show_dialog_as_float(color_input_dialog)
+                    # just loads any style back if any change were saved it will keep them loaded
                     with open(USER_SETTINGS_DIR, "r") as user_file:
                         user_settings = json.loads(user_file.read())
 
