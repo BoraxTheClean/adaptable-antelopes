@@ -36,6 +36,7 @@ No more worrying about centering or choosing the "right" font - just write what 
 - On startup, resume editing the file you last saved.
 - Open external URLS straight from the app.
 - Control the program using either a point-and-click interface or keyboard shortcuts.
+- Invent your own color schemes and apply them persistently to the interface.
 
 ## Keyboard Shortcuts
 - `CTRL+K` Open top toolbar
@@ -49,12 +50,11 @@ No more worrying about centering or choosing the "right" font - just write what 
 - `CTRL+E` Emojify - i.e., turn text like `:smile:` into :smile:
 - `ALT+O` Open link under cursor
 
-Built with Python [Prompt Toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit), Thought Box contains both a point-and-click interface and comprehensive keyboard shortcuts for mouse-free navigation.
-
-## Brought to you in part by Team Adaptable Antelopes
+## Brought to you by Team Adaptable Antelopes
 
 <a href="https://github.com/BoraxTheClean/adaptable-antelopes/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=BoraxTheClean/adaptable-antelopes" />
 </a>
 
 Made with [contributors-img](https://contrib.rocks).
+Built with Python [Prompt Toolkit](https://github.com/prompt-toolkit/python-prompt-toolkit), Thought Box contains both a point-and-click interface and comprehensive keyboard shortcuts for mouse-free navigation.

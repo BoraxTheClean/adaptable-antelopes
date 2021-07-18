@@ -56,20 +56,14 @@ class ThoughtBox(MenuNav):
             except IOError:
                 self.application_state.current_path = None
 
-        self.style = Style.from_dict(
-            {
-                "frame-label": "bg:#ffffff #000000",
-                "status": "reverse",
-                "shadow": "bg:#000000 #ffffff",
-                "menu": "bg:#004444",
-                "menu-bar": "bg:#00ff00",
-                "dialog.body": "bg:#111111 #00aa44",
-            }
-        )
+        # style of menu can def play around here
+        self.style = Style.from_dict(self.application_state.user_settings["style"])
+
         # Define the UI elements to appear on the screen.
         # 1. The text field where users write and read notes.
         # 2. Menu tool bar
         # 3. An optional status bar at the bottom of the page.
+
         self.body = HSplit(
             [
                 self.text_field,
