@@ -22,11 +22,11 @@ python3 src/application_entry.py
 ```
 ## Usage
 
-This application turns your terminal into your very own **Thought Box**. There, the only limits on the notes you can take are your imagination and the ASCII character set.
+This application turns your terminal into your very own **Thought Box**. The only limits on your notes are your imagination and the ASCII character set.
 
 By pressing `CTRL+K`, you can open a menu packed with minimalist functionality.
 From there, you can choose to create a new note or continue working on a previous note.
-The clean, functional design frees you from the clutter of other text editors
+The clean, functional design frees you from the clutter of other text editors.
 No more worrying about centering or choosing the "right" font - just write what comes to you.
 
 ## Features
